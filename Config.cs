@@ -39,8 +39,6 @@ namespace Subclass
                     { "HasFriendlyFire", false },
                     { "DisregardTakesFF", false },
                     { "TakesFriendlyFire", false },
-                    { "DisregardTakesFFAfterFF", false },
-                    { "TakesFriendlyFireAfterFriendlyFire", false }
                 } 
             }
         };
