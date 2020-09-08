@@ -39,10 +39,10 @@ namespace Subclass.Handlers
                                 {
                                     player.AddItem(item);
                                 }
-                                player.MaxHealth = subClass.IntOptions["MaxHealth"];
-                                player.Health = subClass.IntOptions["HealthOnSpawn"];
-                                player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
-                                player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+                                if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
+                                if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
+                                if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
+                                if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
                                 if (!subClass.BoolOptions["DisregardHasFF"])
                                 {
                                     player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
