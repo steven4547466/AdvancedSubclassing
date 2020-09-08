@@ -34,10 +34,12 @@ namespace Subclass.Handlers
                                 Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                                 Tracking.PlayersWithSubclasses.Add(player, subClass);
                                 player.Broadcast(5, subClass.StringOptions["GotClassMessage"]);
-                                player.ClearInventory();
-                                foreach (ItemType item in subClass.SpawnItems)
-                                {
-                                    player.AddItem(item);
+                                if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && subClass.SpawnItems[0] != ItemType.None)) {
+                                    player.ClearInventory();
+                                    foreach (ItemType item in subClass.SpawnItems)
+                                    {
+                                        player.AddItem(item);
+                                    }
                                 }
                                 if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
                                 if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
