@@ -64,18 +64,24 @@ namespace Subclass
         {
             player = new Handlers.Player();
             Player.InteractingDoor += player.OnInteractingDoor;
+            Player.Died += player.OnDied;
+            Player.Shooting += player.OnShooting;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
+            Server.RoundEnded += server.OnRoundEnded;
         }
 
         public void UnregisterEvents()
         {
             Log.Info("Events unregistered");
             Player.InteractingDoor -= player.OnInteractingDoor;
+            Player.Died -= player.OnDied;
+            Player.Shooting -= player.OnShooting;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
+            Server.RoundEnded -= server.OnRoundEnded;
             server = null;
         }
 
