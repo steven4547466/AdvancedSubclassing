@@ -177,6 +177,32 @@ namespace Subclass.Handlers
                     }
                     break;
 
+
+                case "locate":
+                    if(ev.Player.Role != RoleType.Scp93953 && ev.Player.Role != RoleType.Scp93989)
+                    {
+                        ev.ReturnMessage = "You must be SCP-939 to use this command";
+                        return;
+                    }
+
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Echolocate))
+                    {
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
+                        {
+                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.Echolocate, subClass, Time.time);
+                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "echolocation").Replace("{seconds}", timeLeft.ToString()));
+                            return;
+                        }
+                        
+                        Collider[] colliders = Physics.OverlapSphere(ev.Player.Position, subClass.FloatOptions.ContainsKey("EcholocateRadius") ? subClass.FloatOptions["EcholocateRadius"] : 10f);
+                        
+                        foreach(Collider PlayerCollider in colliders.Where(c => EPlayer.Get(c.gameObject) != null))
+                        {
+                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync.CallCmdScp939Noise(5f);
+                        }
+                    }
+                    break;
                 default:
                     ev.IsAllowed = true;
                     break;

@@ -178,6 +178,7 @@ namespace Subclass
         InfiniteSprint,
         Disable096Trigger,
         Disable173Stop,
-        Revive
+        Revive,
+        Echolocate
     }
 }
