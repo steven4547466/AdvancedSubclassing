@@ -129,6 +129,13 @@ namespace Subclass.Handlers
                     Log.Debug($"Player {ev.Player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
                     {
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.Revive, subClass))
+                        {
+                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.Revive, subClass, Time.time);
+                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "revive").Replace("{seconds}", timeLeft.ToString()));
+                            return;
+                        }
                         RaycastHit hit;
                         if (Physics.Raycast(ev.Player.CameraTransform.position, ev.Player.CameraTransform.forward, out hit, 3f))
                         {
@@ -143,21 +150,25 @@ namespace Subclass.Handlers
                                     owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
                                     owner.Position = doll.LastRagdollPos[doll.LastRagdollPos.Count - 1].position;
                                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
+                                    Tracking.AddCooldown(ev.Player, AbilityType.Revive);
                                     Log.Debug($"Player {ev.Player.Nickname} revive succeeded", Subclass.Instance.Config.Debug);
                                 }
                                 else
                                 {
                                     Log.Debug($"Player {ev.Player.Nickname} revive failed", Subclass.Instance.Config.Debug);
                                     ev.ReturnMessage = "This player is not revivable.";
+                                    ev.Player.Broadcast(2, "This player is not revivable.");
                                 }
                             }
                             else {
                                 ev.ReturnMessage = "You must be looking at a dead body to use this command";
+                                ev.Player.Broadcast(2, "You must be looking at a dead body.");
                                 Log.Debug($"Player {ev.Player.Nickname} revive raycast did not hit a ragdoll, hit {hit.collider.gameObject.name}", Subclass.Instance.Config.Debug);
                             }
                         }
                         else {
                             ev.ReturnMessage = "You must be looking at a dead body to use this command";
+                            ev.Player.Broadcast(2, "You must be looking at a dead body.");
                             Log.Debug($"Player {ev.Player.Nickname} revive raycast did not hit anything", Subclass.Instance.Config.Debug);
                         }
                     }else
