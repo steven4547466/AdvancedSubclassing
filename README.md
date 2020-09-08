@@ -10,3 +10,5 @@ If you like this plugin, check out some of my other ones!
 - [KeepTheChange](https://github.com/steven4547466/KeepTheChange)
 
 # This plugin is a little complicated, so it has a [wiki](https://github.com/steven4547466/AdvancedSubclassing/wiki)!
+
+Here's a small example of what's possible: https://www.youtube.com/watch?v=tMJ22G308p4
