@@ -125,5 +125,29 @@ namespace Subclass.Handlers
                 }
             }
         }
+
+        public void OnTriggeringTesla(TriggeringTeslaEventArgs ev)
+        {
+            if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassTeslaGates)) return;
+            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+            if (Tracking.PlayerJustBypassedTeslaGate(ev.Player)) // The triggering tesla happens a lot, this allows the bypass to last 3 seconds.
+            {
+                ev.IsTriggerable = false;
+                return;
+            }
+            if (Tracking.OnCooldown(ev.Player, AbilityType.BypassTeslaGates, subClass))
+            {
+                float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.BypassTeslaGates, subClass, Time.time);
+                ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "bypass tesla gates").Replace("{seconds}", timeLeft.ToString()));
+            }
+            else
+            {
+                Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to bypass tesla gate", Subclass.Instance.Config.Debug);
+                Tracking.AddCooldown(ev.Player, AbilityType.BypassTeslaGates);
+                if (!Tracking.PlayersThatBypassedTeslaGates.ContainsKey(ev.Player)) Tracking.PlayersThatBypassedTeslaGates.Add(ev.Player, 0);
+                Tracking.PlayersThatBypassedTeslaGates[ev.Player] = Time.time;
+                ev.IsTriggerable = false;
+            }
+        }
     }
 }

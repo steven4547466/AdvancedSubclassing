@@ -98,6 +98,7 @@ namespace Subclass.Handlers
             Tracking.PlayersWithSubclasses.Clear();
             Tracking.Cooldowns.Clear();
             Tracking.FriendlyFired.Clear();
+            Tracking.PlayersThatBypassedTeslaGates.Clear();
         }
     }
 }

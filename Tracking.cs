@@ -14,6 +14,8 @@ namespace Subclass
 
         public static Dictionary<Player, Dictionary<AbilityType, float>> Cooldowns = new Dictionary<Player, Dictionary<AbilityType, float>>();
 
+        public static Dictionary<Player, float> PlayersThatBypassedTeslaGates = new Dictionary<Player, float>();
+
         public static List<Player> FriendlyFired = new List<Player>();
 
 
@@ -46,6 +48,11 @@ namespace Subclass
                 return subClass.AbilityCooldowns[ability] - (time - Cooldowns[p][ability]);
             }
             return 0;
+        }
+
+        public static bool PlayerJustBypassedTeslaGate(Player p)
+        {
+            return PlayersThatBypassedTeslaGates.ContainsKey(p) && Time.time - PlayersThatBypassedTeslaGates[p] < 3f;
         }
     }
 }
