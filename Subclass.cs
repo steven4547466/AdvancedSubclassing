@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine;
 using Player = Exiled.Events.Handlers.Player;
 using Server = Exiled.Events.Handlers.Server;
+using Map = Exiled.Events.Handlers.Map;
 
 namespace Subclass
 {
@@ -26,8 +27,9 @@ namespace Subclass
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 3);
         public override string Prefix { get; } = "Subclass";
 
-        public Handlers.Player player = new Handlers.Player();
-        public Handlers.Server server = new Handlers.Server();
+        public Handlers.Player player { get; set; }
+        public Handlers.Server server { get; set; }
+        public Handlers.Map map { get; set; }
 
         public Dictionary<string, SubClass> Classes { get; set; }
 
@@ -70,6 +72,9 @@ namespace Subclass
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
             Server.RoundEnded += server.OnRoundEnded;
+
+            map = new Handlers.Map();
+            Map.ExplodingGrenade += map.OnExplodingGrenade;
         }
 
         public void UnregisterEvents()
@@ -83,6 +88,9 @@ namespace Subclass
             Server.RoundStarted -= server.OnRoundStarted;
             Server.RoundEnded -= server.OnRoundEnded;
             server = null;
+
+            Map.ExplodingGrenade -= map.OnExplodingGrenade;
+            map = null;
         }
 
         public Dictionary<string, SubClass> GetClasses()
@@ -150,6 +158,9 @@ namespace Subclass
     {
         PryGates,
         GodMode,
-        InvisibleUntilInteract
+        InvisibleUntilInteract,
+        BypassKeycardReaders,
+        HealGrenadeFrag,
+        HealGrenadeFlash
     }
 }

@@ -53,7 +53,7 @@ namespace Subclass.Handlers
                                 int index = rnd.Next(subClass.SpawnLocations.Count);
                                 if (subClass.SpawnLocations[index] != RoomType.Unknown)
                                 {
-                                    List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                                    List<Room> spawnLocations = Exiled.API.Features.Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
                                     if (spawnLocations.Count != 0)
                                     {
                                         player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + new UnityEngine.Vector3(0, 1f, 0);
