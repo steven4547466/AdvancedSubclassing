@@ -1,0 +1,9 @@
+bin/
+
+Properties/
+
+obj/
+
+*.csproj
+
+*.zip
