@@ -9,4 +9,4 @@ If you like this plugin, check out some of my other ones!
 - [BleedEffect](https://github.com/steven4547466/BleedEffect)
 - [KeepTheChange](https://github.com/steven4547466/KeepTheChange)
 
-This plugin is a little complicated, so it has a [wiki](https://github.com/steven4547466/AdvancedSubclassing/wiki)!
+# This plugin is a little complicated, so it has a [wiki](https://github.com/steven4547466/AdvancedSubclassing/wiki)!
