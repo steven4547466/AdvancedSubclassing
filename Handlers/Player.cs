@@ -1,4 +1,5 @@
-﻿using Exiled.API.Features;
+﻿using Exiled.API.Extensions;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
 using System;
@@ -12,6 +13,17 @@ namespace Subclass.Handlers
 {
     public class Player
     {
+
+        public void OnSpawning(SpawningEventArgs ev)
+        {
+            Tracking.RemoveAndAddRoles(ev.Player);
+        }
+
+        public void OnChangingRole(ChangingRoleEventArgs ev)
+        {
+            Tracking.RemoveAndAddRoles(ev.Player);
+        }
+
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
         {
             if (ev.Door.doorType == Door.DoorTypes.HeavyGate) {
@@ -93,9 +105,7 @@ namespace Subclass.Handlers
 
         public void OnDied(DiedEventArgs ev)
         {
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target)) Tracking.PlayersWithSubclasses.Remove(ev.Target);
-            if (Tracking.Cooldowns.ContainsKey(ev.Target)) Tracking.Cooldowns.Remove(ev.Target);
-            if (Tracking.FriendlyFired.Contains(ev.Target)) Tracking.FriendlyFired.RemoveAll(e => e == ev.Target);
+            Tracking.RemoveAndAddRoles(ev.Target, true);
         }
 
         public void OnShooting(ShootingEventArgs ev)
@@ -147,6 +157,7 @@ namespace Subclass.Handlers
                 if (!Tracking.PlayersThatBypassedTeslaGates.ContainsKey(ev.Player)) Tracking.PlayersThatBypassedTeslaGates.Add(ev.Player, 0);
                 Tracking.PlayersThatBypassedTeslaGates[ev.Player] = Time.time;
                 ev.IsTriggerable = false;
+                ev.Player.IsUsingStamina = false;
             }
         }
     }

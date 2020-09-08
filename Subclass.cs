@@ -71,6 +71,8 @@ namespace Subclass
             Player.InteractingLocker += player.OnInteractingLocker;
             Player.UnlockingGenerator += player.OnUnlockingGenerator;
             Player.TriggeringTesla += player.OnTriggeringTesla;
+            Player.ChangingRole += player.OnChangingRole;
+            Player.Spawning += player.OnSpawning;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -89,6 +91,8 @@ namespace Subclass
             Player.InteractingLocker -= player.OnInteractingLocker;
             Player.UnlockingGenerator -= player.OnUnlockingGenerator;
             Player.TriggeringTesla -= player.OnTriggeringTesla;
+            Player.ChangingRole -= player.OnChangingRole;
+            Player.Spawning -= player.OnSpawning;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
@@ -168,6 +172,7 @@ namespace Subclass
         BypassKeycardReaders,
         HealGrenadeFrag,
         HealGrenadeFlash,
-        BypassTeslaGates
+        BypassTeslaGates,
+        InfiniteSprint
     }
 }

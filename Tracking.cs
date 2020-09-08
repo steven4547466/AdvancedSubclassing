@@ -18,6 +18,26 @@ namespace Subclass
 
         public static List<Player> FriendlyFired = new List<Player>();
 
+        public static float RoundStartedAt = 0f;
+
+
+        public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
+        {
+            if (RoundJustStarted()) return;
+            if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
+            if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
+            if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
+
+            if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)
+            {
+                Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
+                p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>().Destroy();
+                Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
+                p.IsUsingStamina = true;
+            }
+            Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
+            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
+        }
 
         public static void AddToFF(Player p)
         {
@@ -53,6 +73,11 @@ namespace Subclass
         public static bool PlayerJustBypassedTeslaGate(Player p)
         {
             return PlayersThatBypassedTeslaGates.ContainsKey(p) && Time.time - PlayersThatBypassedTeslaGates[p] < 3f;
+        }
+
+        public static bool RoundJustStarted()
+        {
+            return Time.time - RoundStartedAt < 5f;
         }
     }
 }
