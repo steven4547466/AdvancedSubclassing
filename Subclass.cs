@@ -77,6 +77,7 @@ namespace Subclass
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
             Server.RoundEnded += server.OnRoundEnded;
+            Server.SendingConsoleCommand += server.OnSendingConsoleCommand;
 
             map = new Handlers.Map();
             Map.ExplodingGrenade += map.OnExplodingGrenade;
@@ -97,6 +98,7 @@ namespace Subclass
 
             Server.RoundStarted -= server.OnRoundStarted;
             Server.RoundEnded -= server.OnRoundEnded;
+            Server.SendingConsoleCommand -= server.OnSendingConsoleCommand;
             server = null;
 
             Map.ExplodingGrenade -= map.OnExplodingGrenade;
@@ -173,6 +175,9 @@ namespace Subclass
         HealGrenadeFrag,
         HealGrenadeFlash,
         BypassTeslaGates,
-        InfiniteSprint
+        InfiniteSprint,
+        Disable096Trigger,
+        Disable173Stop,
+        Revive
     }
 }

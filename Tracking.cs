@@ -1,4 +1,5 @@
-﻿using Exiled.API.Features;
+﻿using Exiled.API.Extensions;
+using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Subclass
 
         public static Dictionary<Player, float> PlayersThatBypassedTeslaGates = new Dictionary<Player, float>();
 
+        public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
+
         public static List<Player> FriendlyFired = new List<Player>();
 
         public static float RoundStartedAt = 0f;
@@ -27,13 +30,18 @@ namespace Subclass
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
+            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger) 
+                && Scp096.TurnedPlayers.Contains(p)) Scp096.TurnedPlayers.Remove(p);
+            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
+                && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
+
 
             if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
                 p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>().Destroy();
                 Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
-                p.IsUsingStamina = true;
+                p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
             Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
             if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
@@ -78,6 +86,24 @@ namespace Subclass
         public static bool RoundJustStarted()
         {
             return Time.time - RoundStartedAt < 5f;
+        }
+
+        public static void AddPreviousTeam(Player p)
+        {
+            if (PreviousRoles.ContainsKey(p)) PreviousRoles[p] = p.Role;
+            else PreviousRoles.Add(p, p.Role);
+        }
+
+        public static Nullable<RoleType> GetPreviousRole(Player p)
+        {
+            if (PreviousRoles.ContainsKey(p)) return PreviousRoles[p];
+            return null;
+        }
+
+        public static Nullable<Team> GetPreviousTeam(Player p)
+        {
+            if (PreviousRoles.ContainsKey(p)) return PreviousRoles[p].GetTeam();
+            return null;
         }
     }
 }

@@ -16,12 +16,19 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
-            Tracking.RemoveAndAddRoles(ev.Player);
+            Timing.CallDelayed(0.1f, () =>
+            {
+                Tracking.RemoveAndAddRoles(ev.Player);
+            });
+            
         }
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
-            Tracking.RemoveAndAddRoles(ev.Player);
+            Timing.CallDelayed(0.1f, () =>
+            {
+                Tracking.RemoveAndAddRoles(ev.Player);
+            });
         }
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
@@ -105,6 +112,7 @@ namespace Subclass.Handlers
 
         public void OnDied(DiedEventArgs ev)
         {
+            Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
         }
 

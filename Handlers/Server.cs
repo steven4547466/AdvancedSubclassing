@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using EPlayer = Exiled.API.Features.Player;
 
 namespace Subclass.Handlers
 {
@@ -36,6 +37,7 @@ namespace Subclass.Handlers
             Tracking.Cooldowns.Clear();
             Tracking.FriendlyFired.Clear();
             Tracking.PlayersThatBypassedTeslaGates.Clear();
+            Tracking.PreviousRoles.Clear();
         }
 
 
@@ -70,7 +72,7 @@ namespace Subclass.Handlers
                         {
                             player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
                         }
-                        if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
+
                         int index = rnd.Next(subClass.SpawnLocations.Count);
                         if (subClass.SpawnLocations[index] != RoomType.Unknown)
                         {
@@ -80,8 +82,12 @@ namespace Subclass.Handlers
                                 player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + new UnityEngine.Vector3(0, 1f, 0);
                             }
                         }
+
+                        if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
                         if (subClass.Abilities.Contains(AbilityType.InvisibleUntilInteract)) player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
                         if (subClass.Abilities.Contains(AbilityType.InfiniteSprint)) player.GameObject.AddComponent<MonoBehaviours.InfiniteSprint>();
+                        if (subClass.Abilities.Contains(AbilityType.Disable096Trigger)) Scp096.TurnedPlayers.Add(player);
+                        if (subClass.Abilities.Contains(AbilityType.Disable173Stop)) Scp173.TurnedPlayers.Add(player);
 
                         if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
                         {
@@ -110,6 +116,59 @@ namespace Subclass.Handlers
             else
             {
                 Log.Debug($"No subclasses for {player.Role}", Subclass.Instance.Config.Debug);
+            }
+        }
+
+        public void OnSendingConsoleCommand(SendingConsoleCommandEventArgs ev)
+        {
+            Log.Debug($"Player {ev.Player.Nickname} sent a console command", Subclass.Instance.Config.Debug);
+            ev.IsAllowed = false;
+            switch(ev.Name)
+            {
+                case "revive":
+                    Log.Debug($"Player {ev.Player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
+                    {
+                        RaycastHit hit;
+                        if (Physics.Raycast(ev.Player.CameraTransform.position, ev.Player.CameraTransform.forward, out hit, 3f))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} revive raycast hit", Subclass.Instance.Config.Debug);
+                            if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() != null)
+                            {
+                                EPlayer owner = EPlayer.Get(hit.collider.gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
+                                if (owner != null && owner.Role == RoleType.Spectator && Tracking.GetPreviousTeam(owner) != null &&
+                                    Tracking.GetPreviousTeam(owner) == ev.Player.Team)
+                                {
+                                    Ragdoll doll = hit.collider.gameObject.GetComponent<Ragdoll>();
+                                    owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                                    owner.Position = doll.LastRagdollPos[doll.LastRagdollPos.Count - 1].position;
+                                    UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
+                                    Log.Debug($"Player {ev.Player.Nickname} revive succeeded", Subclass.Instance.Config.Debug);
+                                }
+                                else
+                                {
+                                    Log.Debug($"Player {ev.Player.Nickname} revive failed", Subclass.Instance.Config.Debug);
+                                    ev.ReturnMessage = "This player is not revivable.";
+                                }
+                            }
+                            else {
+                                ev.ReturnMessage = "You must be looking at a dead body to use this command";
+                                Log.Debug($"Player {ev.Player.Nickname} revive raycast did not hit a ragdoll, hit {hit.collider.gameObject.name}", Subclass.Instance.Config.Debug);
+                            }
+                        }
+                        else {
+                            ev.ReturnMessage = "You must be looking at a dead body to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} revive raycast did not hit anything", Subclass.Instance.Config.Debug);
+                        }
+                    }else
+                    {
+                        ev.ReturnMessage = "You don't have the ability to revive!";
+                    }
+                    break;
+
+                default:
+                    ev.IsAllowed = true;
+                    break;
             }
         }
     }
