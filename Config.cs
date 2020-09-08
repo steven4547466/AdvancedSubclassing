@@ -24,7 +24,7 @@ namespace Subclass
             { "ExampleClass", new Dictionary<string, string>()
                 {
                     { "GotClassMessage", "You are an ExampleClass, this is an example." },
-                    { "AbilityCooldownMessage", "Your {ability} is on cooldown for {seconds} seconds!" }
+                    { "AbilityCooldownMessage", "Your {ability} ability is on cooldown for {seconds} seconds!" }
                 }
             }
         };

@@ -68,6 +68,8 @@ namespace Subclass
             Player.InteractingDoor += player.OnInteractingDoor;
             Player.Died += player.OnDied;
             Player.Shooting += player.OnShooting;
+            Player.InteractingLocker += player.OnInteractingLocker;
+            Player.UnlockingGenerator += player.OnUnlockingGenerator;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -83,6 +85,8 @@ namespace Subclass
             Player.InteractingDoor -= player.OnInteractingDoor;
             Player.Died -= player.OnDied;
             Player.Shooting -= player.OnShooting;
+            Player.InteractingLocker -= player.OnInteractingLocker;
+            Player.UnlockingGenerator -= player.OnUnlockingGenerator;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;

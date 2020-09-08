@@ -10,7 +10,6 @@ namespace Subclass.Patches
     {
         public static bool Prefix(FragGrenade __instance)
         {
-            Log.Debug("In prefix");
             Player thrower = Player.Get(__instance.thrower.gameObject);
             if (Tracking.PlayersWithSubclasses.ContainsKey(thrower) && Tracking.PlayersWithSubclasses[thrower].Abilities.Contains(AbilityType.HealGrenadeFrag))
             {

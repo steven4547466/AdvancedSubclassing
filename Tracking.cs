@@ -41,7 +41,11 @@ namespace Subclass
 
         public static float TimeLeftOnCooldown(Player p, AbilityType ability, SubClass subClass, float time)
         {
-            return subClass.AbilityCooldowns[ability] - (time - Cooldowns[p][ability]);
+            if (Cooldowns.ContainsKey(p) && Cooldowns[p].ContainsKey(ability))
+            {
+                return subClass.AbilityCooldowns[ability] - (time - Cooldowns[p][ability]);
+            }
+            return 0;
         }
     }
 }
