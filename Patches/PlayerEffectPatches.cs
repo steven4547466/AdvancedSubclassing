@@ -18,25 +18,29 @@ namespace Subclass.Patches
         public static bool Prefix(PlayerEffect __instance)
         {
             Player player = Player.Get(__instance.Hub);
+            if (player == null) return true;
             if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
             {
                 Log.Debug($"Player {player.Nickname} does not have subclass or invibility", Subclass.Instance.Config.Debug);
                 return true;
             }
             Scp268 scp268 = __instance.Hub.playerEffectsController.GetEffect<Scp268>();
-            Log.Debug($"268 intensity: {scp268.Intensity}. This intensity: {__instance.Intensity}", Subclass.Instance.Config.Debug);
-            Log.Debug($"268 time left: {scp268.TimeLeft}. This time left: {__instance.TimeLeft}", Subclass.Instance.Config.Debug);
-            Log.Debug($"268 time between ticks: {scp268.TimeBetweenTicks}. This time between ticks: {__instance.TimeBetweenTicks}", Subclass.Instance.Config.Debug);
-            if (scp268.Intensity > 0 && scp268.Intensity == __instance.Intensity && scp268.TimeLeft == __instance.TimeLeft && scp268.TimeBetweenTicks == __instance.TimeBetweenTicks) // At this point, we're relatively sure it's the same
+            if (scp268 != null)
             {
-                float cooldown = Tracking.PlayersWithSubclasses[player].AbilityCooldowns[AbilityType.InvisibleUntilInteract];
-                player.Broadcast((ushort) Mathf.Clamp(cooldown / 2, 0.5f, 3), Tracking.PlayersWithSubclasses[player].StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisibility").Replace("{seconds}", (cooldown).ToString()));
-                Timing.CallDelayed(cooldown, () =>
+                Log.Debug($"268 intensity: {scp268.Intensity}. This intensity: {__instance.Intensity}", Subclass.Instance.Config.Debug);
+                Log.Debug($"268 time left: {scp268.TimeLeft}. This time left: {__instance.TimeLeft}", Subclass.Instance.Config.Debug);
+                Log.Debug($"268 time between ticks: {scp268.TimeBetweenTicks}. This time between ticks: {__instance.TimeBetweenTicks}", Subclass.Instance.Config.Debug);
+                if (scp268.Intensity > 0 && scp268.Intensity == __instance.Intensity && scp268.TimeLeft == __instance.TimeLeft && scp268.TimeBetweenTicks == __instance.TimeBetweenTicks) // At this point, we're relatively sure it's the same
                 {
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(player) && 
-                    Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract)) 
-                        player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
-                });
+                    float cooldown = Tracking.PlayersWithSubclasses[player].AbilityCooldowns[AbilityType.InvisibleUntilInteract];
+                    player.Broadcast((ushort)Mathf.Clamp(cooldown / 2, 0.5f, 3), Tracking.PlayersWithSubclasses[player].StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisibility").Replace("{seconds}", (cooldown).ToString()));
+                    Timing.CallDelayed(cooldown, () =>
+                    {
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(player) &&
+                        Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
+                            player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+                    });
+                }
             }
             return true;
         }
