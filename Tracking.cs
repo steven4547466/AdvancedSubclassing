@@ -36,6 +36,8 @@ namespace Subclass
                 && Scp096.TurnedPlayers.Contains(p)) Scp096.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
                 && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
+            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
+                p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
 
 
             if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)

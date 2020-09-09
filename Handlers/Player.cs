@@ -120,7 +120,19 @@ namespace Subclass.Handlers
 
         public void OnHurting(HurtingEventArgs ev)
         {
-            
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target))
+            {
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
+                    ev.Amount = 0;
+
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.Attacker.Team != Team.SCP)
+                    ev.Amount = 0;
+
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.Attacker.Team == Team.SCP)
+                    ev.Amount = 0;
+            }
+
+
         }
 
         public void OnShooting(ShootingEventArgs ev)

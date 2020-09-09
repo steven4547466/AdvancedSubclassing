@@ -28,7 +28,6 @@ namespace Subclass.Handlers
                 {
                     MaybeAddRoles(player);
                 }
-                Log.Info(Tracking.QueuedCassieMessages.Count);
                 foreach(string message in Tracking.QueuedCassieMessages)
                 {
                     Cassie.Message(message);
@@ -79,6 +78,7 @@ namespace Subclass.Handlers
                         if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
                         if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
                         if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+
                         if (!subClass.BoolOptions["DisregardHasFF"])
                         {
                             player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
@@ -104,6 +104,13 @@ namespace Subclass.Handlers
                             Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
                             visuals.Intensity = 2;
                             player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
+                        }
+                        if(subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
+                        if (subClass.Abilities.Contains(AbilityType.InfiniteAmmo))
+                        {
+                            player.Ammo[0] = uint.MaxValue;
+                            player.Ammo[1] = uint.MaxValue;
+                            player.Ammo[2] = uint.MaxValue;
                         }
 
                         if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
@@ -229,8 +236,40 @@ namespace Subclass.Handlers
                             EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync.CallCmdScp939Noise(5f);
                         }
 
+                        Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
                         Log.Debug($"Player {ev.Player.Nickname} successfully used echolocate", Subclass.Instance.Config.Debug);
                     } 
+                    break;
+
+                case "noclip":
+                    Log.Debug($"Player {ev.Player.Nickname} is attempting to noclip", Subclass.Instance.Config.Debug);
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.NoClip))
+                    {
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.NoClip, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
+                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.NoClip, subClass, Time.time);
+                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "echolocation").Replace("{seconds}", timeLeft.ToString()));
+                            return;
+                        }
+                        bool previous = ev.Player.NoClipEnabled;
+                        ev.Player.NoClipEnabled = !ev.Player.NoClipEnabled;
+                        Tracking.AddCooldown(ev.Player, AbilityType.NoClip);
+                        if(subClass.FloatOptions.ContainsKey("NoClipTime"))
+                        {
+                            Timing.CallDelayed(subClass.FloatOptions["NoClipTime"], () => 
+                            {
+                                if (ev.Player.NoClipEnabled != previous) ev.Player.NoClipEnabled = previous;
+                            });
+                        }
+                        Log.Debug($"Player {ev.Player.Nickname} successfully noclipped", Subclass.Instance.Config.Debug);
+                    }
+                    else
+                    {
+                        ev.ReturnMessage = "You must have the noclip ability to use this command";
+                        Log.Debug($"Player {ev.Player.Nickname} could not noclip", Subclass.Instance.Config.Debug);
+                    }
                     break;
                 default:
                     ev.IsAllowed = true;

@@ -182,6 +182,12 @@ namespace Subclass
         Disable173Stop,
         Revive,
         Echolocate,
-        Scp939Vision
+        Scp939Vision,
+        NoArmorDecay,
+        NoClip,
+        NoSCP207Damage,
+        NoSCPDamage,
+        NoHumanDamage,
+        InfiniteAmmo
     }
 }
