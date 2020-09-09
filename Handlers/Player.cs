@@ -27,10 +27,10 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
-            Timing.CallDelayed(0.1f, () =>
-            {
-                Tracking.RemoveAndAddRoles(ev.Player);
-            });
+            //Timing.CallDelayed(0.1f, () =>
+            //{
+            //    Tracking.RemoveAndAddRoles(ev.Player);
+            //});
         }
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)

@@ -18,7 +18,11 @@ namespace Subclass.Patches
         public static bool Prefix(PlayerEffect __instance)
         {
             Player player = Player.Get(__instance.Hub);
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract)) return true;
+            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
+            {
+                Log.Debug($"Player {player.Nickname} does not have subclass or invibility", Subclass.Instance.Config.Debug);
+                return true;
+            }
             Scp268 scp268 = __instance.Hub.playerEffectsController.GetEffect<Scp268>();
             Log.Debug($"268 intensity: {scp268.Intensity}. This intensity: {__instance.Intensity}", Subclass.Instance.Config.Debug);
             Log.Debug($"268 time left: {scp268.TimeLeft}. This time left: {__instance.TimeLeft}", Subclass.Instance.Config.Debug);
