@@ -29,7 +29,9 @@ namespace Subclass.Patches
                 player.Broadcast((ushort) Mathf.Clamp(cooldown / 2, 0.5f, 3), Tracking.PlayersWithSubclasses[player].StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisibility").Replace("{seconds}", (cooldown).ToString()));
                 Timing.CallDelayed(cooldown, () =>
                 {
-                    player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(player) && 
+                    Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract)) 
+                        player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
                 });
             }
             return true;

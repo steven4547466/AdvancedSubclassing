@@ -1,4 +1,5 @@
-﻿using Exiled.API.Extensions;
+﻿using CustomPlayerEffects;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
@@ -27,13 +28,19 @@ namespace Subclass
         public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
         {
             if (RoundJustStarted()) return;
-            if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
-            if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
-            if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
-            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger) 
-                && Scp096.TurnedPlayers.Contains(p)) Scp096.TurnedPlayers.Remove(p);
-            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
-                && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
+            if (PlayersWithSubclasses.ContainsKey(p))
+            {
+                PlayersWithSubclasses.Remove(p);
+                if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
+                if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
+                if (PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger)
+                    && Scp096.TurnedPlayers.Contains(p)) Scp096.TurnedPlayers.Remove(p);
+                if (PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop)
+                    && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
+                if (PlayersWithSubclasses[p].Abilities.Contains(AbilityType.InvisibleUntilInteract))
+                    p.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
+                if (PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Scp939Vision)) p.ReferenceHub.playerEffectsController.DisableEffect<Visuals939>();
+            }
 
 
             if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)
