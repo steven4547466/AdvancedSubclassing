@@ -21,6 +21,8 @@ namespace Subclass
 
         public static List<Player> FriendlyFired = new List<Player>();
 
+        public static List<string> QueuedCassieMessages = new List<string>();
+
         public static float RoundStartedAt = 0f;
 
 
@@ -40,10 +42,8 @@ namespace Subclass
             {
                 Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
                 p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>().Destroy();
-                Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
-            Log.Info(p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() == null);
             if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
         }
 

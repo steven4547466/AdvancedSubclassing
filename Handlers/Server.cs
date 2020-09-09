@@ -28,6 +28,13 @@ namespace Subclass.Handlers
                 {
                     MaybeAddRoles(player);
                 }
+                Log.Info(Tracking.QueuedCassieMessages.Count);
+                foreach(string message in Tracking.QueuedCassieMessages)
+                {
+                    Cassie.Message(message);
+                    Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
+                }
+                Tracking.QueuedCassieMessages.Clear();
             });
         }
 
@@ -38,6 +45,7 @@ namespace Subclass.Handlers
             Tracking.FriendlyFired.Clear();
             Tracking.PlayersThatBypassedTeslaGates.Clear();
             Tracking.PreviousRoles.Clear();
+            Tracking.QueuedCassieMessages.Clear();
         }
 
 
@@ -56,6 +64,9 @@ namespace Subclass.Handlers
                         Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                         Tracking.PlayersWithSubclasses.Add(player, subClass);
                         player.Broadcast(5, subClass.StringOptions["GotClassMessage"]);
+                        if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
+                            !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
+
                         if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && subClass.SpawnItems[0] != ItemType.None))
                         {
                             player.ClearInventory();
