@@ -88,6 +88,12 @@ namespace Subclass.Handlers
                         if (subClass.Abilities.Contains(AbilityType.InfiniteSprint)) player.GameObject.AddComponent<MonoBehaviours.InfiniteSprint>();
                         if (subClass.Abilities.Contains(AbilityType.Disable096Trigger)) Scp096.TurnedPlayers.Add(player);
                         if (subClass.Abilities.Contains(AbilityType.Disable173Stop)) Scp173.TurnedPlayers.Add(player);
+                        if (subClass.Abilities.Contains(AbilityType.Scp939Vision))
+                        {
+                            Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
+                            visuals.Intensity = 2;
+                            player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
+                        }
 
                         if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
                         {
@@ -104,8 +110,11 @@ namespace Subclass.Handlers
                             player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
                         }
 
-                        if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
-                        if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+                        if (player.RankName == null) // Comply with verified server rules.
+                        {
+                            if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
+                            if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+                        }
 
                         Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                         break;
@@ -182,9 +191,12 @@ namespace Subclass.Handlers
 
 
                 case "locate":
-                    if(ev.Player.Role != RoleType.Scp93953 && ev.Player.Role != RoleType.Scp93989)
+                    if (ev.Player.Role != RoleType.Scp93953 && ev.Player.Role != RoleType.Scp93989 && 
+                        (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || 
+                        !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Scp939Vision)))
                     {
-                        ev.ReturnMessage = "You must be SCP-939 to use this command";
+                        Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
+                        ev.ReturnMessage = "You must be SCP-939 or have a subclass with its visuals to use this command";
                         return;
                     }
 
@@ -193,6 +205,7 @@ namespace Subclass.Handlers
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
                         if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
                         {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
                             float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.Echolocate, subClass, Time.time);
                             ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "echolocation").Replace("{seconds}", timeLeft.ToString()));
                             return;
@@ -204,7 +217,9 @@ namespace Subclass.Handlers
                         {
                             EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync.CallCmdScp939Noise(5f);
                         }
-                    }
+
+                        Log.Debug($"Player {ev.Player.Nickname} successfully used echolocate", Subclass.Instance.Config.Debug);
+                    } 
                     break;
                 default:
                     ev.IsAllowed = true;

@@ -73,6 +73,7 @@ namespace Subclass
             Player.TriggeringTesla += player.OnTriggeringTesla;
             Player.ChangingRole += player.OnChangingRole;
             Player.Spawning += player.OnSpawning;
+            Player.Hurting += player.OnHurting;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -94,6 +95,7 @@ namespace Subclass
             Player.TriggeringTesla -= player.OnTriggeringTesla;
             Player.ChangingRole -= player.OnChangingRole;
             Player.Spawning -= player.OnSpawning;
+            Player.Hurting -= player.OnHurting;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
@@ -179,6 +181,7 @@ namespace Subclass
         Disable096Trigger,
         Disable173Stop,
         Revive,
-        Echolocate
+        Echolocate,
+        Scp939Vision
     }
 }

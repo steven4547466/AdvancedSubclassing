@@ -1,7 +1,9 @@
-﻿using Exiled.API.Extensions;
+﻿using CustomPlayerEffects;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
+using PlayableScps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -114,6 +116,11 @@ namespace Subclass.Handlers
         {
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
+        }
+
+        public void OnHurting(HurtingEventArgs ev)
+        {
+            
         }
 
         public void OnShooting(ShootingEventArgs ev)
