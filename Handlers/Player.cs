@@ -164,43 +164,47 @@ namespace Subclass.Handlers
             }
 
 
-        }
-
-        public void OnShooting(ShootingEventArgs ev)
-        {
-            Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
-            if (target != null && target.Team == ev.Shooter.Team)
+            Exiled.API.Features.Player target = ev.Target;
+            if (target != null && target.Team == ev.Attacker.Team)
             {
-                if (Tracking.PlayersWithZombies.First(p => p.Value.Contains(Exiled.API.Features.Player.Get(ev.Target))).Value != null)
+                if (Tracking.PlayersWithZombies.First(p => p.Value.Contains(ev.Target)).Value != null)
                 {
-                    ev.Shooter.IsFriendlyFireEnabled = true;
+                    ev.Attacker.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        ev.Shooter.IsFriendlyFireEnabled = false;
+                        ev.Attacker.IsFriendlyFireEnabled = false;
                     });
                     return;
                 }
-                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) &&
-                    !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardHasFF"] && 
-                    Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["HasFriendlyFire"]) ||
-                    (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] && 
+                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) &&
+                    !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardHasFF"] &&
+                    Tracking.PlayersWithSubclasses[ev.Target].BoolOptions["HasFriendlyFire"]) ||
+                    (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
                     Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
                 {
-                    if (!Tracking.FriendlyFired.Contains(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]) 
-                        Tracking.AddToFF(ev.Shooter);
-                    ev.Shooter.IsFriendlyFireEnabled = true;
+                    if (!Tracking.FriendlyFired.Contains(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
+                        Tracking.AddToFF(ev.Attacker);
+                    ev.Attacker.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        ev.Shooter.IsFriendlyFireEnabled = false;
+                        ev.Attacker.IsFriendlyFireEnabled = false;
                     });
-                }else
+                }
+                else
                 {
                     if (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
-                    !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]) {
+                    !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
+                    {
                         ev.IsAllowed = false;
                     }
                 }
             }
+
+        }
+
+        public void OnShooting(ShootingEventArgs ev)
+        {
+            // I'm sure this will be used eventually
         }
 
         public void OnTriggeringTesla(TriggeringTeslaEventArgs ev)

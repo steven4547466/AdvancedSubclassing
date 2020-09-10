@@ -169,6 +169,9 @@ namespace Subclass.Handlers
             {
                 if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
                 if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+            }else
+            {
+                if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
             }
 
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
@@ -248,7 +251,7 @@ namespace Subclass.Handlers
                         
                         foreach(Collider PlayerCollider in colliders.Where(c => EPlayer.Get(c.gameObject) != null))
                         {
-                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync.CallCmdScp939Noise(5f);
+                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync?.CmdScp939Noise(5f);
                         }
 
                         Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
@@ -301,56 +304,56 @@ namespace Subclass.Handlers
                 ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", necro ? "necromancy" : "revive").Replace("{seconds}", timeLeft.ToString()));
                 return;
             }
-            RaycastHit hit;
-            if (Physics.Raycast(ev.Player.CameraTransform.position, ev.Player.CameraTransform.forward, out hit, 3f))
+
+            List<Collider> colliders = Physics.OverlapSphere(ev.Player.Position, 3f).Where(e => e.gameObject.GetComponentInParent<Ragdoll>() != null).ToList();
+
+            colliders.Sort((Collider x, Collider y) =>
             {
-                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} raycast hit", Subclass.Instance.Config.Debug);
-                if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() != null)
+                return Vector3.Distance(x.gameObject.transform.position, ev.Player.Position).CompareTo(Vector3.Distance(y.gameObject.transform.position, ev.Player.Position));
+            });
+
+            if (colliders.Count() == 0)
+            {
+                ev.ReturnMessage = "You must be near a dead body to use this command";
+                ev.Player.Broadcast(2, "You must be near a dead body.");
+                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} overlap did not hit a ragdoll", Subclass.Instance.Config.Debug);
+                return;
+            }
+
+            EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
+            if (owner != null && owner.Role == RoleType.Spectator)
+            {
+                Ragdoll doll = colliders[0].gameObject.GetComponent<Ragdoll>();
+                if (!necro && Tracking.GetPreviousTeam(owner) != null &&
+                Tracking.GetPreviousTeam(owner) == ev.Player.Team) owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                else if (necro)
                 {
-                    EPlayer owner = EPlayer.Get(hit.collider.gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
-                    if (owner != null && owner.Role == RoleType.Spectator)
+                    owner.Role = RoleType.Scp0492;
+                    Tracking.AddZombie(ev.Player, owner);
+                    owner.IsFriendlyFireEnabled = true;
+                }
+                if (owner.Role != RoleType.Spectator)
+                {
+                    Timing.CallDelayed(0.1f, () =>
                     {
-                        Ragdoll doll = hit.collider.gameObject.GetComponent<Ragdoll>();
-                        if (!necro && Tracking.GetPreviousTeam(owner) != null &&
-                        Tracking.GetPreviousTeam(owner) == ev.Player.Team) owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
-                        else if (necro)
-                        {
-                            owner.Role = RoleType.Scp0492;
-                            Tracking.AddZombie(ev.Player, owner);
-                            owner.IsFriendlyFireEnabled = true;
-                        }
-                        if (owner.Role != RoleType.Spectator)
-                        {
-                            owner.Position = doll.LastRagdollPos[doll.LastRagdollPos.Count - 1].position;
-                            UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
-                            Tracking.AddCooldown(ev.Player, ability);
-                            Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
-                        }else
-                        {
-                            Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                            ev.ReturnMessage = "This player is not revivable.";
-                            ev.Player.Broadcast(2, "This player is not revivable.");
-                        }
-                    }
-                    else
-                    {
-                        Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                        ev.ReturnMessage = "This player is not revivable.";
-                        ev.Player.Broadcast(2, "This player is not revivable.");
-                    }
+                        owner.Position = doll.LastRagdollPos[doll.LastRagdollPos.Count - 1].position;
+                    });
+                    UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
+                    Tracking.AddCooldown(ev.Player, ability);
+                    Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
                 }
                 else
                 {
-                    ev.ReturnMessage = "You must be looking at a dead body to use this command";
-                    ev.Player.Broadcast(2, "You must be looking at a dead body.");
-                    Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} raycast did not hit a ragdoll, hit {hit.collider.gameObject.name}", Subclass.Instance.Config.Debug);
+                    Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
+                    ev.ReturnMessage = "This player is not revivable.";
+                    ev.Player.Broadcast(2, "This player is not revivable.");
                 }
             }
             else
             {
-                ev.ReturnMessage = "You must be looking at a dead body to use this command";
-                ev.Player.Broadcast(2, "You must be looking at a dead body.");
-                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} raycast did not hit anything", Subclass.Instance.Config.Debug);
+                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
+                ev.ReturnMessage = "This player is not revivable.";
+                ev.Player.Broadcast(2, "This player is not revivable.");
             }
         }
     }
