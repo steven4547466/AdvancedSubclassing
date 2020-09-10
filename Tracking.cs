@@ -17,6 +17,8 @@ namespace Subclass
 
         public static Dictionary<Player, float> PlayersThatBypassedTeslaGates = new Dictionary<Player, float>();
 
+        public static Dictionary<Player, List<Player>> PlayersWithZombies = new Dictionary<Player, List<Player>>();
+
         public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
 
         public static List<Player> FriendlyFired = new List<Player>();
@@ -106,6 +108,12 @@ namespace Subclass
         {
             if (PreviousRoles.ContainsKey(p)) return PreviousRoles[p].GetTeam();
             return null;
+        }
+
+        public static void AddZombie(Player p, Player z)
+        {
+            if (!PlayersWithZombies.ContainsKey(p)) PlayersWithZombies.Add(p, new List<Player>());
+            PlayersWithZombies[p].Add(z);
         }
     }
 }

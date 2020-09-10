@@ -1,7 +1,9 @@
-﻿using Exiled.API.Features;
+﻿using CustomPlayerEffects;
+using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Grenades;
 using HarmonyLib;
+using UnityEngine;
 
 namespace Subclass.Patches
 {
@@ -20,4 +22,50 @@ namespace Subclass.Patches
             return true;
         }
     }
+
+    [HarmonyPatch(typeof(FlashGrenade), nameof(FlashGrenade.ServersideExplosion))]
+    static class FlashGrenadeServerSideExplosionPatch
+    {
+        public static bool Prefix(FlashGrenade __instance, ref bool __result)
+        {
+            foreach (GameObject obj2 in PlayerManager.players)
+            {
+                Vector3 position = ((EffectGrenade) __instance).transform.position;
+                ReferenceHub hub = ReferenceHub.GetHub(obj2);
+                Flashed effect = hub.playerEffectsController.GetEffect<Flashed>();
+                Deafened deafened = hub.playerEffectsController.GetEffect<Deafened>();
+                if ((!Tracking.PlayersWithSubclasses.ContainsKey(Player.Get(hub)) || 
+                    !Tracking.PlayersWithSubclasses[Player.Get(hub)].Abilities.Contains(AbilityType.FlashImmune)) && (effect != null) && 
+                    ((((EffectGrenade)__instance).thrower != null) 
+                    && (__instance._friendlyFlash || 
+                    effect.Flashable(ReferenceHub.GetHub(((EffectGrenade)__instance).thrower.gameObject), position, __instance._ignoredLayers))))
+                {
+                    float num = __instance.powerOverDistance.Evaluate((float)(Vector3.Distance(obj2.transform.position, position) / ((position.y > 900f) ? __instance.distanceMultiplierSurface : __instance.distanceMultiplierFacility))) * __instance.powerOverDot.Evaluate(Vector3.Dot(hub.PlayerCameraReference.forward, (hub.PlayerCameraReference.position - position).normalized));
+                    byte intensity = (byte)Mathf.Clamp(Mathf.RoundToInt((float)((num * 10f) * __instance.maximumDuration)), 1, 0xff);
+                    if ((intensity >= effect.Intensity) && (num > 0f))
+                    {
+                        hub.playerEffectsController.ChangeEffectIntensity<Flashed>(intensity);
+                        if (deafened != null)
+                        {
+                            hub.playerEffectsController.EnableEffect(deafened, num * __instance.maximumDuration, true);
+                        }
+                    }
+                }else if(Tracking.PlayersWithSubclasses.ContainsKey(Player.Get(hub)) && 
+                        Tracking.PlayersWithSubclasses[Player.Get(hub)].Abilities.Contains(AbilityType.FlashImmune) &&
+                        effect != null && ((EffectGrenade)__instance).thrower != null && 
+                        effect.Flashable(ReferenceHub.GetHub(((EffectGrenade)__instance).thrower.gameObject), position, __instance._ignoredLayers))
+                {
+                    Concussed concussedEffect = hub.playerEffectsController.GetEffect<Concussed>();
+                    concussedEffect.Intensity = 3;
+                    hub.playerEffectsController.EnableEffect(concussedEffect, 5);
+                    SinkHole sinkHoleEffect = hub.playerEffectsController.GetEffect<SinkHole>();
+                    sinkHoleEffect.Intensity = 2;
+                    hub.playerEffectsController.EnableEffect(sinkHoleEffect, 3);
+                }
+            }
+            __result = ((EffectGrenade)__instance).ServersideExplosion();
+            return false;
+        }
+    }
+
 }

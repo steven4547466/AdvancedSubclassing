@@ -16,6 +16,8 @@ namespace Subclass.Handlers
     public class Player
     {
 
+        System.Random rnd = new System.Random();
+
         public void OnSpawning(SpawningEventArgs ev)
         {
             Timing.CallDelayed(0.1f, () =>
@@ -130,6 +132,26 @@ namespace Subclass.Handlers
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.Attacker.Team == Team.SCP)
                     ev.Amount = 0;
+
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.Nimble) && 
+                    (rnd.NextDouble() * 100) < (Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("NimbleChance") ? 
+                    Tracking.PlayersWithSubclasses[ev.Target].FloatOptions["NimbleChance"] : 15f))
+                {
+                    ev.Amount = 0;
+                }
+                if (Tracking.PlayersWithZombies.ContainsKey(ev.Target) && Tracking.PlayersWithZombies[ev.Target].Contains(ev.Attacker))
+                    ev.Amount = 0;
+
+                if (ev.DamageType == DamageTypes.Grenade && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.GrenadeImmune))
+                {
+                    Concussed concussedEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<Concussed>();
+                    concussedEffect.Intensity = 3;
+                    ev.Target.ReferenceHub.playerEffectsController.EnableEffect(concussedEffect, 8);
+                    SinkHole sinkHoleEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<SinkHole>();
+                    sinkHoleEffect.Intensity = 2;
+                    ev.Target.ReferenceHub.playerEffectsController.EnableEffect(sinkHoleEffect, 5);
+                    ev.Amount = 0;
+                }
             }
 
 
@@ -140,6 +162,15 @@ namespace Subclass.Handlers
             Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
             if (target != null && target.Team == ev.Shooter.Team)
             {
+                if (Tracking.PlayersWithZombies.First(p => p.Value.Contains(Exiled.API.Features.Player.Get(ev.Target))).Value != null)
+                {
+                    ev.Shooter.IsFriendlyFireEnabled = true;
+                    Timing.CallDelayed(0.1f, () =>
+                    {
+                        ev.Shooter.IsFriendlyFireEnabled = false;
+                    });
+                    return;
+                }
                 if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) &&
                     !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardHasFF"] && 
                     Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["HasFriendlyFire"]) ||

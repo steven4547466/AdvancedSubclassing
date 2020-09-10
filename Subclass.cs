@@ -188,6 +188,10 @@ namespace Subclass
         NoSCP207Damage,
         NoSCPDamage,
         NoHumanDamage,
-        InfiniteAmmo
+        InfiniteAmmo,
+        Nimble,
+        Necromancy,
+        FlashImmune,
+        GrenadeImmune
     }
 }
