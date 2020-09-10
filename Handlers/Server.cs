@@ -143,6 +143,7 @@ namespace Subclass.Handlers
             if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
             if (subClass.Abilities.Contains(AbilityType.InvisibleUntilInteract)) player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
             if (subClass.Abilities.Contains(AbilityType.InfiniteSprint)) player.GameObject.AddComponent<MonoBehaviours.InfiniteSprint>();
+            if (subClass.Abilities.Contains(AbilityType.Disable173Stop)) Scp173.TurnedPlayers.Add(player);
             if (subClass.Abilities.Contains(AbilityType.Scp939Vision))
             {
                 Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
