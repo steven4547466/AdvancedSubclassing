@@ -27,6 +27,9 @@ namespace Subclass
 
         public static float RoundStartedAt = 0f;
 
+        public static List<Player> NextSpawnWave = new List<Player>();
+        public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
+
 
         public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
         {

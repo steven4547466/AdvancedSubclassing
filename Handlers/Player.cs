@@ -22,7 +22,15 @@ namespace Subclass.Handlers
         {
             Timing.CallDelayed(0.1f, () =>
             {
-                Tracking.RemoveAndAddRoles(ev.Player);
+                if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
+                {
+                    Tracking.RemoveAndAddRoles(ev.Player, true);
+                    Subclass.Instance.server.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
+                }
+                else
+                {
+                    Tracking.RemoveAndAddRoles(ev.Player);
+                }
             });
 
         }
@@ -218,6 +226,12 @@ namespace Subclass.Handlers
                 ev.IsTriggerable = false;
                 ev.Player.IsUsingStamina = false;
             }
+        }
+
+        public void OnEnteringFemurBreaker(EnteringFemurBreakerEventArgs ev)
+        {
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && 
+                Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.CantBeSacraficed)) ev.IsAllowed = false;
         }
     }
 }

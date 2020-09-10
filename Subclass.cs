@@ -74,11 +74,13 @@ namespace Subclass
             Player.ChangingRole += player.OnChangingRole;
             Player.Spawning += player.OnSpawning;
             Player.Hurting += player.OnHurting;
+            Player.EnteringFemurBreaker += player.OnEnteringFemurBreaker;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
             Server.RoundEnded += server.OnRoundEnded;
             Server.SendingConsoleCommand += server.OnSendingConsoleCommand;
+            Server.RespawningTeam += server.OnRespawningTeam;
 
             map = new Handlers.Map();
             Map.ExplodingGrenade += map.OnExplodingGrenade;
@@ -96,11 +98,13 @@ namespace Subclass
             Player.ChangingRole -= player.OnChangingRole;
             Player.Spawning -= player.OnSpawning;
             Player.Hurting -= player.OnHurting;
+            Player.EnteringFemurBreaker -= player.OnEnteringFemurBreaker;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
             Server.RoundEnded -= server.OnRoundEnded;
             Server.SendingConsoleCommand -= server.OnSendingConsoleCommand;
+            Server.RespawningTeam -= server.OnRespawningTeam;
             server = null;
 
             Map.ExplodingGrenade -= map.OnExplodingGrenade;
@@ -192,6 +196,8 @@ namespace Subclass
         Nimble,
         Necromancy,
         FlashImmune,
-        GrenadeImmune
+        GrenadeImmune,
+        CantBeSacraficed,
+        CantActivateFemurBreaker
     }
 }
