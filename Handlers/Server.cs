@@ -282,7 +282,7 @@ namespace Subclass.Handlers
                         
                         foreach(Collider PlayerCollider in colliders.Where(c => EPlayer.Get(c.gameObject) != null))
                         {
-                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync?.CmdScp939Noise(5f);
+                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync?.CmdScp939Noise(100f);
                         }
 
                         Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
