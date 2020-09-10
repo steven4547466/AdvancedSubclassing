@@ -115,5 +115,13 @@ namespace Subclass
             if (!PlayersWithZombies.ContainsKey(p)) PlayersWithZombies.Add(p, new List<Player>());
             PlayersWithZombies[p].Add(z);
         }
+
+        public static void RemoveZombie(Player p)
+        {
+            foreach (List<Player> players in PlayersWithZombies.Values)
+            {
+                if (players.Contains(p)) players.Remove(p);
+            }
+        }
     }
 }

@@ -118,6 +118,7 @@ namespace Subclass.Handlers
         {
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
+            Tracking.RemoveZombie(ev.Target);
         }
 
         public void OnHurting(HurtingEventArgs ev)

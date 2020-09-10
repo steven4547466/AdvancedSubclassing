@@ -45,6 +45,7 @@ namespace Subclass.Handlers
             Tracking.FriendlyFired.Clear();
             Tracking.PlayersThatBypassedTeslaGates.Clear();
             Tracking.PreviousRoles.Clear();
+            Tracking.PlayersWithZombies.Clear();
             Tracking.QueuedCassieMessages.Clear();
         }
 
@@ -59,7 +60,7 @@ namespace Subclass.Handlers
                 foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRole == player.Role))
                 {
                     Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                    if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"])
+                    if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && (!subClass.IntOptions.ContainsKey("MaxAlive") || subClass.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]))
                     {
                         Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                         AddClass(player, subClass);
@@ -160,7 +161,9 @@ namespace Subclass.Handlers
                 player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
             }
 
-            if (player.RankName == null) // Comply with verified server rules.
+            Log.Info($"Player rank name: {player.RankName}");
+
+            if (player.RankName == null || player.RankName == "") // Comply with verified server rules.
             {
                 if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
                 if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
