@@ -37,10 +37,6 @@ namespace Subclass
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
-            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger) 
-                && Scp096.TurnedPlayers.Contains(p)) Scp096.TurnedPlayers.Remove(p);
-            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
-                && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
                 p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
 
