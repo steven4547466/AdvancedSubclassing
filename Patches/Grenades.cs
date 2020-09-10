@@ -28,6 +28,7 @@ namespace Subclass.Patches
     {
         public static bool Prefix(FlashGrenade __instance, ref bool __result)
         {
+            Log.Debug($"Flash grenade explosion", Subclass.Instance.Config.Debug);
             foreach (GameObject obj2 in PlayerManager.players)
             {
                 Player target = Player.Get(obj2);
@@ -35,7 +36,7 @@ namespace Subclass.Patches
                 ReferenceHub hub = ReferenceHub.GetHub(obj2);
                 Flashed effect = hub.playerEffectsController.GetEffect<Flashed>();
                 Deafened deafened = hub.playerEffectsController.GetEffect<Deafened>();
-                Log.Debug($"Target is: {target?.Nickname}", Subclass.Instance.Config.Debug);
+                Log.Debug($"Flash target is: {target?.Nickname}", Subclass.Instance.Config.Debug);
                 if ((effect != null) &&
                     ((((EffectGrenade)__instance).thrower != null)
                     && (__instance._friendlyFlash ||
@@ -65,7 +66,18 @@ namespace Subclass.Patches
                     }
                 }
             }
-            __result = ((EffectGrenade)__instance).ServersideExplosion();
+
+            if (((EffectGrenade)__instance).serverGrenadeEffect != null)
+            {
+                Transform transform = ((Grenade)__instance).transform;
+                Object.Instantiate<GameObject>(((EffectGrenade)__instance).serverGrenadeEffect, transform.position, transform.rotation);
+            }
+
+            string str = (((Grenade)__instance).thrower != null) ? ((Grenade)__instance).thrower.hub.LoggedNameFromRefHub() : ((string)"(UNKNOWN)");
+            string[] textArray1 = new string[] { "Player ", (string)str, "'s ", (string)((Grenade)__instance).logName, " grenade exploded." };
+            ServerLogs.AddLog(ServerLogs.Modules.Logger, string.Concat((string[])textArray1), ServerLogs.ServerLogType.GameEvent, false);
+
+            __result = true;
             return false;
         }
     }
