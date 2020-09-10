@@ -41,7 +41,7 @@ namespace Subclass.Commands
                         return false;
                     }else
                     {
-                        if (p.Role != Subclass.Instance.Classes[arguments.Array[arguments.Offset]].AffectsRole)
+                        if (!Subclass.Instance.Classes[arguments.Array[arguments.Offset]].AffectsRoles.Contains(p.Role))
                         {
                             response = "You are not the proper role for this class.";
                             return false;
@@ -67,7 +67,7 @@ namespace Subclass.Commands
                             }
                             else
                             {
-                                if (p.Role != Subclass.Instance.Classes[arguments.Array[arguments.Offset]].AffectsRole)
+                                if (!Subclass.Instance.Classes[arguments.Array[arguments.Offset]].AffectsRoles.Contains(p.Role))
                                 {
                                     response = "You are not the proper role for this class.";
                                     return false;

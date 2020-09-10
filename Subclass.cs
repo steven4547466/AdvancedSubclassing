@@ -11,6 +11,7 @@ using Server = Exiled.Events.Handlers.Server;
 using Map = Exiled.Events.Handlers.Map;
 using System.Reflection;
 using CustomPlayerEffects;
+using Exiled.Permissions.Commands.Permissions;
 
 namespace Subclass
 {
@@ -34,6 +35,7 @@ namespace Subclass
         public Handlers.Map map { get; set; }
 
         public Dictionary<string, SubClass> Classes { get; set; }
+        public Dictionary<SubClass, float> ClassesAdditive = new Dictionary<SubClass, float>();
 
         int harmonyPatches = 0;
         public Harmony HarmonyInstance { get; private set; }
@@ -129,6 +131,25 @@ namespace Subclass
                     SubClass c = new SubClass(item.Key, item.Value, config.ClassesOptionsStrings[item.Key], config.ClassesOptionsBool[item.Key], config.ClassesOptionsInt[item.Key], config.ClassesOptionsFloat[item.Key], config.ClassesOptionsSpawns[item.Key], config.ClassesOptionsSpawnItems[item.Key], config.ClassesOptionsAmmoOnSpawn[item.Key], config.ClassesOptionsAbilities[item.Key], config.ClassesOptionsAbilityCooldowns[item.Key], ffRules, onHitEffects, onSpawnEffects);
                     classes.Add(item.Key, c);
                     Log.Debug($"Loaded class {item.Key}", config.Debug);
+                    if (config.AdditiveChance)
+                    {
+                        foreach (RoleType role in item.Value)
+                        {
+                            ClassesAdditive.Add(c, c.FloatOptions["ChanceToGet"]);
+                        }
+                        var additiveClasses = ClassesAdditive.ToList();
+                        additiveClasses.Sort((x, y) => y.Value.CompareTo(x.Value));
+                        Dictionary<SubClass, float> classesAdditiveCopy = additiveClasses.ToDictionary(x => x.Key, x => x.Value);
+                        ClassesAdditive.Clear();
+                        float sum = 0;
+                        foreach (var sclass in classesAdditiveCopy)
+                        {
+                            sum += sclass.Key.FloatOptions["ChanceToGet"];
+                            ClassesAdditive.Add(sclass.Key, sum);
+                        }
+                    }
+                    else
+                        ClassesAdditive = null;
                 }
                 catch(KeyNotFoundException e)
                 {
@@ -146,7 +167,7 @@ namespace Subclass
     {
 
         public string Name = "";
-        public RoleType AffectsRole = RoleType.None;
+        public List<RoleType> AffectsRoles = new List<RoleType>(){RoleType.None};
 
         public Dictionary<string, string> StringOptions = new Dictionary<string, string>();
 
@@ -158,7 +179,7 @@ namespace Subclass
 
         public List<RoomType> SpawnLocations = new List<RoomType>();
 
-        public List<ItemType> SpawnItems = new List<ItemType>();
+        public Dictionary<ItemType, float> SpawnItems = new Dictionary<ItemType, float>();
 
         public Dictionary<AmmoType, int> SpawnAmmo = new Dictionary<AmmoType, int>();
 
@@ -172,13 +193,13 @@ namespace Subclass
 
         public List<string> OnSpawnEffects = new List<string>();
 
-        public SubClass(string name, RoleType role, Dictionary<string, string> strings, Dictionary<string, bool> bools, 
-            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, List<ItemType> items, 
+        public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools, 
+            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<ItemType, float> items, 
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null)
         {
             Name = name;
-            AffectsRole = role;
+            AffectsRoles = role;
             StringOptions = strings;
             BoolOptions = bools;
             IntOptions = ints;

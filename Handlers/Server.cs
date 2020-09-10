@@ -57,22 +57,43 @@ namespace Subclass.Handlers
         public void MaybeAddRoles(EPlayer player)
         {
             if (!rolesForClass.ContainsKey(player.Role)) rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] && 
-            e.AffectsRole == player.Role));
+            e.AffectsRoles.Contains(player.Role)));
             if (rolesForClass[player.Role] > 0)
             {
-                Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRole == player.Role && 
-                (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
+                if (!Subclass.Instance.Config.AdditiveChance)
                 {
-                    Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                    if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && (!subClass.IntOptions.ContainsKey("MaxAlive") || subClass.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]))
+                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                    foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
+                    (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-                        AddClass(player, subClass);
+                        Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && (!subClass.IntOptions.ContainsKey("MaxAlive") || subClass.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]))
+                        {
+                            Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                            AddClass(player, subClass);
+                        }
+                        else
+                        {
+                            Log.Debug($"Player with name {player.Nickname} did not get subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive.Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
+                    (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"Player with name {player.Nickname} did not get subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if ((rnd.NextDouble() * 100) < possibity.Value)
+                        {
+                            Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                            AddClass(player, possibity.Key);
+                            break;
+                        }else
+                        {
+                            Log.Debug($"Player with name {player.Nickname} did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                        }
                     }
                 }
             }
@@ -90,12 +111,13 @@ namespace Subclass.Handlers
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
-                if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && subClass.SpawnItems[0] != ItemType.None))
+                if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && !subClass.SpawnItems.ContainsKey(ItemType.None)))
                 {
                     player.ClearInventory();
-                    foreach (ItemType item in subClass.SpawnItems)
+                    foreach (ItemType item in subClass.SpawnItems.Keys)
                     {
-                        player.AddItem(item);
+                        if ((rnd.NextDouble() * 100) < subClass.SpawnItems[item])
+                            player.AddItem(item);
                     }
                 }
                 if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
@@ -214,14 +236,27 @@ namespace Subclass.Handlers
             Tracking.NextSpawnWaveGetsRole.Clear();
             Tracking.NextSpawnWave = ev.Players;
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
-            foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRole == RoleType.NtfCadet || 
-            e.AffectsRole == RoleType.NtfCommander || e.AffectsRole == RoleType.NtfLieutenant) : e.AffectsRole == RoleType.ChaosInsurgency) && 
+            foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) || 
+            e.AffectsRoles.Contains(RoleType.NtfCommander) || e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency)) && 
             ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) || 
             (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"]))))
             {
-                if (!Tracking.NextSpawnWaveGetsRole.ContainsKey(subClass.AffectsRole) && (rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"])
+                if (subClass.AffectsRoles.Any(e => Tracking.NextSpawnWaveGetsRole.ContainsKey(e)) && (rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"])
                 {
-                    Tracking.NextSpawnWaveGetsRole.Add(subClass.AffectsRole, subClass);
+                    if (ntfSpawning)
+                    {
+                        if (subClass.AffectsRoles.Contains(RoleType.NtfCadet))
+                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
+                        if (subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
+                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
+                        if (subClass.AffectsRoles.Contains(RoleType.NtfCommander))
+                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
+                    }
+                    else
+                    {
+                        if (subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
+                    }
                 }
             }
         }

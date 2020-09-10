@@ -13,10 +13,15 @@ namespace Subclass
         [Description("Enable debug logs?")]
         public bool Debug { get; set; } = false;
 
+        [Description("Makes chance to get classes additive instead of individual.")]
+        public bool AdditiveChance { get; set; } = false;
+
         [Description("The list of subclasses. Please see the github wiki for more info.")]
-        public Dictionary<string, RoleType> Classes { get; set; } = new Dictionary<string, RoleType>()
+        public Dictionary<string, List<RoleType>> Classes { get; set; } = new Dictionary<string, List<RoleType>>()
         {
-            { "ExampleClass", RoleType.ClassD }
+            { "ExampleClass", new List<RoleType>() { 
+                RoleType.ClassD
+            } }
         };
 
         [Description("The list of subclass string options. Please see the github wiki for more info.")]
@@ -78,11 +83,11 @@ namespace Subclass
         };
 
         [Description("The list of subclass spawn items. Please see the github wiki for more info.")]
-        public Dictionary<string, List<ItemType>> ClassesOptionsSpawnItems { get; set; } = new Dictionary<string, List<ItemType>>()
+        public Dictionary<string, Dictionary<ItemType, float>> ClassesOptionsSpawnItems { get; set; } = new Dictionary<string, Dictionary<ItemType, float>>()
         {
-                { "ExampleClass", new List<ItemType>()
+                { "ExampleClass", new Dictionary<ItemType, float>()
                     {
-                        ItemType.GunCOM15,
+                        { ItemType.GunCOM15, 100 }
                     }
                 }
         };
