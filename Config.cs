@@ -1,4 +1,5 @@
-﻿using Exiled.API.Enums;
+﻿using CustomPlayerEffects;
+using Exiled.API.Enums;
 using Exiled.API.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -119,6 +120,24 @@ namespace Subclass
                     { AbilityType.InvisibleUntilInteract, 5f }
                 }
             }
+        };
+
+        [Description("The list of subclasses that this subclass can fire upon regardless of other friendly fire rules.")]
+        public Dictionary<string, List<string>> AdvancedFfRules { get; set; } = new Dictionary<string, List<string>>()
+        {
+            { "ExampleClass", new List<string>()}
+        };
+
+        [Description("The list of effects this player could apply when they deal damage to another player. Please see the wiki for more info.")]
+        public Dictionary<string, List<string>> OnHitEffects { get; set; } = new Dictionary<string, List<string>>()
+        {
+            { "ExampleClass", new List<string>()}
+        };
+
+        [Description("The list of effects this player has on spawn. Please see the wiki for more info.")]
+        public Dictionary<string, List<string>> OnSpawnEffects { get; set; } = new Dictionary<string, List<string>>()
+        {
+            { "ExampleClass", new List<string>()}
         };
     }
 }

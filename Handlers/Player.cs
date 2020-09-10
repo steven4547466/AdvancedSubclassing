@@ -131,6 +131,20 @@ namespace Subclass.Handlers
 
         public void OnHurting(HurtingEventArgs ev)
         {
+            if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
+                Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0)
+            {
+                foreach(string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
+                {
+                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
+                    {
+                        ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
+                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
+                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1, true);
+                    }
+                }
+            }
+
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target))
             {
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
@@ -167,18 +181,32 @@ namespace Subclass.Handlers
             Exiled.API.Features.Player target = ev.Target;
             if (target != null && target.Team == ev.Attacker.Team)
             {
-                if (Tracking.PlayersWithZombies.First(p => p.Value.Contains(ev.Target)).Value != null)
+                if (Tracking.PlayersWithZombies.Where(p => p.Value.Contains(ev.Target)).Count() > 0)
                 {
                     ev.Attacker.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
                         ev.Attacker.IsFriendlyFireEnabled = false;
                     });
+                    ev.IsAllowed = true;
                     return;
                 }
-                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) &&
-                    !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardHasFF"] &&
-                    Tracking.PlayersWithSubclasses[ev.Target].BoolOptions["HasFriendlyFire"]) ||
+
+                if(Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && 
+                    Tracking.PlayersWithSubclasses[ev.Attacker].AdvancedFFRules.Contains(Tracking.PlayersWithSubclasses[ev.Target].Name))
+                {
+                    ev.Attacker.IsFriendlyFireEnabled = true;
+                    Timing.CallDelayed(0.1f, () =>
+                    {
+                        ev.Attacker.IsFriendlyFireEnabled = false;
+                    });
+                    ev.IsAllowed = true;
+                    return;
+                }
+
+                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) &&
+                    !Tracking.PlayersWithSubclasses[ev.Attacker].BoolOptions["DisregardHasFF"] &&
+                    Tracking.PlayersWithSubclasses[ev.Attacker].BoolOptions["HasFriendlyFire"]) ||
                     (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
                     Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
                 {
@@ -189,6 +217,7 @@ namespace Subclass.Handlers
                     {
                         ev.Attacker.IsFriendlyFireEnabled = false;
                     });
+                    ev.IsAllowed = true;
                 }
                 else
                 {

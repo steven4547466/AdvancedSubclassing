@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Playables;
 using EPlayer = Exiled.API.Features.Player;
 
 namespace Subclass.Handlers
@@ -83,52 +84,60 @@ namespace Subclass.Handlers
 
         public void AddClass(EPlayer player, SubClass subClass) {
             Tracking.PlayersWithSubclasses.Add(player, subClass);
-            player.Broadcast(5, subClass.StringOptions["GotClassMessage"]);
-            if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
-                !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
-
-            if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && subClass.SpawnItems[0] != ItemType.None))
+            try
             {
-                player.ClearInventory();
-                foreach (ItemType item in subClass.SpawnItems)
+                player.Broadcast(5, subClass.StringOptions["GotClassMessage"]);
+                if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
+                    !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
+
+                if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && subClass.SpawnItems[0] != ItemType.None))
                 {
-                    player.AddItem(item);
-                }
-            }
-            if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
-            if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
-            if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
-            if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
-
-            Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
-
-            if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
-            if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.x = subClass.FloatOptions["ScaleY"];
-            if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.x = subClass.FloatOptions["ScaleZ"];
-
-            player.Scale = scale;
-
-
-            if (!subClass.BoolOptions["DisregardHasFF"])
-            {
-                player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
-            }
-
-            int index = rnd.Next(subClass.SpawnLocations.Count);
-            if (subClass.SpawnLocations[index] != RoomType.Unknown)
-            {
-                List<Room> spawnLocations = Exiled.API.Features.Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
-                if (spawnLocations.Count != 0)
-                {
-                    Timing.CallDelayed(0.1f, () =>
+                    player.ClearInventory();
+                    foreach (ItemType item in subClass.SpawnItems)
                     {
-                        Vector3 offset = new Vector3(0, 1f, 0);
-                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.x = subClass.FloatOptions["SpawnOffsetY"];
-                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.x = subClass.FloatOptions["SpawnOffsetZ"];
-                        player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
-                    });
+                        player.AddItem(item);
+                    }
                 }
+                if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
+                if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
+                if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
+                if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+
+                Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
+
+                if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
+                if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.x = subClass.FloatOptions["ScaleY"];
+                if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.x = subClass.FloatOptions["ScaleZ"];
+
+                player.Scale = scale;
+
+
+                if (!subClass.BoolOptions["DisregardHasFF"])
+                {
+                    player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
+                }
+
+                int index = rnd.Next(subClass.SpawnLocations.Count);
+                if (subClass.SpawnLocations[index] != RoomType.Unknown)
+                {
+                    List<Room> spawnLocations = Exiled.API.Features.Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                    if (spawnLocations.Count != 0)
+                    {
+                        Timing.CallDelayed(0.1f, () =>
+                        {
+                            Vector3 offset = new Vector3(0, 1f, 0);
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.x = subClass.FloatOptions["SpawnOffsetY"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.x = subClass.FloatOptions["SpawnOffsetZ"];
+                            player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
+                        });
+                    }
+                }
+
+            }catch(KeyNotFoundException e)
+            {
+                Log.Error($"A required option was not provided. Class: {subClass.Name}");
+                throw new Exception($"A required option was not provided. Class: {subClass.Name}");
             }
 
             if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
@@ -172,6 +181,29 @@ namespace Subclass.Handlers
             }else
             {
                 if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
+            }
+
+            if (subClass.OnSpawnEffects.Count != 0)
+            {
+                Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug);
+                foreach (string effect in subClass.OnSpawnEffects)
+                {
+                    Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
+                    if ((rnd.NextDouble() * 100) < subClass.FloatOptions[("OnSpawn" + effect + "Chance")])
+                    {
+                        Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                        player.ReferenceHub.playerEffectsController.EnableByString(effect,
+                            subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
+                            subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
+                    }else
+                    {
+                        Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                    }
+                }
+            }
+            else
+            {
+                Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
             }
 
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
