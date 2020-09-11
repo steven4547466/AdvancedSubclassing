@@ -134,7 +134,6 @@ namespace Subclass.Handlers
 
                 player.Scale = scale;
 
-
                 if (!subClass.BoolOptions["DisregardHasFF"])
                 {
                     player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
@@ -237,26 +236,64 @@ namespace Subclass.Handlers
             Tracking.NextSpawnWaveGetsRole.Clear();
             Tracking.NextSpawnWave = ev.Players;
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
-            foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) || 
-            e.AffectsRoles.Contains(RoleType.NtfCommander) || e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency)) && 
-            ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) || 
-            (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"]))))
+            if (!Subclass.Instance.Config.AdditiveChance)
             {
-                if (subClass.AffectsRoles.Any(e => Tracking.NextSpawnWaveGetsRole.ContainsKey(e)) && (rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"])
+                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) ||
+                    e.AffectsRoles.Contains(RoleType.NtfCommander) || e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                    && ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
+                    (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"]))))
                 {
-                    if (ntfSpawning)
+                    if ((ntfSpawning ? (subClass.AffectsRoles.Contains(RoleType.NtfCadet) ||
+                    subClass.AffectsRoles.Contains(RoleType.NtfCommander) || subClass.AffectsRoles.Contains(RoleType.NtfLieutenant)) 
+                    : subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency)) && (rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"])
                     {
-                        if (subClass.AffectsRoles.Contains(RoleType.NtfCadet))
-                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
-                        if (subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
-                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
-                        if (subClass.AffectsRoles.Contains(RoleType.NtfCommander))
-                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
+                        if (ntfSpawning)
+                        {
+                            if (subClass.AffectsRoles.Contains(RoleType.NtfCadet))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
+                            if (subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
+                            if (subClass.AffectsRoles.Contains(RoleType.NtfCommander))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
+                        }
+                        else
+                        {
+                            if (subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
+                        }
+                        break;
+                    }
+                }
+            }else
+            {
+                double num = (rnd.NextDouble() * 100);
+                foreach (var possibity in Subclass.Instance.ClassesAdditive.Where(e => (ntfSpawning ? (e.Key.AffectsRoles.Contains(RoleType.NtfCadet) ||
+                    e.Key.AffectsRoles.Contains(RoleType.NtfCommander) || e.Key.AffectsRoles.Contains(RoleType.NtfLieutenant)) : 
+                    e.Key.AffectsRoles.Contains(RoleType.ChaosInsurgency)) && ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") 
+                    && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                {
+                    Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
+                    if (num < possibity.Value)
+                    {
+                        if (ntfSpawning)
+                        {
+                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfCadet))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, possibity.Key);
+                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfLieutenant))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, possibity.Key);
+                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfCommander))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, possibity.Key);
+                        }
+                        else
+                        {
+                            if (possibity.Key.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, possibity.Key);
+                        }
+                        break;
                     }
                     else
                     {
-                        if (subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency))
-                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
+                        Log.Debug($"Next spawn wave did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
                     }
                 }
             }

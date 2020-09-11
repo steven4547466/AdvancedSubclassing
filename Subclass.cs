@@ -58,6 +58,10 @@ namespace Subclass
             Log.Info("Subclass disabled.");
             UnregisterEvents();
             HarmonyInstance.UnpatchAll();
+            foreach (Exiled.API.Features.Player player in Exiled.API.Features.Player.List)
+            {
+                Tracking.RemoveAndAddRoles(player, true);
+            }
         }
 
         public override void OnReloaded()
