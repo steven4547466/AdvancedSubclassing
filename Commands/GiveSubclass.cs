@@ -27,32 +27,70 @@ namespace Subclass.Commands
                     return false;
                 }
 
-                if (arguments.Count > 2 || arguments.Count == 0)
+                if (arguments.Count == 0)
                 {
-                    response = "Command syntax should be subclass [class] (player id).";
+                    response = "Command syntax should be subclass (player id) [class].";
                     return false;
                 }
-                
-                if (arguments.Count == 1)
+
+                try
                 {
-                    if (!Subclass.Instance.Classes.ContainsKey(arguments.Array[arguments.Offset]))
+                    if(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])) != null)
+                    {
+                        if (!Subclass.Instance.Classes.ContainsKey(String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))))
+                        {
+                            response = "Class not found.";
+                            return false;
+                        }
+                        else
+                        {
+                            if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))].AffectsRoles.Contains(p.Role))
+                            {
+                                response = "You are not the proper role for this class.";
+                                return false;
+                            }
+                            else
+                            {
+                                Tracking.RemoveAndAddRoles(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])), true);
+                                Subclass.Instance.server.AddClass(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])), Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))]);
+                                response = "Success.";
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        response = "Player not found.";
+                        return false;
+                    }
+                }
+                catch
+                {
+                    if (!Subclass.Instance.Classes.ContainsKey(String.Join(" ", arguments.Array.Segment(arguments.Offset))))
                     {
                         response = "Class not found.";
                         return false;
-                    }else
+                    }
+                    else
                     {
-                        if (!Subclass.Instance.Classes[arguments.Array[arguments.Offset]].AffectsRoles.Contains(p.Role))
+                        if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))].AffectsRoles.Contains(p.Role))
                         {
                             response = "You are not the proper role for this class.";
                             return false;
-                        }else
+                        }
+                        else
                         {
                             Tracking.RemoveAndAddRoles(p, true);
-                            Subclass.Instance.server.AddClass(p, Subclass.Instance.Classes[arguments.Array[arguments.Offset]]);
+                            Subclass.Instance.server.AddClass(p, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))]);
                             response = "Success.";
                             return true;
                         }
                     }
+                }
+
+                if (arguments.Count == 1)
+                {
+                    
                 }else
                 {
                     try
