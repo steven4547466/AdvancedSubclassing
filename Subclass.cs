@@ -195,7 +195,7 @@ namespace Subclass
 
         public List<RoomType> SpawnLocations = new List<RoomType>();
 
-        public Dictionary<ItemType, float> SpawnItems = new Dictionary<ItemType, float>();
+        public Dictionary<int, Dictionary<ItemType, float>> SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>();
 
         public Dictionary<AmmoType, int> SpawnAmmo = new Dictionary<AmmoType, int>();
 
@@ -210,7 +210,7 @@ namespace Subclass
         public List<string> OnSpawnEffects = new List<string>();
 
         public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools, 
-            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<ItemType, float> items, 
+            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items, 
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null)
         {
@@ -257,6 +257,7 @@ namespace Subclass
         FlashImmune,
         GrenadeImmune,
         CantBeSacraficed,
-        CantActivateFemurBreaker
+        CantActivateFemurBreaker,
+        LifeSteal
     }
 }

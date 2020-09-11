@@ -19,7 +19,7 @@ namespace Subclass
         [Description("The list of subclasses. Please see the github wiki for more info.")]
         public Dictionary<string, List<RoleType>> Classes { get; set; } = new Dictionary<string, List<RoleType>>()
         {
-            { "ExampleClass", new List<RoleType>() { 
+            { "ExampleClass", new List<RoleType>() {
                 RoleType.ClassD
             } }
         };
@@ -45,7 +45,7 @@ namespace Subclass
                     { "HasFriendlyFire", false },
                     { "DisregardTakesFF", false },
                     { "TakesFriendlyFire", false },
-                } 
+                }
             }
         };
 
@@ -83,11 +83,15 @@ namespace Subclass
         };
 
         [Description("The list of subclass spawn items. Please see the github wiki for more info.")]
-        public Dictionary<string, Dictionary<ItemType, float>> ClassesOptionsSpawnItems { get; set; } = new Dictionary<string, Dictionary<ItemType, float>>()
+        public Dictionary<string, Dictionary<int, Dictionary<ItemType, float>>> ClassesOptionsSpawnItems { get; set; } = new Dictionary<string, Dictionary<int, Dictionary<ItemType, float>>>()
         {
-                { "ExampleClass", new Dictionary<ItemType, float>()
+                { "ExampleClass", new Dictionary<int, Dictionary<ItemType, float>>() 
                     {
-                        { ItemType.GunCOM15, 100 }
+                        { 0, new Dictionary<ItemType, float>()
+                            {
+                                { ItemType.GunCOM15, 100 }
+                            }
+                        }
                     }
                 }
         };

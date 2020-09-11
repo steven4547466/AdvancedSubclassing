@@ -116,13 +116,20 @@ namespace Subclass.Handlers
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
-                if (subClass.SpawnItems.Count != 1 || (subClass.SpawnItems.Count == 1 && !subClass.SpawnItems.ContainsKey(ItemType.None)))
+                if (subClass.SpawnItems.Count != 0)
                 {
                     player.ClearInventory();
-                    foreach (ItemType item in subClass.SpawnItems.Keys)
+                    foreach (var item in subClass.SpawnItems)
                     {
-                        if ((rnd.NextDouble() * 100) < subClass.SpawnItems[item])
-                            player.AddItem(item);
+                        foreach (var item2 in item.Value)
+                        {
+                            if ((rnd.NextDouble() * 100) < subClass.SpawnItems[item.Key][item2.Key])
+                            {
+                                if (item2.Key == ItemType.None) break;
+                                player.AddItem(item2.Key);
+                                break;
+                            }
+                        }
                     }
                 }
                 if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];

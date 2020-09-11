@@ -132,15 +132,18 @@ namespace Subclass.Handlers
         public void OnHurting(HurtingEventArgs ev)
         {
             if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
-                Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0)
+                (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0))
             {
-                foreach(string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
+                if (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0)
                 {
-                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
+                    foreach (string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
                     {
-                        ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
-                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
-                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1, true);
+                        if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
+                        {
+                            ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
+                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
+                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1, true);
+                        }
                     }
                 }
             }
@@ -150,10 +153,10 @@ namespace Subclass.Handlers
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
                     ev.Amount = 0;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType != DamageTypes.Falldown &&  ev.Attacker.Team != Team.SCP)
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType.isWeapon)
                     ev.Amount = 0;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType != DamageTypes.Falldown && ev.Attacker.Team == Team.SCP)
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType.isScp)
                     ev.Amount = 0;
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.Nimble) && 
@@ -178,47 +181,55 @@ namespace Subclass.Handlers
             }
 
             if (ev.DamageType == DamageTypes.Falldown) return;
-
-            Exiled.API.Features.Player target = ev.Target;
-            if (target != null && target.Team == ev.Attacker.Team)
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && Tracking.PlayersWithSubclasses[ev.Attacker].Abilities.Contains(AbilityType.LifeSteal))
             {
-                if (Tracking.PlayersWithZombies.Where(p => p.Value.Contains(ev.Target)).Count() > 0)
+                ev.Attacker.Health += Mathf.Clamp(ev.Amount * ((Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("LifeStealPercent") ?
+                    Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["LiftStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth);
+            }
+        }
+
+        public void OnShooting(ShootingEventArgs ev)
+        {
+            Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
+            if (target != null && target.Team == ev.Shooter.Team)
+            {
+                if (Tracking.PlayersWithZombies.Where(p => p.Value.Contains(target)).Count() > 0)
                 {
-                    ev.Attacker.IsFriendlyFireEnabled = true;
+                    ev.Shooter.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        ev.Attacker.IsFriendlyFireEnabled = false;
+                        ev.Shooter.IsFriendlyFireEnabled = false;
                     });
-                    ev.IsAllowed = true;
+                    //ev.IsAllowed = true;
                     return;
                 }
 
-                if(Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && 
-                    Tracking.PlayersWithSubclasses[ev.Attacker].AdvancedFFRules.Contains(Tracking.PlayersWithSubclasses[ev.Target].Name))
+                if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) && Tracking.PlayersWithSubclasses.ContainsKey(target) &&
+                    Tracking.PlayersWithSubclasses[ev.Shooter].AdvancedFFRules.Contains(Tracking.PlayersWithSubclasses[target].Name))
                 {
-                    ev.Attacker.IsFriendlyFireEnabled = true;
+                    ev.Shooter.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        ev.Attacker.IsFriendlyFireEnabled = false;
+                        ev.Shooter.IsFriendlyFireEnabled = false;
                     });
-                    ev.IsAllowed = true;
+                    //ev.IsAllowed = true;
                     return;
                 }
 
-                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) &&
-                    !Tracking.PlayersWithSubclasses[ev.Attacker].BoolOptions["DisregardHasFF"] &&
-                    Tracking.PlayersWithSubclasses[ev.Attacker].BoolOptions["HasFriendlyFire"]) ||
+                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) &&
+                    !Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["DisregardHasFF"] &&
+                    Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["HasFriendlyFire"]) ||
                     (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
                     Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
                 {
                     if (!Tracking.FriendlyFired.Contains(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
-                        Tracking.AddToFF(ev.Attacker);
-                    ev.Attacker.IsFriendlyFireEnabled = true;
+                        Tracking.AddToFF(ev.Shooter);
+                    ev.Shooter.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        ev.Attacker.IsFriendlyFireEnabled = false;
+                        ev.Shooter.IsFriendlyFireEnabled = false;
                     });
-                    ev.IsAllowed = true;
+                    //ev.IsAllowed = true;
                 }
                 else
                 {
@@ -229,12 +240,6 @@ namespace Subclass.Handlers
                     }
                 }
             }
-
-        }
-
-        public void OnShooting(ShootingEventArgs ev)
-        {
-            // I'm sure this will be used eventually
         }
 
         public void OnTriggeringTesla(TriggeringTeslaEventArgs ev)
