@@ -85,7 +85,7 @@ namespace Subclass.Handlers
                     foreach (var possibity in Subclass.Instance.ClassesAdditive.Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
                     (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}, value generated: {num} must be less than {possibity.Value}", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value)
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);

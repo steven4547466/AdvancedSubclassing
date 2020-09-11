@@ -12,7 +12,7 @@ namespace Subclass.Commands
     {
         public string Command { get; } = "subclass";
 
-        public string[] Aliases { get; } = { "sc" };
+        public string[] Aliases { get; } = { "gsc" };
 
         public string Description { get; } = "Gives a player a subclass";
 

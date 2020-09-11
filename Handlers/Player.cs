@@ -150,10 +150,10 @@ namespace Subclass.Handlers
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
                     ev.Amount = 0;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.Attacker.Team != Team.SCP)
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType != DamageTypes.Falldown &&  ev.Attacker.Team != Team.SCP)
                     ev.Amount = 0;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.Attacker.Team == Team.SCP)
+                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType != DamageTypes.Falldown && ev.Attacker.Team == Team.SCP)
                     ev.Amount = 0;
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.Nimble) && 
@@ -177,6 +177,7 @@ namespace Subclass.Handlers
                 }
             }
 
+            if (ev.DamageType == DamageTypes.Falldown) return;
 
             Exiled.API.Features.Player target = ev.Target;
             if (target != null && target.Team == ev.Attacker.Team)
