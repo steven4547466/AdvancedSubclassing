@@ -56,8 +56,9 @@ namespace Subclass.Handlers
 
         public void MaybeAddRoles(EPlayer player)
         {
-            if (!rolesForClass.ContainsKey(player.Role)) rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] && 
-            e.AffectsRoles.Contains(player.Role)));
+            if (!rolesForClass.ContainsKey(player.Role))
+                rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] &&
+                    e.AffectsRoles.Contains(player.Role)));
             if (rolesForClass[player.Role] > 0)
             {
                 if (!Subclass.Instance.Config.AdditiveChance)
@@ -82,7 +83,10 @@ namespace Subclass.Handlers
                 {
                     Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
                     double num = (rnd.NextDouble() * 100);
-                    foreach (var possibity in Subclass.Instance.ClassesAdditive.Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
+
+                    if (!Subclass.Instance.ClassesAdditive.ContainsKey(player.Role)) return;
+
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
                     (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}, value generated: {num} must be less than {possibity.Value}", Subclass.Instance.Config.Debug);
@@ -267,33 +271,46 @@ namespace Subclass.Handlers
             }else
             {
                 double num = (rnd.NextDouble() * 100);
-                foreach (var possibity in Subclass.Instance.ClassesAdditive.Where(e => (ntfSpawning ? (e.Key.AffectsRoles.Contains(RoleType.NtfCadet) ||
-                    e.Key.AffectsRoles.Contains(RoleType.NtfCommander) || e.Key.AffectsRoles.Contains(RoleType.NtfLieutenant)) : 
-                    e.Key.AffectsRoles.Contains(RoleType.ChaosInsurgency)) && ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") 
-                    && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                if (!ntfSpawning && !Subclass.Instance.ClassesAdditive.ContainsKey(RoleType.ChaosInsurgency)) return;
+                else if (ntfSpawning && !Subclass.Instance.ClassesAdditive.ContainsKey(RoleType.NtfCadet) &&
+                    !Subclass.Instance.ClassesAdditive.ContainsKey(RoleType.NtfCommander) && !Subclass.Instance.ClassesAdditive.ContainsKey(RoleType.NtfLieutenant)) 
+                    return;
+
+                if (!ntfSpawning)
                 {
-                    Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
-                    if (num < possibity.Value)
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave")
+                        && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
                     {
-                        if (ntfSpawning)
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
+                        if (num < possibity.Value)
                         {
-                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfCadet))
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, possibity.Key);
-                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfLieutenant))
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, possibity.Key);
-                            if (possibity.Key.AffectsRoles.Contains(RoleType.NtfCommander))
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, possibity.Key);
+                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, possibity.Key);
+                            break;
                         }
                         else
                         {
-                            if (possibity.Key.AffectsRoles.Contains(RoleType.ChaosInsurgency))
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, possibity.Key);
+                            Log.Debug($"Next spawn wave did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
                         }
-                        break;
                     }
-                    else
+                }else
+                {
+                    RoleType[] roles = { RoleType.NtfCommander, RoleType.NtfLieutenant, RoleType.NtfCadet };
+                    foreach (RoleType role in roles)
                     {
-                        Log.Debug($"Next spawn wave did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                        foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave")
+                            && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                        {
+                            Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
+                            if (num < possibity.Value)
+                            {
+                                Tracking.NextSpawnWaveGetsRole.Add(role, possibity.Key);
+                                break;
+                            }
+                            else
+                            {
+                                Log.Debug($"Next spawn wave did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                            }
+                        }
                     }
                 }
             }
