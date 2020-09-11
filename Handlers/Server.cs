@@ -86,7 +86,7 @@ namespace Subclass.Handlers
                     (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}, value generated: {num} must be less than {possibity.Value}", Subclass.Instance.Config.Debug);
-                        if (num < possibity.Value)
+                        if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || possibity.Key.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
                             AddClass(player, possibity.Key);
