@@ -19,6 +19,8 @@ namespace Subclass
 
         public static Dictionary<Player, List<Player>> PlayersWithZombies = new Dictionary<Player, List<Player>>();
 
+        public static Dictionary<Player, List<Player>> PlayersThatHadZombies = new Dictionary<Player, List<Player>>();
+
         public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
 
         public static List<Player> FriendlyFired = new List<Player>();
@@ -34,14 +36,34 @@ namespace Subclass
         public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
         {
             if (RoundJustStarted()) return;
-            if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
                 && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
                 p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
+            if (PlayersWithZombies.ContainsKey(p))
+            {
+                PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);
+                PlayersWithZombies.Remove(p);
+            }
 
+            if (p.ReferenceHub.serverRoles.HiddenBadge != null && p.ReferenceHub.serverRoles.HiddenBadge != "") p.ReferenceHub.serverRoles.HiddenBadge = null;
+
+            SubClass subClass = Tracking.PlayersWithSubclasses.ContainsKey(p) ? Tracking.PlayersWithSubclasses[p] : null;
+
+            if (subClass != null)
+            {
+                if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
+                {
+                    p.RankName = null;
+                }
+                else if (subClass.StringOptions.ContainsKey("Badge") && p.ReferenceHub.serverRoles.HiddenBadge == subClass.StringOptions["Badge"])
+                {
+                    p.ReferenceHub.serverRoles.HiddenBadge = null;
+                }
+
+            }
 
             if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)
             {
@@ -49,6 +71,7 @@ namespace Subclass
                 p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>().Destroy();
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
+            if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
             if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
         }
 
@@ -119,10 +142,54 @@ namespace Subclass
 
         public static void RemoveZombie(Player p)
         {
-            foreach (List<Player> players in PlayersWithZombies.Values)
+            foreach (var item in PlayersWithZombies)
             {
-                if (players.Contains(p)) players.Remove(p);
+                if (item.Value.Contains(p)) item.Value.Remove(p);
+                if (item.Value.Count == 0) PlayersWithZombies.Remove(item.Key);
             }
+            foreach (var item in PlayersThatHadZombies)
+            {
+                if (item.Value.Contains(p)) item.Value.Remove(p);
+                if (item.Value.Count == 0) PlayersThatHadZombies.Remove(item.Key);
+            }
+        }
+
+        public static bool PlayerHasFFToPlayer(Player attacker, Player target)
+        {
+            Log.Debug($"Checking FF rules for Attacker: {attacker.Nickname} Target: {target?.Nickname}", Subclass.Instance.Config.Debug);
+            if (target != null && target.Team == attacker.Team)
+            {
+                if (PlayersWithZombies.Where(p => p.Value.Contains(target)).Count() > 0)
+                {
+                    return true;
+                }
+
+                if (PlayersWithSubclasses.ContainsKey(attacker) && PlayersWithSubclasses.ContainsKey(target) &&
+                    PlayersWithSubclasses[attacker].AdvancedFFRules.Contains(PlayersWithSubclasses[target].Name))
+                {
+                    return true;
+                }
+
+                if (FriendlyFired.Contains(target) || (PlayersWithSubclasses.ContainsKey(attacker) &&
+                    !PlayersWithSubclasses[attacker].BoolOptions["DisregardHasFF"] &&
+                    PlayersWithSubclasses[attacker].BoolOptions["HasFriendlyFire"]) ||
+                    (PlayersWithSubclasses.ContainsKey(target) && !PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
+                    PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
+                {
+                    if (!FriendlyFired.Contains(target) && !PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
+                        AddToFF(attacker);
+                    return true;
+                }
+                else
+                {
+                    if (PlayersWithSubclasses.ContainsKey(target) && !PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
+                    !PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

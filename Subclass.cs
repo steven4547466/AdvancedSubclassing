@@ -83,6 +83,7 @@ namespace Subclass
             Player.Spawning += player.OnSpawning;
             Player.Hurting += player.OnHurting;
             Player.EnteringFemurBreaker += player.OnEnteringFemurBreaker;
+            Player.Escaping += player.OnEscaping;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -107,6 +108,7 @@ namespace Subclass
             Player.Spawning -= player.OnSpawning;
             Player.Hurting -= player.OnHurting;
             Player.EnteringFemurBreaker -= player.OnEnteringFemurBreaker;
+            Player.Escaping -= player.OnEscaping;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;

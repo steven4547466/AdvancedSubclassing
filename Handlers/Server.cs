@@ -47,6 +47,7 @@ namespace Subclass.Handlers
             Tracking.PlayersThatBypassedTeslaGates.Clear();
             Tracking.PreviousRoles.Clear();
             Tracking.PlayersWithZombies.Clear();
+            Tracking.PlayersThatHadZombies.Clear();
             Tracking.QueuedCassieMessages.Clear();
             Tracking.NextSpawnWave.Clear();
             Tracking.NextSpawnWaveGetsRole.Clear();
@@ -245,7 +246,6 @@ namespace Subclass.Handlers
         {
             Tracking.NextSpawnWave.Clear();
             Tracking.NextSpawnWaveGetsRole.Clear();
-            Tracking.NextSpawnWave = ev.Players;
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
             if (!Subclass.Instance.Config.AdditiveChance)
             {
@@ -321,6 +321,7 @@ namespace Subclass.Handlers
                     }
                 }
             }
+            Tracking.NextSpawnWave = ev.Players;
         }
 
         public void OnSendingConsoleCommand(SendingConsoleCommandEventArgs ev)

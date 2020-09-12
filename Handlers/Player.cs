@@ -29,7 +29,7 @@ namespace Subclass.Handlers
                 }
                 else
                 {
-                    Tracking.RemoveAndAddRoles(ev.Player);
+                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
                 }
             });
 
@@ -37,10 +37,10 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
-            //Timing.CallDelayed(0.1f, () =>
-            //{
-            //    Tracking.RemoveAndAddRoles(ev.Player);
-            //});
+            Timing.CallDelayed(0.1f, () =>
+            {
+                if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
+            });
         }
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
@@ -128,6 +128,12 @@ namespace Subclass.Handlers
             Tracking.RemoveAndAddRoles(ev.Target, true);
             Tracking.RemoveZombie(ev.Target);
         }
+        
+        public void OnEscaping(EscapingEventArgs ev)
+        {
+            Tracking.RemoveAndAddRoles(ev.Player, true);
+            Tracking.RemoveZombie(ev.Player);
+        }
 
         public void OnHurting(HurtingEventArgs ev)
         {
@@ -193,51 +199,13 @@ namespace Subclass.Handlers
             Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
             if (target != null && target.Team == ev.Shooter.Team)
             {
-                if (Tracking.PlayersWithZombies.Where(p => p.Value.Contains(target)).Count() > 0)
+                if (Tracking.PlayerHasFFToPlayer(ev.Shooter, target))
                 {
                     ev.Shooter.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
                         ev.Shooter.IsFriendlyFireEnabled = false;
                     });
-                    //ev.IsAllowed = true;
-                    return;
-                }
-
-                if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) && Tracking.PlayersWithSubclasses.ContainsKey(target) &&
-                    Tracking.PlayersWithSubclasses[ev.Shooter].AdvancedFFRules.Contains(Tracking.PlayersWithSubclasses[target].Name))
-                {
-                    ev.Shooter.IsFriendlyFireEnabled = true;
-                    Timing.CallDelayed(0.1f, () =>
-                    {
-                        ev.Shooter.IsFriendlyFireEnabled = false;
-                    });
-                    //ev.IsAllowed = true;
-                    return;
-                }
-
-                if (Tracking.FriendlyFired.Contains(target) || (Tracking.PlayersWithSubclasses.ContainsKey(ev.Shooter) &&
-                    !Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["DisregardHasFF"] &&
-                    Tracking.PlayersWithSubclasses[ev.Shooter].BoolOptions["HasFriendlyFire"]) ||
-                    (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
-                    Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
-                {
-                    if (!Tracking.FriendlyFired.Contains(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
-                        Tracking.AddToFF(ev.Shooter);
-                    ev.Shooter.IsFriendlyFireEnabled = true;
-                    Timing.CallDelayed(0.1f, () =>
-                    {
-                        ev.Shooter.IsFriendlyFireEnabled = false;
-                    });
-                    //ev.IsAllowed = true;
-                }
-                else
-                {
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(target) && !Tracking.PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
-                    !Tracking.PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
-                    {
-                        ev.IsAllowed = false;
-                    }
                 }
             }
         }
