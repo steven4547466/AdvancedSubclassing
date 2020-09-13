@@ -220,7 +220,7 @@ namespace Subclass
                 foreach (Player player in PlayersWithSubclasses.Keys)
                 {
                     if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
-                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team && !teamsAlive.Contains(player.Team))
+                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team && (!teamsAlive.Contains(player.Team) || teamsAlive.All(e => e == player.Team)))
                     {
                         if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
                         else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);
