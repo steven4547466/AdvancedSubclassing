@@ -1,5 +1,7 @@
-﻿using Exiled.API.Extensions;
+﻿using Exiled.API.Enums;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +47,7 @@ namespace Subclass
             if (PlayersWithZombies.ContainsKey(p))
             {
                 PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);
+                foreach (Player z in PlayersThatHadZombies[p]) z.GameObject.AddComponent<ZombieEscape>();
                 PlayersWithZombies.Remove(p);
             }
 
@@ -65,12 +68,19 @@ namespace Subclass
 
             }
 
-            if (p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>() != null)
+            if (p.GameObject.GetComponent<InfiniteSprint>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
-                p.GameObject.GetComponent<MonoBehaviours.InfiniteSprint>().Destroy();
+                p.GameObject.GetComponent<InfiniteSprint>().Destroy();
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
+
+            if (p.GameObject.GetComponent<ZombieEscape>() != null)
+            {
+                Log.Debug($"Player {p.Nickname} has zombie escape, destroying", Subclass.Instance.Config.Debug);
+                p.GameObject.GetComponent<ZombieEscape>().Destroy();
+            }
+
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
             if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
         }
@@ -190,6 +200,49 @@ namespace Subclass
                 }
             }
             return false;
+        }
+
+        public static bool RoleAllowedToDamage(Player p, RoleType role)
+        {
+            if (PlayersWithSubclasses.ContainsKey(p))
+                return !PlayersWithSubclasses[p].RolesThatCantDamage.Contains(role);
+            else
+                return true;
+        }
+
+        public static void CheckRoundEnd(Player p, bool death)
+        {
+            List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
+            teamsAlive.RemoveAll(t => t == Team.RIP);
+            if(!death) teamsAlive.Remove(teamsAlive.FirstOrDefault(t => t == p.Team));
+            bool wasLocked = false;
+            foreach (Player player in PlayersWithSubclasses.Keys)
+            {
+                if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
+                if (teamsAlive.Any(t => PlayersWithSubclasses[player].EndsRoundWith != t)) // If any team is alive that a player can't end it with, lock the round.
+                {
+                    Round.IsLocked = true;
+                    wasLocked = true;
+                    break;
+                }
+                else // Otherwise, unlock the round.
+                {
+                    Round.IsLocked = false;
+                }
+            }
+            if (!wasLocked && PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0) // If we didn't have to lock the round and at least 1 player has to switch teams, switch all players with subclasses to the team they can win with
+            {
+                foreach (Player player in PlayersWithSubclasses.Keys)
+                {
+                    if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
+                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team)
+                    {
+                        if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.Role = RoleType.NtfScientist;
+                        else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.Role = RoleType.ChaosInsurgency;
+                        else player.Role = RoleType.Scp0492;
+                    }
+                }
+            }
         }
     }
 }

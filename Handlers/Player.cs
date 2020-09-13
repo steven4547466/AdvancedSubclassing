@@ -4,6 +4,7 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using MEC;
 using PlayableScps;
+using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace Subclass.Handlers
                 {
                     if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
                 }
+                Tracking.CheckRoundEnd(ev.Player, true);
+                ev.Player.GameObject.AddComponent<ZombieEscape>();
             });
 
         }
@@ -40,6 +43,8 @@ namespace Subclass.Handlers
             Timing.CallDelayed(0.1f, () =>
             {
                 if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
+                Tracking.CheckRoundEnd(ev.Player, true);
+                ev.Player.GameObject.AddComponent<ZombieEscape>();
             });
         }
 
@@ -127,6 +132,7 @@ namespace Subclass.Handlers
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
             Tracking.RemoveZombie(ev.Target);
+            Tracking.CheckRoundEnd(ev.Target, true);
         }
         
         public void OnEscaping(EscapingEventArgs ev)
@@ -137,6 +143,11 @@ namespace Subclass.Handlers
 
         public void OnHurting(HurtingEventArgs ev)
         {
+            if (!Tracking.RoleAllowedToDamage(ev.Target, ev.Attacker.Role))
+            {
+                ev.Amount = 0;
+                return;
+            }
             if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
                 (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0))
             {

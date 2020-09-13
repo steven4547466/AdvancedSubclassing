@@ -132,9 +132,10 @@ namespace Subclass
                     List<string> ffRules = config.AdvancedFfRules.ContainsKey(item.Key) ? config.AdvancedFfRules[item.Key] : null;
                     List<string> onHitEffects = config.OnHitEffects.ContainsKey(item.Key) ? config.OnHitEffects[item.Key] : null;
                     List<string> onSpawnEffects = config.OnSpawnEffects.ContainsKey(item.Key) ? config.OnSpawnEffects[item.Key] : null;
+                    List<RoleType> cantDamage = config.RolesThatCantDamage.ContainsKey(item.Key) ? config.RolesThatCantDamage[item.Key] : null;
+                    Team endsRoundWith = (config.EndsRoundWith.ContainsKey(item.Key) ? config.EndsRoundWith[item.Key] : Team.RIP);
 
-
-                    SubClass c = new SubClass(item.Key, item.Value, config.ClassesOptionsStrings[item.Key], config.ClassesOptionsBool[item.Key], config.ClassesOptionsInt[item.Key], config.ClassesOptionsFloat[item.Key], config.ClassesOptionsSpawns[item.Key], config.ClassesOptionsSpawnItems[item.Key], config.ClassesOptionsAmmoOnSpawn[item.Key], config.ClassesOptionsAbilities[item.Key], config.ClassesOptionsAbilityCooldowns[item.Key], ffRules, onHitEffects, onSpawnEffects);
+                    SubClass c = new SubClass(item.Key, item.Value, config.ClassesOptionsStrings[item.Key], config.ClassesOptionsBool[item.Key], config.ClassesOptionsInt[item.Key], config.ClassesOptionsFloat[item.Key], config.ClassesOptionsSpawns[item.Key], config.ClassesOptionsSpawnItems[item.Key], config.ClassesOptionsAmmoOnSpawn[item.Key], config.ClassesOptionsAbilities[item.Key], config.ClassesOptionsAbilityCooldowns[item.Key], ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith);
                     classes.Add(item.Key, c);
                     Log.Debug($"Loaded class {item.Key}", config.Debug);
                     if (config.AdditiveChance)
@@ -211,10 +212,15 @@ namespace Subclass
 
         public List<string> OnSpawnEffects = new List<string>();
 
-        public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools, 
-            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items, 
+        public List<RoleType> RolesThatCantDamage = new List<RoleType>();
+
+        public Team EndsRoundWith = Team.RIP;
+
+        public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
+            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
-            List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null)
+            List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
+            Team endsRoundWith = Team.RIP)
         {
             Name = name;
             AffectsRoles = role;
@@ -230,6 +236,8 @@ namespace Subclass
             if (ffRules != null) AdvancedFFRules = ffRules;
             if (onHitEffects != null) OnHitEffects = onHitEffects;
             if (spawnEffects != null) OnSpawnEffects = spawnEffects;
+            if (cantDamage != null) RolesThatCantDamage = cantDamage;
+            if (endsRoundWith != Team.RIP) EndsRoundWith = endsRoundWith;
         }
     }
 

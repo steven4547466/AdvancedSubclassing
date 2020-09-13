@@ -148,5 +148,17 @@ namespace Subclass
         {
             { "ExampleClass", new List<string>()}
         };
+
+        [Description("The list of RoleTypes that can't damage anyone with the class. Please see the wiki for more info.")]
+        public Dictionary<string, List<RoleType>> RolesThatCantDamage { get; set; } = new Dictionary<string, List<RoleType>>()
+        {
+            { "ExampleClass", new List<RoleType>() { RoleType.FacilityGuard } }
+        };
+
+        [Description("The team that this class can end the round with. Please see the wiki for more info.")]
+        public Dictionary<string, Team> EndsRoundWith { get; set; } = new Dictionary<string, Team>()
+        {
+            { "ExampleClass", Team.MTF }
+        };
     }
 }

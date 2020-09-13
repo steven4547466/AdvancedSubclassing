@@ -113,7 +113,7 @@ namespace Subclass.Handlers
             Tracking.PlayersWithSubclasses.Add(player, subClass);
             try
             {
-                player.Broadcast(5, subClass.StringOptions["GotClassMessage"]);
+                player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort) subClass.FloatOptions["BroadcastTimer"] : (ushort) 5, subClass.StringOptions["GotClassMessage"]);
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
