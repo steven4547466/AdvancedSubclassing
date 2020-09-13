@@ -33,7 +33,6 @@ namespace Subclass.Handlers
                     if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
                 }
                 Tracking.CheckRoundEnd(ev.Player, true);
-                ev.Player.GameObject.AddComponent<ZombieEscape>();
             });
 
         }
@@ -44,7 +43,6 @@ namespace Subclass.Handlers
             {
                 if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
                 Tracking.CheckRoundEnd(ev.Player, true);
-                ev.Player.GameObject.AddComponent<ZombieEscape>();
             });
         }
 

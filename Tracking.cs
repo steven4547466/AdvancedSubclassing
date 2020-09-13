@@ -215,31 +215,16 @@ namespace Subclass
             List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
             teamsAlive.RemoveAll(t => t == Team.RIP);
             if(!death) teamsAlive.Remove(teamsAlive.FirstOrDefault(t => t == p.Team));
-            bool wasLocked = false;
-            foreach (Player player in PlayersWithSubclasses.Keys)
-            {
-                if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
-                if (teamsAlive.Any(t => PlayersWithSubclasses[player].EndsRoundWith != t)) // If any team is alive that a player can't end it with, lock the round.
-                {
-                    Round.IsLocked = true;
-                    wasLocked = true;
-                    break;
-                }
-                else // Otherwise, unlock the round.
-                {
-                    Round.IsLocked = false;
-                }
-            }
-            if (!wasLocked && PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0) // If we didn't have to lock the round and at least 1 player has to switch teams, switch all players with subclasses to the team they can win with
+            if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0) // If we didn't have to lock the round and at least 1 player has to switch teams, switch all players with subclasses to the team they can win with
             {
                 foreach (Player player in PlayersWithSubclasses.Keys)
                 {
                     if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
-                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team)
+                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team && !teamsAlive.Contains(player.Team))
                     {
-                        if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.Role = RoleType.NtfScientist;
-                        else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.Role = RoleType.ChaosInsurgency;
-                        else player.Role = RoleType.Scp0492;
+                        if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
+                        else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);
+                        else player.SetRole(RoleType.Scp0492, true);
                     }
                 }
             }
