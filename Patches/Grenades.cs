@@ -74,6 +74,7 @@ namespace Subclass.Patches
                     (!obj2.GetComponent<WeaponManager>().GetShootPermission(((EffectGrenade)__instance).throwerTeam, false))) 
                     && !Tracking.PlayerHasFFToPlayer(pthrower, Player.Get(obj2)))
                 {
+                    Exiled.API.Features.Log.Debug($"Player {Player.Get(obj2)?.Nickname} could not be hurt from a grenade. Thrower has ff to player: {Tracking.PlayerHasFFToPlayer(pthrower, Player.Get(obj2))}", Subclass.Instance.Config.Debug);
                     continue;
                 }
                 PlayerStats component = obj2.GetComponent<PlayerStats>();

@@ -39,9 +39,10 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
+            Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(0.1f, () =>
             {
-                if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
+                Tracking.RemoveAndAddRoles(ev.Player);
                 Tracking.CheckRoundEnd();
             });
         }
@@ -128,22 +129,22 @@ namespace Subclass.Handlers
         public void OnDied(DiedEventArgs ev)
         {
             Tracking.AddPreviousTeam(ev.Target);
-            Tracking.RemoveAndAddRoles(ev.Target, true);
             Tracking.RemoveZombie(ev.Target);
+            Tracking.RemoveAndAddRoles(ev.Target, true);
             Tracking.CheckRoundEnd();
         }
         
         public void OnEscaping(EscapingEventArgs ev)
         {
             Tracking.RemoveAndAddRoles(ev.Player, true);
-            Tracking.RemoveZombie(ev.Player);
         }
 
         public void OnHurting(HurtingEventArgs ev)
         {
             if (!Tracking.RoleAllowedToDamage(ev.Target, ev.Attacker.Role))
             {
-                ev.Amount = 0;
+                Log.Debug("Not allowed to damage", Subclass.Instance.Config.Debug);
+                ev.IsAllowed = false;
                 return;
             }
             if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
@@ -166,22 +167,22 @@ namespace Subclass.Handlers
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target))
             {
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType.isWeapon)
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType.isScp)
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
 
                 if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.Nimble) && 
                     (rnd.NextDouble() * 100) < (Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("NimbleChance") ? 
                     Tracking.PlayersWithSubclasses[ev.Target].FloatOptions["NimbleChance"] : 15f))
                 {
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
                 }
                 if (Tracking.PlayersWithZombies.ContainsKey(ev.Target) && Tracking.PlayersWithZombies[ev.Target].Contains(ev.Attacker))
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
 
                 if (ev.DamageType == DamageTypes.Grenade && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.GrenadeImmune))
                 {
@@ -191,7 +192,7 @@ namespace Subclass.Handlers
                     SinkHole sinkHoleEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<SinkHole>();
                     sinkHoleEffect.Intensity = 2;
                     ev.Target.ReferenceHub.playerEffectsController.EnableEffect(sinkHoleEffect, 5);
-                    ev.Amount = 0;
+                    ev.IsAllowed = false;
                 }
             }
 
@@ -206,15 +207,19 @@ namespace Subclass.Handlers
         public void OnShooting(ShootingEventArgs ev)
         {
             Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
-            if (target != null && target.Team == ev.Shooter.Team)
+            if (target != null)
             {
                 if (Tracking.PlayerHasFFToPlayer(ev.Shooter, target))
                 {
+                    Log.Debug($"Attacker: {ev.Shooter.Nickname} has been granted friendly fire", Subclass.Instance.Config.Debug);
                     ev.Shooter.IsFriendlyFireEnabled = true;
                     Timing.CallDelayed(0.1f, () =>
                     {
                         ev.Shooter.IsFriendlyFireEnabled = false;
                     });
+                }else
+                {
+                    Log.Debug($"Attacker: {ev.Shooter.Nickname} has not been granted friendly fire", Subclass.Instance.Config.Debug);
                 }
             }
         }

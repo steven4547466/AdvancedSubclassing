@@ -29,7 +29,7 @@ namespace Subclass.MonoBehaviours
                     if (p != null && Tracking.PlayersThatHadZombies.Any(e => e.Value.Contains(p)))
                     {
                         var item = Tracking.PlayersThatHadZombies.First(e => e.Value.Contains(p));
-                        p.SetRole(item.Key.Role, false, true);
+                        p.SetRole(item.Key.IsAlive ? item.Key.Role : (RoleType) Tracking.GetPreviousRole(item.Key), false);
                     }
                 }
             }

@@ -426,9 +426,11 @@ namespace Subclass.Handlers
 
         public void AttemptRevive(SendingConsoleCommandEventArgs ev, SubClass subClass, bool necro = false)
         {
+            Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} attempt", Subclass.Instance.Config.Debug);
             AbilityType ability = necro ? AbilityType.Necromancy : AbilityType.Revive;
             if (Tracking.OnCooldown(ev.Player, ability, subClass))
             {
+                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} on cooldown", Subclass.Instance.Config.Debug);
                 float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, ability, subClass, Time.time);
                 ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", necro ? "necromancy" : "revive").Replace("{seconds}", timeLeft.ToString()));
                 return;
@@ -441,7 +443,7 @@ namespace Subclass.Handlers
                 return Vector3.Distance(x.gameObject.transform.position, ev.Player.Position).CompareTo(Vector3.Distance(y.gameObject.transform.position, ev.Player.Position));
             });
 
-            if (colliders.Count() == 0)
+            if (colliders.Count == 0)
             {
                 ev.ReturnMessage = "You must be near a dead body to use this command";
                 ev.Player.Broadcast(2, "You must be near a dead body.");
@@ -449,7 +451,7 @@ namespace Subclass.Handlers
                 return;
             }
 
-            Ragdoll doll = colliders[0].gameObject.GetComponent<Ragdoll>();
+            Ragdoll doll = colliders[0].gameObject.GetComponentInParent<Ragdoll>();
             if (doll.owner == null)
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
@@ -457,6 +459,7 @@ namespace Subclass.Handlers
                 ev.Player.Broadcast(2, "This player is not revivable.");
                 return;
             }
+
             EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
             if (owner != null && !owner.IsAlive)
             {

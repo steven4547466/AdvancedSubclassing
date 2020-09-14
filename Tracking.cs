@@ -152,22 +152,27 @@ namespace Subclass
 
         public static void RemoveZombie(Player p)
         {
+            List<Player> toRemoveWith = new List<Player>();
+            List<Player> toRemoveHad = new List<Player>();
             foreach (var item in PlayersWithZombies)
             {
                 if (item.Value.Contains(p)) item.Value.Remove(p);
-                if (item.Value.Count == 0) PlayersWithZombies.Remove(item.Key);
+                if (item.Value.Count == 0) toRemoveWith.Add(item.Key);
             }
             foreach (var item in PlayersThatHadZombies)
             {
                 if (item.Value.Contains(p)) item.Value.Remove(p);
-                if (item.Value.Count == 0) PlayersThatHadZombies.Remove(item.Key);
+                if (item.Value.Count == 0) toRemoveHad.Add(item.Key);
             }
+
+            foreach (Player p1 in toRemoveWith) PlayersWithZombies.Remove(p1);
+            foreach (Player p1 in toRemoveHad) PlayersThatHadZombies.Remove(p1);
         }
 
         public static bool PlayerHasFFToPlayer(Player attacker, Player target)
         {
             Log.Debug($"Checking FF rules for Attacker: {attacker.Nickname} Target: {target?.Nickname}", Subclass.Instance.Config.Debug);
-            if (target != null && target.Team == attacker.Team)
+            if (target != null)
             {
                 if (PlayersWithZombies.Where(p => p.Value.Contains(target)).Count() > 0)
                 {
@@ -204,6 +209,7 @@ namespace Subclass
 
         public static bool RoleAllowedToDamage(Player p, RoleType role)
         {
+            Log.Debug($"Checking allowed damage rules for Attacker: {p.Nickname} to target role: {role}", Subclass.Instance.Config.Debug);
             if (PlayersWithSubclasses.ContainsKey(p))
                 return !PlayersWithSubclasses[p].RolesThatCantDamage.Contains(role);
             else
