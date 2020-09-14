@@ -232,7 +232,7 @@ namespace Subclass
                 {
                     if (PlayersWithSubclasses[player].EndsRoundWith != Team.RIP && 
                         PlayersWithSubclasses[player].EndsRoundWith != player.Team && 
-                        (!teamsAlive.Contains(player.Team) || teamsAlive.All(e => e == player.Team)))
+                        (!teamsAlive.Any(e => e == PlayersWithSubclasses[player].EndsRoundWith) || teamsAlive.All(e => e == PlayersWithSubclasses[player].EndsRoundWith)))
                     {
                         if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
                         else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);
