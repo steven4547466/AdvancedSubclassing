@@ -210,17 +210,23 @@ namespace Subclass
                 return true;
         }
 
-        public static void CheckRoundEnd(Player p, bool death)
+        public static void CheckRoundEnd()
         {
             List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
             teamsAlive.RemoveAll(t => t == Team.RIP);
-            if(!death) teamsAlive.Remove(teamsAlive.FirstOrDefault(t => t == p.Team));
             if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0) // If we didn't have to lock the round and at least 1 player has to switch teams, switch all players with subclasses to the team they can win with
             {
+                foreach(var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
+                {
+                    teamsAlive.Remove(item.Key.Team);
+                    teamsAlive.Add(item.Value.EndsRoundWith);
+                }
+
                 foreach (Player player in PlayersWithSubclasses.Keys)
                 {
-                    if (PlayersWithSubclasses[player].EndsRoundWith == Team.RIP) continue;
-                    if (PlayersWithSubclasses[player].EndsRoundWith != player.Team && (!teamsAlive.Contains(player.Team) || teamsAlive.All(e => e == player.Team)))
+                    if (PlayersWithSubclasses[player].EndsRoundWith != Team.RIP && 
+                        PlayersWithSubclasses[player].EndsRoundWith != player.Team && 
+                        (!teamsAlive.Contains(player.Team) || teamsAlive.All(e => e == player.Team)))
                     {
                         if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
                         else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);

@@ -32,7 +32,7 @@ namespace Subclass.Handlers
                 {
                     if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
                 }
-                Tracking.CheckRoundEnd(ev.Player, true);
+                Tracking.CheckRoundEnd();
             });
 
         }
@@ -42,7 +42,7 @@ namespace Subclass.Handlers
             Timing.CallDelayed(0.1f, () =>
             {
                 if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
-                Tracking.CheckRoundEnd(ev.Player, true);
+                Tracking.CheckRoundEnd();
             });
         }
 
@@ -130,7 +130,7 @@ namespace Subclass.Handlers
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
             Tracking.RemoveZombie(ev.Target);
-            Tracking.CheckRoundEnd(ev.Target, true);
+            Tracking.CheckRoundEnd();
         }
         
         public void OnEscaping(EscapingEventArgs ev)

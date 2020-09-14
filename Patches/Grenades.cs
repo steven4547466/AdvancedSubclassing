@@ -82,6 +82,7 @@ namespace Subclass.Patches
                     float amount = (float)(__instance.damageOverDistance.Evaluate(Vector3.Distance(position, component.transform.position)) * (component.ccm.IsHuman() ? ConfigFile.ServerConfig.GetFloat("human_grenade_multiplier", 0.7f) : ConfigFile.ServerConfig.GetFloat("scp_grenade_multiplier", 1f)));
                     if (amount > __instance.absoluteDamageFalloff)
                     {
+                        Exiled.API.Features.Log.Debug($"Attempting to hurt player {Player.Get(obj2)?.Nickname} with a grenade", Subclass.Instance.Config.Debug);
                         Transform[] grenadePoints = component.grenadePoints;
                         index = 0;
                         while (true)

@@ -449,10 +449,17 @@ namespace Subclass.Handlers
                 return;
             }
 
-            EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
-            if (owner != null && owner.Role == RoleType.Spectator)
+            Ragdoll doll = colliders[0].gameObject.GetComponent<Ragdoll>();
+            if (doll.owner == null)
             {
-                Ragdoll doll = colliders[0].gameObject.GetComponent<Ragdoll>();
+                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
+                ev.ReturnMessage = "This player is not revivable.";
+                ev.Player.Broadcast(2, "This player is not revivable.");
+                return;
+            }
+            EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
+            if (owner != null && !owner.IsAlive)
+            {
                 if (!necro && Tracking.GetPreviousTeam(owner) != null &&
                 Tracking.GetPreviousTeam(owner) == ev.Player.Team) owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
                 else if (necro)
