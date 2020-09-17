@@ -3,7 +3,9 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Permissions.Commands.Permissions;
+using Grenades;
 using MEC;
+using Mirror;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,7 +115,7 @@ namespace Subclass.Handlers
             Tracking.PlayersWithSubclasses.Add(player, subClass);
             try
             {
-                player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort) subClass.FloatOptions["BroadcastTimer"] : (ushort) 5, subClass.StringOptions["GotClassMessage"]);
+                player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort) subClass.FloatOptions["BroadcastTimer"] : (ushort) Subclass.Instance.Config.GlobalBroadcastTime, subClass.StringOptions["GotClassMessage"]);
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
@@ -416,6 +418,31 @@ namespace Subclass.Handlers
                     {
                         ev.ReturnMessage = "You must have the noclip ability to use this command";
                         Log.Debug($"Player {ev.Player.Nickname} could not noclip", Subclass.Instance.Config.Debug);
+                    }
+                    break;
+
+                case "flash":
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.FlashOnCommand))
+                    {
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to flash on command", Subclass.Instance.Config.Debug);
+                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass, Time.time);
+                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "flash").Replace("{seconds}", timeLeft.ToString()));
+                            return;
+                        }
+
+                        // Credit to KoukoCocoa's AdminTools for the grenade spawn script below, I was lost. https://github.com/KoukoCocoa/AdminTools/
+                        GrenadeManager grenadeManager = ev.Player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
+                        GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFlash);
+                        Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
+                        grenade.fuseDuration = 0.3f;
+                        grenade.FullInitData(grenadeManager, ev.Player.Position, Quaternion.Euler(grenade.throwStartAngle), 
+                            grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+                        NetworkServer.Spawn(grenade.gameObject);
+                        Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
+                        Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
                     }
                     break;
                 default:

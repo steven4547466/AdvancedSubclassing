@@ -2,15 +2,13 @@
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Events.Handlers;
 using MEC;
-using PlayableScps;
-using Subclass.MonoBehaviours;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using EPlayer = Exiled.API.Features.Player;
+using EMap = Exiled.API.Features.Map;
+using System.Collections.Generic;
 
 namespace Subclass.Handlers
 {
@@ -245,7 +243,7 @@ namespace Subclass.Handlers
                 if (!Tracking.PlayersThatBypassedTeslaGates.ContainsKey(ev.Player)) Tracking.PlayersThatBypassedTeslaGates.Add(ev.Player, 0);
                 Tracking.PlayersThatBypassedTeslaGates[ev.Player] = Time.time;
                 ev.IsTriggerable = false;
-                ev.Player.IsUsingStamina = false;
+                //ev.Player.IsUsingStamina = false;
             }
         }
 
@@ -253,6 +251,21 @@ namespace Subclass.Handlers
         {
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && 
                 Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.CantBeSacraficed)) ev.IsAllowed = false;
+        }
+
+        public void OnFailingEscapePocketDimension(FailingEscapePocketDimensionEventArgs ev)
+        {
+            if (EPlayer.List.Any(p => p.Role == RoleType.Scp106))
+            {
+                EPlayer scp106 = EPlayer.List.First(p => p.Role == RoleType.Scp106);
+                if (Tracking.PlayersWithSubclasses.ContainsKey(scp106) && Tracking.PlayersWithSubclasses[scp106].Abilities.Contains(AbilityType.Zombie106))
+                {
+                    ev.IsAllowed = false;
+                    ev.Player.SetRole(RoleType.Scp0492, true);
+                    List<Room> rooms = EMap.Rooms.Where(r => r.Zone == Exiled.API.Enums.ZoneType.HeavyContainment).ToList();
+                    ev.Player.Position = rooms[rnd.Next(rooms.Count)].Position + new Vector3(0, 1, 0);
+                }
+            }
         }
     }
 }

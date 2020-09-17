@@ -12,6 +12,7 @@ using Map = Exiled.Events.Handlers.Map;
 using System.Reflection;
 using CustomPlayerEffects;
 using Exiled.Permissions.Commands.Permissions;
+using Subclass.Managers;
 
 namespace Subclass
 {
@@ -84,6 +85,7 @@ namespace Subclass
             Player.Hurting += player.OnHurting;
             Player.EnteringFemurBreaker += player.OnEnteringFemurBreaker;
             Player.Escaping += player.OnEscaping;
+            Player.FailingEscapePocketDimension += player.OnFailingEscapePocketDimension;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -109,6 +111,7 @@ namespace Subclass
             Player.Hurting -= player.OnHurting;
             Player.EnteringFemurBreaker -= player.OnEnteringFemurBreaker;
             Player.Escaping -= player.OnEscaping;
+            Player.FailingEscapePocketDimension -= player.OnFailingEscapePocketDimension;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
@@ -125,59 +128,42 @@ namespace Subclass
         {
             Dictionary<string, SubClass> classes = new Dictionary<string, SubClass>();
             Config config = Instance.Config;
-            foreach (var item in Instance.Config.Classes)
+            classes = SubclassManager.LoadClasses();
+            if (config.AdditiveChance)
             {
-                try
+                foreach (var item in classes)
                 {
-                    List<string> ffRules = config.AdvancedFfRules.ContainsKey(item.Key) ? config.AdvancedFfRules[item.Key] : null;
-                    List<string> onHitEffects = config.OnHitEffects.ContainsKey(item.Key) ? config.OnHitEffects[item.Key] : null;
-                    List<string> onSpawnEffects = config.OnSpawnEffects.ContainsKey(item.Key) ? config.OnSpawnEffects[item.Key] : null;
-                    List<RoleType> cantDamage = config.RolesThatCantDamage.ContainsKey(item.Key) ? config.RolesThatCantDamage[item.Key] : null;
-                    Team endsRoundWith = (config.EndsRoundWith.ContainsKey(item.Key) ? config.EndsRoundWith[item.Key] : Team.RIP);
-
-                    SubClass c = new SubClass(item.Key, item.Value, config.ClassesOptionsStrings[item.Key], config.ClassesOptionsBool[item.Key], config.ClassesOptionsInt[item.Key], config.ClassesOptionsFloat[item.Key], config.ClassesOptionsSpawns[item.Key], config.ClassesOptionsSpawnItems[item.Key], config.ClassesOptionsAmmoOnSpawn[item.Key], config.ClassesOptionsAbilities[item.Key], config.ClassesOptionsAbilityCooldowns[item.Key], ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith);
-                    classes.Add(item.Key, c);
-                    Log.Debug($"Loaded class {item.Key}", config.Debug);
-                    if (config.AdditiveChance)
+                    foreach (RoleType role in item.Value.AffectsRoles)
                     {
-                        foreach (RoleType role in item.Value)
-                        {
-                            if (!ClassesAdditive.ContainsKey(role)) ClassesAdditive.Add(role, new Dictionary<SubClass, float>() { { c, c.FloatOptions["ChanceToGet"] } });
-                            else ClassesAdditive[role].Add(c, c.FloatOptions["ChanceToGet"]);
-                        }
-                        //var additiveClasses = ClassesAdditive.ToList();
-                        Dictionary<RoleType, Dictionary<SubClass, float>> classesAdditiveCopy = new Dictionary<RoleType, Dictionary<SubClass, float>>();
-                        foreach (RoleType role in ClassesAdditive.Keys)
-                        {
-                            var additiveClasses = ClassesAdditive[role].ToList();
-                            additiveClasses.Sort((x, y) => y.Value.CompareTo(x.Value));
-                            if (!classesAdditiveCopy.ContainsKey(role)) classesAdditiveCopy.Add(role, new Dictionary<SubClass, float>());
-                            classesAdditiveCopy[role] = additiveClasses.ToDictionary(x => x.Key, x => x.Value);
-                        }
-                        ClassesAdditive.Clear();
-                        Dictionary<RoleType, float> sums = new Dictionary<RoleType, float>();
-                        foreach (var roles in classesAdditiveCopy)
-                        {
-                            foreach (SubClass sclass in classesAdditiveCopy[roles.Key].Keys)
-                            {
-                                if (!sums.ContainsKey(roles.Key)) sums.Add(roles.Key, 0);
-                                sums[roles.Key] += sclass.FloatOptions["ChanceToGet"];
-                                if (!ClassesAdditive.ContainsKey(roles.Key)) ClassesAdditive.Add(roles.Key, new Dictionary<SubClass, float>() { { sclass, sclass.FloatOptions["ChanceToGet"] } });
-                                else ClassesAdditive[roles.Key].Add(sclass, sums[roles.Key]);
-                            }
-                        }
+                        if (!ClassesAdditive.ContainsKey(role)) ClassesAdditive.Add(role, new Dictionary<SubClass, float>() { { item.Value, item.Value.FloatOptions["ChanceToGet"] } });
+                        else ClassesAdditive[role].Add(item.Value, item.Value.FloatOptions["ChanceToGet"]);
                     }
-                    else
-                        ClassesAdditive = null;
+
                 }
-                catch(KeyNotFoundException e)
+                //var additiveClasses = ClassesAdditive.ToList();
+                Dictionary<RoleType, Dictionary<SubClass, float>> classesAdditiveCopy = new Dictionary<RoleType, Dictionary<SubClass, float>>();
+                foreach (RoleType role in ClassesAdditive.Keys)
                 {
-                    throw new Exception($"An option was not found, even if it's empty, make sure to include it. See the wiki for more info. Class: {item.Key}");
-                }catch (NullReferenceException e)
+                    var additiveClasses = ClassesAdditive[role].ToList();
+                    additiveClasses.Sort((x, y) => y.Value.CompareTo(x.Value));
+                    if (!classesAdditiveCopy.ContainsKey(role)) classesAdditiveCopy.Add(role, new Dictionary<SubClass, float>());
+                    classesAdditiveCopy[role] = additiveClasses.ToDictionary(x => x.Key, x => x.Value);
+                }
+                ClassesAdditive.Clear();
+                Dictionary<RoleType, float> sums = new Dictionary<RoleType, float>();
+                foreach (var roles in classesAdditiveCopy)
                 {
-                    throw new Exception($"Class: {item.Key} was not present in one of the options dictionaries. even if it's empty, make sure to include it. See the wiki for more info.");
+                    foreach (SubClass sclass in classesAdditiveCopy[roles.Key].Keys)
+                    {
+                        if (!sums.ContainsKey(roles.Key)) sums.Add(roles.Key, 0);
+                        sums[roles.Key] += sclass.FloatOptions["ChanceToGet"];
+                        if (!ClassesAdditive.ContainsKey(roles.Key)) ClassesAdditive.Add(roles.Key, new Dictionary<SubClass, float>() { { sclass, sclass.FloatOptions["ChanceToGet"] } });
+                        else ClassesAdditive[roles.Key].Add(sclass, sums[roles.Key]);
+                    }
                 }
             }
+            else
+                ClassesAdditive = null;
             return classes;
         }
     }
@@ -268,6 +254,8 @@ namespace Subclass
         GrenadeImmune,
         CantBeSacraficed,
         CantActivateFemurBreaker,
-        LifeSteal
+        LifeSteal,
+        Zombie106,
+        FlashOnCommand
     }
 }

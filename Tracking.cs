@@ -40,7 +40,7 @@ namespace Subclass
             if (RoundJustStarted()) return;
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
-            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop) 
+            if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop)
                 && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
                 p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
@@ -220,7 +220,7 @@ namespace Subclass
         {
             List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
             teamsAlive.RemoveAll(t => t == Team.RIP);
-            if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0) // If we didn't have to lock the round and at least 1 player has to switch teams, switch all players with subclasses to the team they can win with
+            if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0)
             {
                 foreach(var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
                 {
