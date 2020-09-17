@@ -262,6 +262,10 @@ namespace Subclass.Handlers
                 {
                     ev.IsAllowed = false;
                     ev.Player.SetRole(RoleType.Scp0492, true);
+                    if (Tracking.PlayersWithSubclasses[scp106].IntOptions.ContainsKey("Zombie106Health")) {
+                        ev.Player.Health = Tracking.PlayersWithSubclasses[scp106].IntOptions["Zombie106Health"];
+                        ev.Player.MaxHealth = Tracking.PlayersWithSubclasses[scp106].IntOptions["Zombie106Health"];
+                    }
                     List<Room> rooms = EMap.Rooms.Where(r => r.Zone == Exiled.API.Enums.ZoneType.HeavyContainment).ToList();
                     ev.Player.Position = rooms[rnd.Next(rooms.Count)].Position + new Vector3(0, 1, 0);
                 }
