@@ -18,6 +18,7 @@ using YamlDotNet.Serialization.TypeInspectors;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization.ObjectGraphVisitors;
 using Exiled.API.Enums;
+using Microsoft.SqlServer.Server;
 
 
 // -----------------------------------------------------------------------
@@ -105,6 +106,7 @@ namespace Subclass.Managers
                     try
                     {
                         Dictionary<string, object> obj = (Dictionary<string, object>) Deserializer.Deserialize(Serializer.Serialize(rawClass), typeof(Dictionary<string, object>));
+                        Log.Debug($"Attempting to load class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
 
                         Dictionary<object, object> boolOptionsTemp = (Dictionary<object, object>)obj["boolean_options"];
                         Dictionary<string, bool> boolOptions = new Dictionary<string, bool>();
@@ -192,6 +194,10 @@ namespace Subclass.Managers
                     {
                         Log.Error($"Class with path: {path} could not be loaded Skipping. {yamlException}");
                     }
+                    catch (FormatException e)
+                    {
+                        Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}");
+                    }
                 }
 
                 Log.Info("Classes loaded successfully!");
@@ -200,7 +206,7 @@ namespace Subclass.Managers
             }
             catch (Exception exception)
             {
-                Log.Error($"An error has occurred while loading configs! {exception}");
+                Log.Error($"An error has occurred while loading subclasses! {exception}");
 
                 return null;
             }

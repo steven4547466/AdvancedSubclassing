@@ -64,6 +64,22 @@ namespace Subclass.Handlers
                     e.AffectsRoles.Contains(player.Role)));
             if (rolesForClass[player.Role] > 0)
             {
+                List<Team> teamsAlive = EPlayer.List.Select(p1 => p1.Team).ToList();
+                teamsAlive.RemoveAll(t => t == Team.RIP);
+                foreach (var item in Tracking.PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
+                {
+                    teamsAlive.Remove(item.Key.Team);
+                    teamsAlive.Add(item.Value.EndsRoundWith);
+                }
+
+                teamsAlive.ForEach(t => {
+                    if (t == Team.CDP) t = Team.CHI;
+                    else if (t == Team.RSC) t = Team.MTF;
+                    else if (t == Team.TUT) t = Team.SCP;
+                });
+
+                teamsAlive.Add(Team.SCP);
+
                 if (!Subclass.Instance.Config.AdditiveChance)
                 {
                     Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
@@ -71,7 +87,10 @@ namespace Subclass.Handlers
                     (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
                         Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && (!subClass.IntOptions.ContainsKey("MaxAlive") || subClass.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]))
+                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && 
+                            (!subClass.IntOptions.ContainsKey("MaxAlive") || 
+                            Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) && 
+                            (subClass.EndsRoundWith == Team.RIP || teamsAlive.Contains(subClass.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                             AddClass(player, subClass);
@@ -92,8 +111,10 @@ namespace Subclass.Handlers
                     foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
                     (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}, value generated: {num} must be less than {possibity.Value}", Subclass.Instance.Config.Debug);
-                        if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || possibity.Key.IntOptions.ContainsKey("MaxAlive") && Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]))
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || 
+                            Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
+                            (possibity.Key.EndsRoundWith == Team.RIP || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
                             AddClass(player, possibity.Key);
@@ -187,12 +208,6 @@ namespace Subclass.Handlers
                 player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
             }
             if (subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
-            if (subClass.Abilities.Contains(AbilityType.InfiniteAmmo))
-            {
-                player.Ammo[0] = uint.MaxValue;
-                player.Ammo[1] = uint.MaxValue;
-                player.Ammo[2] = uint.MaxValue;
-            }
 
             if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
             {
@@ -207,6 +222,13 @@ namespace Subclass.Handlers
             if (subClass.SpawnAmmo[AmmoType.Nato9] != -1)
             {
                 player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
+            }
+
+            if (subClass.Abilities.Contains(AbilityType.InfiniteAmmo))
+            {
+                player.Ammo[0] = uint.MaxValue;
+                player.Ammo[1] = uint.MaxValue;
+                player.Ammo[2] = uint.MaxValue;
             }
 
             if (player.RankName == null || player.RankName == "") // Comply with verified server rules.

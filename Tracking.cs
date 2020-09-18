@@ -220,19 +220,41 @@ namespace Subclass
         {
             List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
             teamsAlive.RemoveAll(t => t == Team.RIP);
+            foreach (var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
+            {
+                teamsAlive.Remove(item.Key.Team);
+                teamsAlive.Add(item.Value.EndsRoundWith);
+            }
+
+            teamsAlive.ForEach(t => {
+                if (t == Team.CDP) t = Team.CHI;
+                else if (t == Team.RSC) t = Team.MTF;
+                else if (t == Team.TUT) t = Team.SCP;
+            });
+
+            List<Team> uniqueTeamsAlive = new List<Team>();
+
+            foreach(Team t in teamsAlive)
+            {
+                if (!uniqueTeamsAlive.Contains(t)) uniqueTeamsAlive.Add(t);
+            }
+
+            if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains(Team.SCP))
+            {
+                List<Player> zombies = API.RevivedZombies();
+                if (Player.List.Where(p => p.Team == Team.SCP).All(p => zombies.Contains(p)))
+                {
+                    foreach (Player zombie in zombies) zombie.Kill();
+                }
+            }
+
             if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0)
             {
-                foreach(var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
-                {
-                    teamsAlive.Remove(item.Key.Team);
-                    teamsAlive.Add(item.Value.EndsRoundWith);
-                }
-
                 foreach (Player player in PlayersWithSubclasses.Keys)
                 {
                     if (PlayersWithSubclasses[player].EndsRoundWith != Team.RIP && 
                         PlayersWithSubclasses[player].EndsRoundWith != player.Team && 
-                        (!teamsAlive.Any(e => e == PlayersWithSubclasses[player].EndsRoundWith) || teamsAlive.All(e => e == PlayersWithSubclasses[player].EndsRoundWith)))
+                        (teamsAlive.Count(e => e == PlayersWithSubclasses[player].EndsRoundWith) == 1 || teamsAlive.All(e => e == PlayersWithSubclasses[player].EndsRoundWith)))
                     {
                         if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
                         else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);
