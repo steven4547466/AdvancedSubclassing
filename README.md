@@ -12,3 +12,5 @@ If you like this plugin, check out some of my other ones!
 # This plugin is a little complicated, so it has a [wiki](https://github.com/steven4547466/AdvancedSubclassing/wiki)!
 
 Here's a small example of what's possible: https://www.youtube.com/watch?v=tMJ22G308p4
+
+As of September 9th, 2020, I will start using a [GitKraken Board](https://app.gitkraken.com/glo/board/X2TFPCQxbQAR8KyS) as a roadmap and tracker. Stuff before that date is not tracked there.
