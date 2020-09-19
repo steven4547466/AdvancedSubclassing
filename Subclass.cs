@@ -202,11 +202,13 @@ namespace Subclass
 
         public Team EndsRoundWith = Team.RIP;
 
+        public RoleType SpawnsAs = RoleType.None;
+
         public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
             Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
-            Team endsRoundWith = Team.RIP)
+            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None)
         {
             Name = name;
             AffectsRoles = role;
@@ -224,6 +226,7 @@ namespace Subclass
             if (spawnEffects != null) OnSpawnEffects = spawnEffects;
             if (cantDamage != null) RolesThatCantDamage = cantDamage;
             if (endsRoundWith != Team.RIP) EndsRoundWith = endsRoundWith;
+            if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
         }
     }
 

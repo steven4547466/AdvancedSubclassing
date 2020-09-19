@@ -75,7 +75,7 @@ namespace Subclass.Managers
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses"));
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global")));
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
-                    return null;
+                    return new Dictionary<string, SubClass>();
                 }
 
                 if (!Directory.Exists(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global"))))
@@ -83,14 +83,14 @@ namespace Subclass.Managers
                     Log.Info("Subclasses global directory not found, creating.");
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global")));
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
-                    return null;
+                    return new Dictionary<string, SubClass>();
                 }
 
                 if (!Directory.Exists(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString()))))
                 {
                     Log.Info("Subclasses directory for this port not found, creating.");
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
-                    return null;
+                    return new Dictionary<string, SubClass>();
                 }
 
                 List<string> classes = new List<string>();
@@ -186,8 +186,10 @@ namespace Subclass.Managers
                             abilityCooldowns.Add((AbilityType)Enum.Parse(typeof(AbilityType), (string)item.Key), float.Parse((string)item.Value));
                         }
 
+                        RoleType spawnsAs = obj.ContainsKey("spawns_as") ? (RoleType)Enum.Parse(typeof(RoleType), (string)obj["spawns_as"]) : RoleType.None;
+
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
-                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith));
+                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

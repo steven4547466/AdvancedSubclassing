@@ -140,6 +140,8 @@ namespace Subclass.Handlers
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
+                if (subClass.SpawnsAs != RoleType.None) player.Role = subClass.SpawnsAs;
+
                 if (subClass.SpawnItems.Count != 0)
                 {
                     player.ClearInventory();
@@ -273,6 +275,7 @@ namespace Subclass.Handlers
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
             if (!Subclass.Instance.Config.AdditiveChance)
             {
+                List<RoleType> hasRole = new List<RoleType>();
                 foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) ||
                     e.AffectsRoles.Contains(RoleType.NtfCommander) || e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency))
                     && ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
@@ -284,19 +287,34 @@ namespace Subclass.Handlers
                     {
                         if (ntfSpawning)
                         {
-                            if (subClass.AffectsRoles.Contains(RoleType.NtfCadet))
+                            if (!hasRole.Contains(RoleType.NtfCadet) && subClass.AffectsRoles.Contains(RoleType.NtfCadet))
+                            {
                                 Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
-                            if (subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
+                                hasRole.Add(RoleType.NtfCadet);
+                            }
+
+                            if (!hasRole.Contains(RoleType.NtfLieutenant) && subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
+                            {
                                 Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
-                            if (subClass.AffectsRoles.Contains(RoleType.NtfCommander))
+                                hasRole.Add(RoleType.NtfLieutenant);
+                            }
+
+                            if (!hasRole.Contains(RoleType.NtfCommander) && subClass.AffectsRoles.Contains(RoleType.NtfCommander))
+                            {
                                 Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
+                                hasRole.Add(RoleType.NtfCommander);
+                            }
+
+                            if (hasRole.Count == 3) break;
                         }
                         else
                         {
                             if (subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                            {
                                 Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
+                                break;
+                            }
                         }
-                        break;
                     }
                 }
             }else
@@ -524,7 +542,7 @@ namespace Subclass.Handlers
                 {
                     Timing.CallDelayed(0.1f, () =>
                     {
-                        owner.Position = doll.LastRagdollPos[doll.LastRagdollPos.Count - 1].position;
+                        owner.Position = colliders[0].gameObject.transform.position;
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);
