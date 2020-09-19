@@ -540,7 +540,7 @@ namespace Subclass.Handlers
                 }
                 if (owner.Role != RoleType.Spectator)
                 {
-                    Timing.CallDelayed(0.1f, () =>
+                    Timing.CallDelayed(0.2f, () =>
                     {
                         owner.Position = colliders[0].gameObject.transform.position;
                     });
