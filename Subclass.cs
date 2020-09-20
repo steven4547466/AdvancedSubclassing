@@ -259,6 +259,7 @@ namespace Subclass
         CantActivateFemurBreaker,
         LifeSteal,
         Zombie106,
-        FlashOnCommand
+        FlashOnCommand,
+        ExplodeOnDeath
     }
 }

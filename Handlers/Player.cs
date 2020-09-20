@@ -9,6 +9,8 @@ using UnityEngine;
 using EPlayer = Exiled.API.Features.Player;
 using EMap = Exiled.API.Features.Map;
 using System.Collections.Generic;
+using Grenades;
+using Mirror;
 
 namespace Subclass.Handlers
 {
@@ -21,6 +23,7 @@ namespace Subclass.Handlers
         {
             Timing.CallDelayed(0.1f, () =>
             {
+                Tracking.QueuedCassieMessages.Clear();
                 if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
                 {
                     Tracking.RemoveAndAddRoles(ev.Player, true);
@@ -29,6 +32,11 @@ namespace Subclass.Handlers
                 else
                 {
                     if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
+                }
+                foreach (string message in Tracking.QueuedCassieMessages)
+                {
+                    Cassie.Message(message, true, false);
+                    Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
                 }
                 Tracking.CheckRoundEnd();
             });
@@ -40,7 +48,13 @@ namespace Subclass.Handlers
             Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(0.1f, () =>
             {
+                Tracking.QueuedCassieMessages.Clear();
                 Tracking.RemoveAndAddRoles(ev.Player);
+                foreach (string message in Tracking.QueuedCassieMessages)
+                {
+                    Cassie.Message(message, true, false);
+                    Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
+                }
                 Tracking.CheckRoundEnd();
             });
         }
@@ -126,6 +140,18 @@ namespace Subclass.Handlers
 
         public void OnDied(DiedEventArgs ev)
         {
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
+            {
+                GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
+                GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFrag);
+                Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
+                grenade.fuseDuration = Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("ExplodeOnDeathFuseTimer") ? 
+                    Tracking.PlayersWithSubclasses[ev.Target].FloatOptions["ExplodeOnDeathFuseTimer"] : 2f;
+                grenade.FullInitData(grenadeManager, ev.Target.Position, Quaternion.Euler(grenade.throwStartAngle),
+                    grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+                NetworkServer.Spawn(grenade.gameObject);
+            }
+
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveZombie(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
@@ -200,6 +226,13 @@ namespace Subclass.Handlers
                 ev.Attacker.Health += Mathf.Clamp(ev.Amount * ((Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("LifeStealPercent") ?
                     Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["LiftStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth);
             }
+
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
+                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("OnHitDamageMultiplier"))
+            {
+                ev.Amount *= Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["OnHitDamageMultiplier"];
+            }
+
         }
 
         public void OnShooting(ShootingEventArgs ev)

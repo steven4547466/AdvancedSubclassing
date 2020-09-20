@@ -34,7 +34,7 @@ namespace Subclass.Handlers
                 }
                 foreach(string message in Tracking.QueuedCassieMessages)
                 {
-                    Cassie.Message(message);
+                    Cassie.Message(message, true, false);
                     Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
                 }
                 Tracking.QueuedCassieMessages.Clear();
