@@ -19,6 +19,7 @@ namespace Subclass.Patches
         {
             Player player = Player.Get(__instance.Hub);
             if (player == null) return true;
+            if (Tracking.PlayersInvisibleByCommand.Contains(player)) return false;
             if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
             {
                 //Log.Debug($"Player {player.Nickname} does not have subclass or invibility", Subclass.Instance.Config.Debug);

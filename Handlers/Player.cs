@@ -21,6 +21,7 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Timing.CallDelayed(0.1f, () =>
             {
                 Tracking.QueuedCassieMessages.Clear();
@@ -45,6 +46,7 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(0.1f, () =>
             {
@@ -140,6 +142,7 @@ namespace Subclass.Handlers
 
         public void OnDied(DiedEventArgs ev)
         {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Target)) Tracking.PlayersInvisibleByCommand.Remove(ev.Target);
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
             {
                 GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
@@ -160,6 +163,7 @@ namespace Subclass.Handlers
         
         public void OnEscaping(EscapingEventArgs ev)
         {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveAndAddRoles(ev.Player, true);
         }
 
@@ -237,6 +241,7 @@ namespace Subclass.Handlers
 
         public void OnShooting(ShootingEventArgs ev)
         {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Shooter)) Tracking.PlayersInvisibleByCommand.Remove(ev.Shooter);
             Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
             if (target != null)
             {
@@ -303,6 +308,11 @@ namespace Subclass.Handlers
                     ev.Player.Position = rooms[rnd.Next(rooms.Count)].Position + new Vector3(0, 1, 0);
                 }
             }
+        }
+
+        public void OnInteracted(InteractedEventArgs ev)
+        {
+            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
         }
     }
 }

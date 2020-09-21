@@ -27,6 +27,8 @@ namespace Subclass
 
         public static List<Player> FriendlyFired = new List<Player>();
 
+        public static List<Player> PlayersInvisibleByCommand = new List<Player>();
+
         public static List<string> QueuedCassieMessages = new List<string>();
 
         public static float RoundStartedAt = 0f;

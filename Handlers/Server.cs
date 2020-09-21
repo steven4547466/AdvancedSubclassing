@@ -485,6 +485,52 @@ namespace Subclass.Handlers
                         Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
                     }
                     break;
+
+                case "invis":
+                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) 
+                    {
+                        ev.ReturnMessage = "You must have the invisible on command ability to use this command";
+                        Log.Debug($"Player {ev.Player.Nickname} could not go invisible on command", Subclass.Instance.Config.Debug);
+                    }
+                    Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
+                    if (scp268 != null)
+                    {
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+
+                        if (!subClass.Abilities.Contains(AbilityType.InvisibleOnCommand))
+
+                        if (scp268.Enabled)
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
+                            ev.Player.Broadcast(3, "You're already invisible!");
+                            return;
+                        }
+
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
+                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass, Time.time);
+                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisible").Replace("{seconds}", timeLeft.ToString()));
+                            return;
+                        }
+
+                        //scp268.Duration = subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
+                        //    subClass.FloatOptions["InvisibleOnCommandDuration"]*2f : 30f*2f;
+
+                        //ev.Player.ReferenceHub.playerEffectsController.EnableEffect(scp268);
+
+                        ev.Player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+                        Tracking.PlayersInvisibleByCommand.Add(ev.Player);
+                        Timing.CallDelayed(subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
+                            subClass.FloatOptions["InvisibleOnCommandDuration"] : 30f, () => {
+                                if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
+                                if (scp268.Enabled) ev.Player.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
+                            });
+
+                        Tracking.AddCooldown(ev.Player, AbilityType.InvisibleOnCommand);
+
+                    }
+                    break;
                 default:
                     ev.IsAllowed = true;
                     break;

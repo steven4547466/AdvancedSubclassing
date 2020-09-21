@@ -86,6 +86,7 @@ namespace Subclass
             Player.EnteringFemurBreaker += player.OnEnteringFemurBreaker;
             Player.Escaping += player.OnEscaping;
             Player.FailingEscapePocketDimension += player.OnFailingEscapePocketDimension;
+            Player.Interacted += player.OnInteracted;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -112,6 +113,7 @@ namespace Subclass
             Player.EnteringFemurBreaker -= player.OnEnteringFemurBreaker;
             Player.Escaping -= player.OnEscaping;
             Player.FailingEscapePocketDimension -= player.OnFailingEscapePocketDimension;
+            Player.Interacted -= player.OnInteracted;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
@@ -260,6 +262,7 @@ namespace Subclass
         LifeSteal,
         Zombie106,
         FlashOnCommand,
-        ExplodeOnDeath
+        ExplodeOnDeath,
+        InvisibleOnCommand
     }
 }
