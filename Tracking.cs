@@ -19,6 +19,8 @@ namespace Subclass
 
         public static Dictionary<Player, float> PlayersThatBypassedTeslaGates = new Dictionary<Player, float>();
 
+        public static Dictionary<Player, float> PlayersThatJustGotAClass = new Dictionary<Player, float>();
+
         public static Dictionary<Player, List<Player>> PlayersWithZombies = new Dictionary<Player, List<Player>>();
 
         public static Dictionary<Player, List<Player>> PlayersThatHadZombies = new Dictionary<Player, List<Player>>();
@@ -39,6 +41,7 @@ namespace Subclass
 
         public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
         {
+            if (PlayersThatJustGotAClass.ContainsKey(p) && PlayersThatJustGotAClass[p] > Time.time) return;
             if (RoundJustStarted()) return;
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);

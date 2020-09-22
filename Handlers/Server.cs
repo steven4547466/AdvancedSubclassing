@@ -53,6 +53,7 @@ namespace Subclass.Handlers
             Tracking.QueuedCassieMessages.Clear();
             Tracking.NextSpawnWave.Clear();
             Tracking.NextSpawnWaveGetsRole.Clear();
+            Tracking.PlayersThatJustGotAClass.Clear();
         }
 
 
@@ -134,6 +135,8 @@ namespace Subclass.Handlers
 
         public void AddClass(EPlayer player, SubClass subClass) {
             Tracking.PlayersWithSubclasses.Add(player, subClass);
+            if(!Tracking.PlayersThatJustGotAClass.ContainsKey(player)) Tracking.PlayersThatJustGotAClass.Add(player, Time.time + 3f);
+            else Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
             try
             {
                 player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort) subClass.FloatOptions["BroadcastTimer"] : (ushort) Subclass.Instance.Config.GlobalBroadcastTime, subClass.StringOptions["GotClassMessage"]);
