@@ -258,6 +258,7 @@ namespace Subclass.Handlers
                             player.ReferenceHub.playerEffectsController.EnableByString(effect,
                                 subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
                                 subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
+                            Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
                         }
                         else
                         {
