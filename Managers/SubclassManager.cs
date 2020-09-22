@@ -108,6 +108,8 @@ namespace Subclass.Managers
                         Dictionary<string, object> obj = (Dictionary<string, object>) Deserializer.Deserialize(Serializer.Serialize(rawClass), typeof(Dictionary<string, object>));
                         Log.Debug($"Attempting to load class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
 
+
+                        Log.Debug($"Attempting to load bool options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> boolOptionsTemp = (Dictionary<object, object>)obj["boolean_options"];
                         Dictionary<string, bool> boolOptions = new Dictionary<string, bool>();
                         foreach (var item in boolOptionsTemp)
@@ -116,11 +118,19 @@ namespace Subclass.Managers
                         }
                         if (!boolOptions["Enabled"]) continue;
 
+                        Log.Debug($"Attempting to load ff rules for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> ffRules = obj.ContainsKey("advanced_ff_rules") ? ((IEnumerable<object>)obj["advanced_ff_rules"]).Cast<string>().ToList() : null;
+
+                        Log.Debug($"Attempting to load on hit effects for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> onHitEffects = obj.ContainsKey("on_hit_effects") ? ((IEnumerable<object>)obj["on_hit_effects"]).Cast<string>().ToList() : null;
+
+                        Log.Debug($"Attempting to load on spawn effects for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> onSpawnEffects = obj.ContainsKey("on_spawn_effects") ? ((IEnumerable<object>)obj["on_spawn_effects"]).Cast<string>().ToList() : null;
+
+                        Log.Debug($"Attempting to load ends round with for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Team endsRoundWith = obj.ContainsKey("ends_round_with") ? (Team)Enum.Parse(typeof(Team), (string)obj["ends_round_with"]) : Team.RIP;
 
+                        Log.Debug($"Attempting to load roles that cant damage for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> cantDamageTemp = obj.ContainsKey("roles_that_cant_damage") ? ((IEnumerable<object>)obj["roles_that_cant_damage"]).Cast<string>().ToList() : null;
                         List<RoleType> cantDamage = new List<RoleType>();
                         if (cantDamageTemp != null)
@@ -128,10 +138,12 @@ namespace Subclass.Managers
                             foreach (string role in cantDamageTemp) cantDamage.Add((RoleType)Enum.Parse(typeof(RoleType), role));
                         }
 
+                        Log.Debug($"Attempting to load affects roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> affectsRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
                         List<RoleType> affectsRoles = new List<RoleType>();
                         foreach (string role in affectsRolesTemp) affectsRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
 
+                        Log.Debug($"Attempting to load string options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> stringOptionsTemp = (Dictionary<object, object>)obj["string_options"];
                         Dictionary<string, string> stringOptions = new Dictionary<string, string>();
                         foreach (var item in stringOptionsTemp)
@@ -139,6 +151,7 @@ namespace Subclass.Managers
                             stringOptions.Add((string)item.Key, (string)item.Value);
                         }
 
+                        Log.Debug($"Attempting to load int options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> intOptionsTemp = (Dictionary<object, object>)obj["integer_options"];
                         Dictionary<string, int> intOptions = new Dictionary<string, int>();
                         foreach (var item in intOptionsTemp)
@@ -146,6 +159,7 @@ namespace Subclass.Managers
                             intOptions.Add((string)item.Key, int.Parse((string) item.Value));
                         }
 
+                        Log.Debug($"Attempting to load float options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> floatOptionsTemp = (Dictionary<object, object>)obj["float_options"];
                         Dictionary<string, float> floatOptions = new Dictionary<string, float>();
                         foreach (var item in floatOptionsTemp)
@@ -153,13 +167,14 @@ namespace Subclass.Managers
                             floatOptions.Add((string)item.Key, float.Parse((string)item.Value));
                         }
 
+                        Log.Debug($"Attempting to load spawns for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> spawnsTemp = ((IEnumerable<object>)obj["spawn_locations"]).Cast<string>().ToList();
                         List<RoomType> spawns = new List<RoomType>();
                         foreach (var item in spawnsTemp) spawns.Add((RoomType)Enum.Parse(typeof(RoomType), item));
 
+                        Log.Debug($"Attempting to load spawn items for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> spawnItemsTemp = (Dictionary<object, object>)obj["spawn_items"];
                         Dictionary<int, Dictionary<ItemType, float>> spawnItems = new Dictionary<int, Dictionary<ItemType, float>>();
-
                         foreach (var item in spawnItemsTemp)
                         {
                             spawnItems.Add(int.Parse((string)item.Key), new Dictionary<ItemType, float>());
@@ -167,6 +182,7 @@ namespace Subclass.Managers
                                 spawnItems[int.Parse((string)item.Key)].Add((ItemType)Enum.Parse(typeof(ItemType), (string)item2.Key), float.Parse((string)item2.Value));
                         }
 
+                        Log.Debug($"Attempting to load spawn ammo for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> ammoTemp = (Dictionary<object, object>)obj["spawn_ammo"];
                         Dictionary<AmmoType, int> ammo = new Dictionary<AmmoType, int>();
                         foreach (var item in ammoTemp)
@@ -174,11 +190,13 @@ namespace Subclass.Managers
                             ammo.Add((AmmoType)Enum.Parse(typeof(AmmoType), (string)item.Key), int.Parse((string)item.Value));
                         }
 
+
+                        Log.Debug($"Attempting to load abilities for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> abilitiesTemp = ((IEnumerable<object>)obj["abilities"]).Cast<string>().ToList();
                         List<AbilityType> abilities = new List<AbilityType>();
                         foreach (string ability in abilitiesTemp) abilities.Add((AbilityType)Enum.Parse(typeof(AbilityType), ability));
 
-
+                        Log.Debug($"Attempting to load ability cooldowns for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> abilityCooldownsTemp = (Dictionary<object, object>)obj["ability_cooldowns"];
                         Dictionary<AbilityType, float> abilityCooldowns = new Dictionary<AbilityType, float>();
                         foreach (var item in abilityCooldownsTemp)
@@ -186,6 +204,7 @@ namespace Subclass.Managers
                             abilityCooldowns.Add((AbilityType)Enum.Parse(typeof(AbilityType), (string)item.Key), float.Parse((string)item.Value));
                         }
 
+                        Log.Debug($"Attempting to load spawns as for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         RoleType spawnsAs = obj.ContainsKey("spawns_as") ? (RoleType)Enum.Parse(typeof(RoleType), (string)obj["spawns_as"]) : RoleType.None;
 
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
