@@ -247,21 +247,24 @@ namespace Subclass.Handlers
 
             if (subClass.OnSpawnEffects.Count != 0)
             {
-                Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug);
-                foreach (string effect in subClass.OnSpawnEffects)
+                Timing.CallDelayed(0.1f, () =>
                 {
-                    Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
-                    if ((rnd.NextDouble() * 100) < subClass.FloatOptions[("OnSpawn" + effect + "Chance")])
+                    Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug);
+                    foreach (string effect in subClass.OnSpawnEffects)
                     {
-                        Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
-                        player.ReferenceHub.playerEffectsController.EnableByString(effect,
-                            subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
-                            subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
-                    }else
-                    {
-                        Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                        Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions[("OnSpawn" + effect + "Chance")])
+                        {
+                            player.ReferenceHub.playerEffectsController.EnableByString(effect,
+                                subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
+                                subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
+                        }
+                        else
+                        {
+                            Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                        }
                     }
-                }
+                });
             }
             else
             {
