@@ -153,9 +153,9 @@ namespace Subclass.Patches
                         Concussed concussedEffect = hub.playerEffectsController.GetEffect<Concussed>();
                         concussedEffect.Intensity = 3;
                         hub.playerEffectsController.EnableEffect(concussedEffect, 5);
-                        SinkHole sinkHoleEffect = hub.playerEffectsController.GetEffect<SinkHole>();
-                        sinkHoleEffect.Intensity = 2;
-                        hub.playerEffectsController.EnableEffect(sinkHoleEffect, 3);
+                        Disabled disabledEffect = hub.playerEffectsController.GetEffect<Disabled>();
+                        disabledEffect.Intensity = 2;
+                        hub.playerEffectsController.EnableEffect(disabledEffect, 5);
                     }
                 }
             }

@@ -217,9 +217,9 @@ namespace Subclass.Handlers
                     Concussed concussedEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<Concussed>();
                     concussedEffect.Intensity = 3;
                     ev.Target.ReferenceHub.playerEffectsController.EnableEffect(concussedEffect, 8);
-                    SinkHole sinkHoleEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<SinkHole>();
-                    sinkHoleEffect.Intensity = 2;
-                    ev.Target.ReferenceHub.playerEffectsController.EnableEffect(sinkHoleEffect, 5);
+                    Disabled disabledEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<Disabled>();
+                    disabledEffect.Intensity = 2;
+                    ev.Target.ReferenceHub.playerEffectsController.EnableEffect(disabledEffect, 5);
                     ev.IsAllowed = false;
                 }
             }
