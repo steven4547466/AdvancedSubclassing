@@ -148,14 +148,15 @@ namespace Subclass
                 player.Ammo[2] = uint.MaxValue;
             }
 
-            if (player.RankName == null || player.RankName == "") // Comply with verified server rules.
+
+            if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
             {
-                if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
-                if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+                if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
             }
             else
             {
-                if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
+                if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
+                if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
             }
 
             if (subClass.OnSpawnEffects.Count != 0)
