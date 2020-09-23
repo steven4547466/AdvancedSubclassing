@@ -455,7 +455,7 @@ namespace Subclass.Handlers
                 {
                     Timing.CallDelayed(0.2f, () =>
                     {
-                        owner.Position = colliders[0].gameObject.transform.position;
+                        owner.Position = colliders[0].gameObject.transform.position + new Vector3(0, 1f, 0);
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);

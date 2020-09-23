@@ -80,8 +80,8 @@ namespace Subclass
                 Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
 
                 if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
-                if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.x = subClass.FloatOptions["ScaleY"];
-                if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.x = subClass.FloatOptions["ScaleZ"];
+                if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.y = subClass.FloatOptions["ScaleY"];
+                if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.z = subClass.FloatOptions["ScaleZ"];
 
                 player.Scale = scale;
 
@@ -100,8 +100,8 @@ namespace Subclass
                         {
                             Vector3 offset = new Vector3(0, 1f, 0);
                             if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.x = subClass.FloatOptions["SpawnOffsetY"];
-                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.x = subClass.FloatOptions["SpawnOffsetZ"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
                             player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
                         });
                     }
