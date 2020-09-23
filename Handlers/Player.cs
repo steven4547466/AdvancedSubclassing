@@ -186,7 +186,7 @@ namespace Subclass.Handlers
                         {
                             ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                                 Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
-                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1, true);
+                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1);
                         }
                     }
                 }
