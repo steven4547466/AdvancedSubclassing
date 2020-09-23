@@ -54,6 +54,8 @@ namespace Subclass.Handlers
             Tracking.NextSpawnWave.Clear();
             Tracking.NextSpawnWaveGetsRole.Clear();
             Tracking.PlayersThatJustGotAClass.Clear();
+            Tracking.SubClassesSpawned.Clear();
+            API.EnableAllClasses();
         }
 
 
@@ -84,7 +86,8 @@ namespace Subclass.Handlers
                 if (!Subclass.Instance.Config.AdditiveChance)
                 {
                     Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                    foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
+                    foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) && 
+                    (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                     (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
                         Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
@@ -109,12 +112,13 @@ namespace Subclass.Handlers
 
                     if (!Subclass.Instance.ClassesAdditive.ContainsKey(player.Role)) return;
 
-                    foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && e.Key.AffectsRoles.Contains(player.Role) &&
-                    (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && 
+                    e.Key.AffectsRoles.Contains(player.Role) && (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
+                            (!possibity.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(possibity.Key) < possibity.Key.IntOptions["MaxSpawnPerRound"]) &&
                             (possibity.Key.EndsRoundWith == Team.RIP || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
@@ -143,8 +147,9 @@ namespace Subclass.Handlers
             if (!Subclass.Instance.Config.AdditiveChance)
             {
                 List<RoleType> hasRole = new List<RoleType>();
-                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) ||
-                    e.AffectsRoles.Contains(RoleType.NtfCommander) || e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency))
+                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && 
+                (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) || e.AffectsRoles.Contains(RoleType.NtfCommander) || 
+                e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency))
                     && ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
                     (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"]))))
                 {
@@ -194,8 +199,9 @@ namespace Subclass.Handlers
 
                 if (!ntfSpawning)
                 {
-                    foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave")
-                        && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => e.Key.BoolOptions["Enabled"] && 
+                    ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
+                    (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value)
@@ -213,8 +219,9 @@ namespace Subclass.Handlers
                     RoleType[] roles = { RoleType.NtfCommander, RoleType.NtfLieutenant, RoleType.NtfCadet };
                     foreach (RoleType role in roles)
                     {
-                        foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave")
-                            && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                        foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => e.Key.BoolOptions["Enabled"] && 
+                        ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
+                        (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
                         {
                             Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                             if (num < possibity.Value)
@@ -344,27 +351,30 @@ namespace Subclass.Handlers
                         GrenadeManager grenadeManager = ev.Player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
                         GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFlash);
                         Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
-                        grenade.fuseDuration = 0.3f;
+                        grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
                         grenade.FullInitData(grenadeManager, ev.Player.Position, Quaternion.Euler(grenade.throwStartAngle), 
                             grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
                         NetworkServer.Spawn(grenade.gameObject);
                         Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
                         Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
+                    }else
+                    {
+                        ev.ReturnMessage = "You must have the flash on command ability to use this command";
+                        Log.Debug($"Player {ev.Player.Nickname} could not flash on command", Subclass.Instance.Config.Debug);
                     }
                     break;
 
                 case "invis":
-                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) 
+                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.InvisibleOnCommand))
                     {
                         ev.ReturnMessage = "You must have the invisible on command ability to use this command";
                         Log.Debug($"Player {ev.Player.Nickname} could not go invisible on command", Subclass.Instance.Config.Debug);
+                        return;
                     }
                     Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
                     if (scp268 != null)
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-
-                        if (!subClass.Abilities.Contains(AbilityType.InvisibleOnCommand))
 
                         if (scp268.Enabled)
                         {

@@ -3,6 +3,7 @@ using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
 using MEC;
+using Mono.Unix.Native;
 using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace Subclass
 {
     public class Tracking
     {
+        public static Dictionary<SubClass, int> SubClassesSpawned = new Dictionary<SubClass, int>();
+
         public static Dictionary<Player, SubClass> PlayersWithSubclasses = new Dictionary<Player, SubClass>();
 
         public static Dictionary<Player, Dictionary<AbilityType, float>> Cooldowns = new Dictionary<Player, Dictionary<AbilityType, float>>();
@@ -45,14 +48,16 @@ namespace Subclass
 
         public static void AddClass(Player player, SubClass subClass)
         {
-            Tracking.PlayersWithSubclasses.Add(player, subClass);
-            if (!Tracking.PlayersThatJustGotAClass.ContainsKey(player)) Tracking.PlayersThatJustGotAClass.Add(player, Time.time + 3f);
-            else Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+            if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
+            else SubClassesSpawned.Add(subClass, 1);
+            PlayersWithSubclasses.Add(player, subClass);
+            if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
+            else PlayersThatJustGotAClass[player] = Time.time + 3f;
             try
             {
                 player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort)subClass.FloatOptions["BroadcastTimer"] : (ushort)Subclass.Instance.Config.GlobalBroadcastTime, subClass.StringOptions["GotClassMessage"]);
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
-                    !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
+                    !QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
                 if (subClass.SpawnsAs != RoleType.None) player.Role = subClass.SpawnsAs;
 
@@ -208,7 +213,7 @@ namespace Subclass
 
             if (p.ReferenceHub.serverRoles.HiddenBadge != null && p.ReferenceHub.serverRoles.HiddenBadge != "") p.ReferenceHub.serverRoles.HiddenBadge = null;
 
-            SubClass subClass = Tracking.PlayersWithSubclasses.ContainsKey(p) ? Tracking.PlayersWithSubclasses[p] : null;
+            SubClass subClass = PlayersWithSubclasses.ContainsKey(p) ? PlayersWithSubclasses[p] : null;
 
             if (subClass != null)
             {
@@ -254,8 +259,14 @@ namespace Subclass
 
         public static void AddCooldown(Player p, AbilityType ability)
         {
-            if (!Cooldowns.ContainsKey(p)) Cooldowns.Add(p, new Dictionary<AbilityType, float>());
-            Cooldowns[p][ability] = Time.time;
+            try
+            {
+                if (!Cooldowns.ContainsKey(p)) Cooldowns.Add(p, new Dictionary<AbilityType, float>());
+                Cooldowns[p][ability] = Time.time;
+            }catch(KeyNotFoundException e)
+            {
+                throw new Exception($"You are missing an ability cooldown that MUST have a cooldown. Make sure to add {ability} to your ability cooldowns.", e);
+            }
         }
 
         public static bool OnCooldown(Player p, AbilityType ability, SubClass subClass)
@@ -420,6 +431,12 @@ namespace Subclass
                     }
                 }
             }
+        }
+
+        public static int ClassesSpawned(SubClass subClass)
+        {
+            if (!SubClassesSpawned.ContainsKey(subClass)) return 0;
+            return SubClassesSpawned[subClass];
         }
     }
 }

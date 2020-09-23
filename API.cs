@@ -30,6 +30,67 @@ namespace Subclass
             return Subclass.Instance.Classes.ToDictionary(x => x.Key, x => x.Value);
         }
 
+        public static void EnableAllClasses()
+        {
+            foreach (var subClass in Subclass.Instance.Classes) subClass.Value.BoolOptions["Enabled"] = true;
+        }
+
+        public static void DisabledAllClasses()
+        {
+            foreach (var subClass in Subclass.Instance.Classes) subClass.Value.BoolOptions["Enabled"] = false;
+        }
+
+        public static bool EnableClass(SubClass sc)
+        {
+            try
+            {
+                Subclass.Instance.Classes[sc.Name].BoolOptions["Enabled"] = true;
+                return true;
+            }catch
+            {
+                return false;
+            }
+        }
+
+        public static bool EnableClass(string sc)
+        {
+            try
+            {
+                Subclass.Instance.Classes[sc].BoolOptions["Enabled"] = true;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool DisableClass(SubClass sc)
+        {
+            try
+            {
+                Subclass.Instance.Classes[sc.Name].BoolOptions["Enabled"] = false;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool DisableClass(string sc)
+        {
+            try
+            {
+                Subclass.Instance.Classes[sc].BoolOptions["Enabled"] = false;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static Dictionary<Player, SubClass> GetPlayersWithSubclasses()
         {
             return Tracking.PlayersWithSubclasses.ToDictionary(x => x.Key, x => x.Value);
