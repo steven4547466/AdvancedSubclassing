@@ -33,14 +33,8 @@ using Microsoft.SqlServer.Server;
 
 namespace Subclass.Managers
 {
-    /// <summary>
-    /// Used to handle plugin configs.
-    /// </summary>
     public static class SubclassManager
     {
-        /// <summary>
-        /// Gets the config serializer.
-        /// </summary>
         public static ISerializer Serializer { get; } = new SerializerBuilder()
             .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
             .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
@@ -48,9 +42,6 @@ namespace Subclass.Managers
             .IgnoreFields()
             .Build();
 
-        /// <summary>
-        /// Gets the config serializer.
-        /// </summary>
         public static IDeserializer Deserializer { get; } = new DeserializerBuilder()
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .WithNodeDeserializer(inner => new ValidatingNodeDeserializer(inner), deserializer => deserializer.InsteadOf<ObjectNodeDeserializer>())
@@ -58,11 +49,6 @@ namespace Subclass.Managers
             .IgnoreUnmatchedProperties()
             .Build();
 
-        /// <summary>
-        /// Loads all plugin configs.
-        /// </summary>
-        /// <param name="rawConfigs">The raw configs to be loaded.</param>
-        /// <returns>Returns a dictionary of loaded configs.</returns>
         public static Dictionary<string, SubClass> LoadClasses()
         {
             try
@@ -233,10 +219,6 @@ namespace Subclass.Managers
             }
         }
 
-        /// <summary>
-        /// Read all plugin configs.
-        /// </summary>
-        /// <returns>Returns the read configs.</returns>
         public static string Read(string path)
         {
             try
@@ -265,7 +247,7 @@ namespace Subclass.Managers
 namespace Subclass.Managers
 {
     /// <summary>
-    /// Spurce: https://dotnetfiddle.net/8M6iIE.
+    /// Source: https://dotnetfiddle.net/8M6iIE.
     /// </summary>
     internal sealed class CommentGatheringTypeInspector : TypeInspectorSkeleton
     {

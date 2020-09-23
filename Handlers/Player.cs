@@ -169,7 +169,7 @@ namespace Subclass.Handlers
 
         public void OnHurting(HurtingEventArgs ev)
         {
-            if (!Tracking.RoleAllowedToDamage(ev.Target, ev.Attacker.Role))
+            if (!Tracking.AllowedToDamage(ev.Target, ev.Attacker))
             {
                 Log.Debug("Not allowed to damage", Subclass.Instance.Config.Debug);
                 ev.IsAllowed = false;

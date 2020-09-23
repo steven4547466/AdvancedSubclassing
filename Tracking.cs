@@ -363,11 +363,12 @@ namespace Subclass
             return false;
         }
 
-        public static bool RoleAllowedToDamage(Player p, RoleType role)
+        public static bool AllowedToDamage(Player p, Player a)
         {
-            Log.Debug($"Checking allowed damage rules for Attacker: {p.Nickname} to target role: {role}", Subclass.Instance.Config.Debug);
+            Log.Debug($"Checking allowed damage rules for Attacker: {p.Nickname} to target role: {a.Role}", Subclass.Instance.Config.Debug);
+            if (a.Id == p.Id) return true;
             if (PlayersWithSubclasses.ContainsKey(p))
-                return !PlayersWithSubclasses[p].RolesThatCantDamage.Contains(role);
+                return !PlayersWithSubclasses[p].RolesThatCantDamage.Contains(a.Role);
             else
                 return true;
         }
