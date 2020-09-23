@@ -14,7 +14,7 @@ namespace Subclass
         public static bool GiveClass(Player p, SubClass subClass)
         {
             if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
-            Subclass.Instance.server.AddClass(p, subClass);
+            Tracking.AddClass(p, subClass);
             return true;
         }
 

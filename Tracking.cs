@@ -1,6 +1,8 @@
-﻿using Exiled.API.Enums;
+﻿using CustomPlayerEffects;
+using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using MEC;
 using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
@@ -38,6 +40,153 @@ namespace Subclass
         public static List<Player> NextSpawnWave = new List<Player>();
         public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
 
+        static System.Random rnd = new System.Random();
+
+
+        public static void AddClass(Player player, SubClass subClass)
+        {
+            Tracking.PlayersWithSubclasses.Add(player, subClass);
+            if (!Tracking.PlayersThatJustGotAClass.ContainsKey(player)) Tracking.PlayersThatJustGotAClass.Add(player, Time.time + 3f);
+            else Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+            try
+            {
+                player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort)subClass.FloatOptions["BroadcastTimer"] : (ushort)Subclass.Instance.Config.GlobalBroadcastTime, subClass.StringOptions["GotClassMessage"]);
+                if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
+                    !Tracking.QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) Tracking.QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
+
+                if (subClass.SpawnsAs != RoleType.None) player.Role = subClass.SpawnsAs;
+
+                if (subClass.SpawnItems.Count != 0)
+                {
+                    player.ClearInventory();
+                    foreach (var item in subClass.SpawnItems)
+                    {
+                        foreach (var item2 in item.Value)
+                        {
+                            if ((rnd.NextDouble() * 100) < subClass.SpawnItems[item.Key][item2.Key])
+                            {
+                                if (item2.Key == ItemType.None) break;
+                                player.AddItem(item2.Key);
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
+                if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
+                if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
+                if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+
+                Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
+
+                if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
+                if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.x = subClass.FloatOptions["ScaleY"];
+                if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.x = subClass.FloatOptions["ScaleZ"];
+
+                player.Scale = scale;
+
+                if (!subClass.BoolOptions["DisregardHasFF"])
+                {
+                    player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
+                }
+
+                int index = rnd.Next(subClass.SpawnLocations.Count);
+                if (subClass.SpawnLocations[index] != RoomType.Unknown)
+                {
+                    List<Room> spawnLocations = Exiled.API.Features.Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                    if (spawnLocations.Count != 0)
+                    {
+                        Timing.CallDelayed(0.1f, () =>
+                        {
+                            Vector3 offset = new Vector3(0, 1f, 0);
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.x = subClass.FloatOptions["SpawnOffsetY"];
+                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.x = subClass.FloatOptions["SpawnOffsetZ"];
+                            player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
+                        });
+                    }
+                }
+
+            }
+            catch (KeyNotFoundException e)
+            {
+                Log.Error($"A required option was not provided. Class: {subClass.Name}");
+                throw new Exception($"A required option was not provided. Class: {subClass.Name}");
+            }
+
+            if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
+            if (subClass.Abilities.Contains(AbilityType.InvisibleUntilInteract)) player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+            if (subClass.Abilities.Contains(AbilityType.InfiniteSprint)) player.GameObject.AddComponent<MonoBehaviours.InfiniteSprint>();
+            if (subClass.Abilities.Contains(AbilityType.Disable173Stop)) Scp173.TurnedPlayers.Add(player);
+            if (subClass.Abilities.Contains(AbilityType.Scp939Vision))
+            {
+                Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
+                visuals.Intensity = 2;
+                player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
+            }
+            if (subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
+
+            if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
+            {
+                player.Ammo[(int)AmmoType.Nato556] = (uint)subClass.SpawnAmmo[AmmoType.Nato556];
+            }
+
+            if (subClass.SpawnAmmo[AmmoType.Nato762] != -1)
+            {
+                player.Ammo[(int)AmmoType.Nato762] = (uint)subClass.SpawnAmmo[AmmoType.Nato762];
+            }
+
+            if (subClass.SpawnAmmo[AmmoType.Nato9] != -1)
+            {
+                player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
+            }
+
+            if (subClass.Abilities.Contains(AbilityType.InfiniteAmmo))
+            {
+                player.Ammo[0] = uint.MaxValue;
+                player.Ammo[1] = uint.MaxValue;
+                player.Ammo[2] = uint.MaxValue;
+            }
+
+            if (player.RankName == null || player.RankName == "") // Comply with verified server rules.
+            {
+                if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
+                if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+            }
+            else
+            {
+                if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
+            }
+
+            if (subClass.OnSpawnEffects.Count != 0)
+            {
+                Timing.CallDelayed(0.1f, () =>
+                {
+                    Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug);
+                    foreach (string effect in subClass.OnSpawnEffects)
+                    {
+                        Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions[("OnSpawn" + effect + "Chance")])
+                        {
+                            player.ReferenceHub.playerEffectsController.EnableByString(effect,
+                                subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
+                                subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
+                            Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                        }
+                        else
+                        {
+                            Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
+            }
+
+            Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+        }
 
         public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
         {
@@ -65,10 +214,12 @@ namespace Subclass
                 if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
                 {
                     p.RankName = null;
+                    p.RankColor = null;
                 }
                 else if (subClass.StringOptions.ContainsKey("Badge") && p.ReferenceHub.serverRoles.HiddenBadge == subClass.StringOptions["Badge"])
                 {
                     p.ReferenceHub.serverRoles.HiddenBadge = null;
+                    p.RankColor = null;
                 }
 
             }

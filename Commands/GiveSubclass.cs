@@ -37,6 +37,7 @@ namespace Subclass.Commands
                 {
                     if(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])) != null)
                     {
+                        Player player1 = Player.Get(Int32.Parse(arguments.Array[arguments.Offset]));
                         if (!Subclass.Instance.Classes.ContainsKey(String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))))
                         {
                             response = "Class not found.";
@@ -44,15 +45,15 @@ namespace Subclass.Commands
                         }
                         else
                         {
-                            if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))].AffectsRoles.Contains(p.Role))
+                            if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))].AffectsRoles.Contains(player1.Role))
                             {
-                                response = "You are not the proper role for this class.";
+                                response = "They are not the proper role for this class.";
                                 return false;
                             }
                             else
                             {
-                                Tracking.RemoveAndAddRoles(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])), true);
-                                Subclass.Instance.server.AddClass(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])), Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))]);
+                                Tracking.RemoveAndAddRoles(player1, true);
+                                Tracking.AddClass(player1, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))]);
                                 response = "Success.";
                                 return true;
                             }
@@ -81,7 +82,7 @@ namespace Subclass.Commands
                         else
                         {
                             Tracking.RemoveAndAddRoles(p, true);
-                            Subclass.Instance.server.AddClass(p, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))]);
+                            Tracking.AddClass(p, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))]);
                             response = "Success.";
                             return true;
                         }

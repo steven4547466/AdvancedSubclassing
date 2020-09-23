@@ -28,7 +28,7 @@ namespace Subclass.Handlers
                 if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
                 {
                     Tracking.RemoveAndAddRoles(ev.Player, true);
-                    Subclass.Instance.server.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
+                    Tracking.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
                 }
                 else
                 {
