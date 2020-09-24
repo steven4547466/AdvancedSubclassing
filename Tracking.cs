@@ -42,14 +42,24 @@ namespace Subclass
 
         public static List<Player> NextSpawnWave = new List<Player>();
         public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
+        public static List<SubClass> SpawnWaveSpawns = new List<SubClass>();
 
         static System.Random rnd = new System.Random();
 
 
         public static void AddClass(Player player, SubClass subClass)
         {
-            if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
-            else SubClassesSpawned.Add(subClass, 1);
+            if (NextSpawnWave.Contains(player) && NextSpawnWaveGetsRole.ContainsKey(player.Role) && !SpawnWaveSpawns.Contains(subClass))
+            {
+                if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
+                else SubClassesSpawned.Add(subClass, 1);
+                SpawnWaveSpawns.Add(subClass);
+            }
+            else if (!SpawnWaveSpawns.Contains(subClass))
+            {
+                if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
+                else SubClassesSpawned.Add(subClass, 1);
+            }
             PlayersWithSubclasses.Add(player, subClass);
             if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
             else PlayersThatJustGotAClass[player] = Time.time + 3f;

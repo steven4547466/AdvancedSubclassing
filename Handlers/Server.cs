@@ -141,13 +141,18 @@ namespace Subclass.Handlers
 
         public void OnRespawningTeam(RespawningTeamEventArgs ev)
         {
-            Tracking.NextSpawnWave.Clear();
-            Tracking.NextSpawnWaveGetsRole.Clear();
+            Timing.CallDelayed(3f, () => // Clear them after the wave spawns instead.
+            {
+                Tracking.NextSpawnWave.Clear();
+                Tracking.NextSpawnWaveGetsRole.Clear();
+                Tracking.SpawnWaveSpawns.Clear();
+            });
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
             if (!Subclass.Instance.Config.AdditiveChance)
             {
                 List<RoleType> hasRole = new List<RoleType>();
-                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && 
+                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] &&
+                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                 (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) || e.AffectsRoles.Contains(RoleType.NtfCommander) || 
                 e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency))
                     && ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
@@ -199,7 +204,8 @@ namespace Subclass.Handlers
 
                 if (!ntfSpawning)
                 {
-                    foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => e.Key.BoolOptions["Enabled"] && 
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => e.Key.BoolOptions["Enabled"] &&
+                    (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                     ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
                     (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
                     {
@@ -219,7 +225,8 @@ namespace Subclass.Handlers
                     RoleType[] roles = { RoleType.NtfCommander, RoleType.NtfLieutenant, RoleType.NtfCadet };
                     foreach (RoleType role in roles)
                     {
-                        foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => e.Key.BoolOptions["Enabled"] && 
+                        foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => e.Key.BoolOptions["Enabled"] &&
+                        (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                         ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
                         (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
                         {
