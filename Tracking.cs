@@ -48,7 +48,7 @@ namespace Subclass
 
         static System.Random rnd = new System.Random();
 
-        public static void AddClass(Player player, SubClass subClass, bool is035 = false)
+        public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
         {
             if (is035)
             {
@@ -137,14 +137,14 @@ namespace Subclass
                 }
 
                 int index = rnd.Next(subClass.SpawnLocations.Count);
-                if (subClass.SpawnLocations[index] != RoomType.Unknown)
+                if (!lite && subClass.SpawnLocations[index] != RoomType.Unknown)
                 {
-                    List<Room> spawnLocations = Exiled.API.Features.Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                    List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
                     if (spawnLocations.Count != 0)
                     {
                         Timing.CallDelayed(0.1f, () =>
                         {
-                            Vector3 offset = new Vector3(0, 1f, 0);
+                            Vector3 offset = new Vector3(0, 2f, 0);
                             if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
                             if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
                             if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];

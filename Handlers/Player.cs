@@ -158,7 +158,9 @@ namespace Subclass.Handlers
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveZombie(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
-            Tracking.CheckRoundEnd();
+            Timing.CallDelayed(0.1f, () => {
+                Tracking.CheckRoundEnd();
+            });
         }
         
         public void OnEscaping(EscapingEventArgs ev)

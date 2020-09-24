@@ -11,10 +11,10 @@ namespace Subclass
     public static class API
     {
 
-        public static bool GiveClass(Player p, SubClass subClass)
+        public static bool GiveClass(Player p, SubClass subClass, bool lite = false)
         {
             if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
-            Tracking.AddClass(p, subClass);
+            Tracking.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035().Id == p.Id, lite);
             return true;
         }
 
@@ -27,7 +27,7 @@ namespace Subclass
 
         public static Dictionary<string, SubClass> GetClasses()
         {
-            return Subclass.Instance.Classes.ToDictionary(x => x.Key, x => x.Value);
+            return Subclass.Instance.Classes.ToDictionary(x => x.Key, x => new SubClass(x.Value));
         }
 
         public static void EnableAllClasses()
