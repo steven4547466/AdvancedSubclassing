@@ -32,7 +32,7 @@ namespace Subclass.Handlers
                 }
                 else
                 {
-                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player);
+                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player, false, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
                 }
                 foreach (string message in Tracking.QueuedCassieMessages)
                 {
@@ -51,7 +51,7 @@ namespace Subclass.Handlers
             Timing.CallDelayed(0.1f, () =>
             {
                 Tracking.QueuedCassieMessages.Clear();
-                Tracking.RemoveAndAddRoles(ev.Player);
+                Tracking.RemoveAndAddRoles(ev.Player, false, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
                 foreach (string message in Tracking.QueuedCassieMessages)
                 {
                     Cassie.Message(message, true, false);

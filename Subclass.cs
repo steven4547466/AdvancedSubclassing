@@ -13,6 +13,8 @@ using System.Reflection;
 using CustomPlayerEffects;
 using Exiled.Permissions.Commands.Permissions;
 using Subclass.Managers;
+using System.IO;
+using Exiled.Loader;
 
 namespace Subclass
 {
@@ -38,8 +40,10 @@ namespace Subclass
         public Dictionary<string, SubClass> Classes { get; set; }
         public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
 
+        public bool Scp035Enabled = false;
+
         int harmonyPatches = 0;
-        public Harmony HarmonyInstance { get; private set; }
+        private Harmony HarmonyInstance { get; set; }
 
         public override void OnEnabled()
         {
@@ -51,6 +55,15 @@ namespace Subclass
 
             HarmonyInstance = new Harmony($"steven4547466.subclass-{++harmonyPatches}");
             HarmonyInstance.PatchAll();
+
+            foreach (var plugin in Loader.Plugins)
+            {
+                if (plugin.Name == "scp035")
+                {
+                    Scp035Enabled = true;
+                    break;
+                }
+            }
         }
 
         public override void OnDisabled()
@@ -229,6 +242,27 @@ namespace Subclass
             if (cantDamage != null) RolesThatCantDamage = cantDamage;
             if (endsRoundWith != Team.RIP) EndsRoundWith = endsRoundWith;
             if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
+        }
+
+        public SubClass(SubClass subClass)
+        {
+            Name = subClass.Name;
+            AffectsRoles = new List<RoleType>(subClass.AffectsRoles);
+            StringOptions = new Dictionary<string, string>(subClass.StringOptions);
+            BoolOptions = new Dictionary<string, bool>(subClass.BoolOptions);
+            IntOptions = new Dictionary<string, int>(subClass.IntOptions);
+            FloatOptions = new Dictionary<string, float>(subClass.FloatOptions);
+            SpawnLocations = new List<RoomType>(subClass.SpawnLocations);
+            SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>(subClass.SpawnItems);
+            SpawnAmmo = new Dictionary<AmmoType, int>(subClass.SpawnAmmo);
+            Abilities = new List<AbilityType>(subClass.Abilities);
+            AbilityCooldowns = new Dictionary<AbilityType, float>(subClass.AbilityCooldowns);
+            AdvancedFFRules = new List<string>(subClass.AdvancedFFRules);
+            OnHitEffects = new List<string>(subClass.OnHitEffects);
+            OnSpawnEffects = new List<string>(subClass.OnSpawnEffects);
+            RolesThatCantDamage = new List<RoleType>(subClass.RolesThatCantDamage);
+            EndsRoundWith = subClass.EndsRoundWith;
+            SpawnsAs = subClass.SpawnsAs;
         }
     }
 

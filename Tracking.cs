@@ -31,6 +31,8 @@ namespace Subclass
         public static Dictionary<Player, List<Player>> PlayersThatHadZombies = new Dictionary<Player, List<Player>>();
 
         public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
+        public static Dictionary<Player, SubClass> PreviousSubclasses = new Dictionary<Player, SubClass>();
+        // public static Player LastDiedTo035 = null; - I would love to implement this and keep 035 data... but there's no event to listen to for a player dying by picking up 035 :(
 
         public static List<Player> FriendlyFired = new List<Player>();
 
@@ -46,9 +48,38 @@ namespace Subclass
 
         static System.Random rnd = new System.Random();
 
-
-        public static void AddClass(Player player, SubClass subClass)
+        public static void AddClass(Player player, SubClass subClass, bool is035 = false)
         {
+            if (is035)
+            {
+                SubClass copy = new SubClass(subClass);
+                if (!copy.Abilities.Contains(AbilityType.Disable096Trigger)) copy.Abilities.Add(AbilityType.Disable096Trigger);
+                if (!copy.Abilities.Contains(AbilityType.Disable173Stop)) copy.Abilities.Add(AbilityType.Disable173Stop);
+                if (!copy.Abilities.Contains(AbilityType.NoSCPDamage)) copy.Abilities.Add(AbilityType.NoSCPDamage);
+                copy.BoolOptions["HasFriendlyFire"] = true;
+                copy.BoolOptions["TakesFriendlyFire"] = true;
+                copy.SpawnsAs = RoleType.None;
+                copy.SpawnLocations.Clear();
+                copy.SpawnLocations.Add(RoomType.Unknown);
+                copy.IntOptions["MaxHealth"] = -1;
+                copy.IntOptions["HealthOnSpawn"] = -1;
+                copy.IntOptions["MaxArmor"] = -1;
+                copy.IntOptions["ArmorOnSpawn"] = -1;
+                copy.SpawnItems.Clear();
+                copy.RolesThatCantDamage.Clear();
+                copy.StringOptions["GotClassMessage"] = subClass.StringOptions["GotClassMessage"] + " You are SCP-035.";
+
+                subClass = new SubClass(copy.Name + "-SCP-035 (p)", copy.AffectsRoles, copy.StringOptions, copy.BoolOptions, copy.IntOptions,
+                    copy.FloatOptions, copy.SpawnLocations, copy.SpawnItems,
+                    new Dictionary<AmmoType, int>()
+                    {
+                        { AmmoType.Nato556, -1 },
+                        { AmmoType.Nato762, -1 },
+                        { AmmoType.Nato9, -1 }
+                    }, copy.Abilities, copy.AbilityCooldowns, copy.AdvancedFFRules, copy.OnHitEffects, copy.OnSpawnEffects, 
+                    copy.RolesThatCantDamage, Team.SCP
+                );
+            }
             if (NextSpawnWave.Contains(player) && NextSpawnWaveGetsRole.ContainsKey(player.Role) && !SpawnWaveSpawns.Contains(subClass))
             {
                 if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
@@ -204,7 +235,7 @@ namespace Subclass
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
         }
 
-        public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false)
+        public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false)
         {
             if (PlayersThatJustGotAClass.ContainsKey(p) && PlayersThatJustGotAClass[p] > Time.time) return;
             if (RoundJustStarted()) return;
@@ -227,6 +258,8 @@ namespace Subclass
 
             if (subClass != null)
             {
+                if (!PreviousSubclasses.ContainsKey(p)) PreviousSubclasses.Add(p, subClass);
+                else PreviousSubclasses[p] = subClass;
                 if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
                 {
                     p.RankName = null;
@@ -254,7 +287,7 @@ namespace Subclass
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
-            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p);
+            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p, is035);
         }
 
         public static void AddToFF(Player p)

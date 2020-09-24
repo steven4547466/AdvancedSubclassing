@@ -1,18 +1,13 @@
 ﻿using CustomPlayerEffects;
-using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
-using Exiled.Permissions.Commands.Permissions;
 using Grenades;
 using MEC;
 using Mirror;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Playables;
+using Exiled.Permissions.Extensions;
 using EPlayer = Exiled.API.Features.Player;
 
 namespace Subclass.Handlers
@@ -55,16 +50,18 @@ namespace Subclass.Handlers
             Tracking.NextSpawnWaveGetsRole.Clear();
             Tracking.PlayersThatJustGotAClass.Clear();
             Tracking.SubClassesSpawned.Clear();
+            Tracking.PreviousSubclasses.Clear();
             API.EnableAllClasses();
         }
 
 
 
-        public void MaybeAddRoles(EPlayer player)
+        public void MaybeAddRoles(EPlayer player, bool is035 = false)
         {
             if (!rolesForClass.ContainsKey(player.Role))
                 rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] &&
                     e.AffectsRoles.Contains(player.Role)));
+
             if (rolesForClass[player.Role] > 0)
             {
                 List<Team> teamsAlive = EPlayer.List.Select(p1 => p1.Team).ToList();
@@ -81,8 +78,6 @@ namespace Subclass.Handlers
                     else if (t == Team.TUT) t = Team.SCP;
                 });
 
-                teamsAlive.Add(Team.SCP);
-
                 if (!Subclass.Instance.Config.AdditiveChance)
                 {
                     Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
@@ -97,7 +92,7 @@ namespace Subclass.Handlers
                             (subClass.EndsRoundWith == Team.RIP || teamsAlive.Contains(subClass.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-                            Tracking.AddClass(player, subClass);
+                            Tracking.AddClass(player, subClass, is035);
                         }
                         else
                         {
@@ -122,7 +117,7 @@ namespace Subclass.Handlers
                             (possibity.Key.EndsRoundWith == Team.RIP || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
-                            Tracking.AddClass(player, possibity.Key);
+                            Tracking.AddClass(player, possibity.Key, is035);
                             break;
                         }else
                         {
