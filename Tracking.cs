@@ -327,6 +327,13 @@ namespace Subclass
             return 0;
         }
 
+        public static void DisplayCooldown(Player p, AbilityType ability, SubClass subClass, string abilityName, float time)
+        {
+            float timeLeft = TimeLeftOnCooldown(p, ability, subClass, time);
+            p.ClearBroadcasts();
+            p.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", abilityName).Replace("{seconds}", timeLeft.ToString()));
+        }
+
         public static bool PlayerJustBypassedTeslaGate(Player p)
         {
             return PlayersThatBypassedTeslaGates.ContainsKey(p) && Time.time - PlayersThatBypassedTeslaGates[p] < 3f;

@@ -20,10 +20,10 @@ namespace Subclass.Handlers
         public void OnRoundStarted()
         {
             Tracking.RoundStartedAt = Time.time;
-            Timing.CallDelayed(0.1f, () =>
+            Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 Log.Debug("Round started", Subclass.Instance.Config.Debug);
-                foreach (Exiled.API.Features.Player player in Exiled.API.Features.Player.List)
+                foreach (EPlayer player in EPlayer.List)
                 {
                     MaybeAddRoles(player);
                 }
@@ -289,8 +289,7 @@ namespace Subclass.Handlers
                         if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
-                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.Echolocate, subClass, Time.time);
-                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "echolocation").Replace("{seconds}", timeLeft.ToString()));
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.Echolocate, subClass, "echolocation", Time.time);
                             return;
                         }
                         
@@ -314,8 +313,7 @@ namespace Subclass.Handlers
                         if (Tracking.OnCooldown(ev.Player, AbilityType.NoClip, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
-                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.NoClip, subClass, Time.time);
-                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "echolocation").Replace("{seconds}", timeLeft.ToString()));
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.NoClip, subClass, "noclip", Time.time);
                             return;
                         }
                         bool previous = ev.Player.NoClipEnabled;
@@ -344,8 +342,7 @@ namespace Subclass.Handlers
                         if (Tracking.OnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to flash on command", Subclass.Instance.Config.Debug);
-                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass, Time.time);
-                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "flash").Replace("{seconds}", timeLeft.ToString()));
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.FlashOnCommand, subClass, "flash", Time.time);
                             return;
                         }
 
@@ -388,8 +385,7 @@ namespace Subclass.Handlers
                         if (Tracking.OnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
-                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass, Time.time);
-                            ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisible").Replace("{seconds}", timeLeft.ToString()));
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible", Time.time);
                             return;
                         }
 
@@ -423,8 +419,7 @@ namespace Subclass.Handlers
             if (Tracking.OnCooldown(ev.Player, ability, subClass))
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} on cooldown", Subclass.Instance.Config.Debug);
-                float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, ability, subClass, Time.time);
-                ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", necro ? "necromancy" : "revive").Replace("{seconds}", timeLeft.ToString()));
+                Tracking.DisplayCooldown(ev.Player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive", Time.time);
                 return;
             }
 

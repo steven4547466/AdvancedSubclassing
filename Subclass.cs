@@ -40,7 +40,8 @@ namespace Subclass
         public Dictionary<string, SubClass> Classes { get; set; }
         public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
 
-        public bool Scp035Enabled = false;
+        public bool Scp035Enabled = Loader.Plugins.Any(p => p.Name == "scp035");
+        public bool CommonUtilsEnabled = Loader.Plugins.Any(p => p.Name == "Common Utilities");
 
         int harmonyPatches = 0;
         private Harmony HarmonyInstance { get; set; }
@@ -55,15 +56,6 @@ namespace Subclass
 
             HarmonyInstance = new Harmony($"steven4547466.subclass-{++harmonyPatches}");
             HarmonyInstance.PatchAll();
-
-            foreach (var plugin in Loader.Plugins)
-            {
-                if (plugin.Name == "scp035")
-                {
-                    Scp035Enabled = true;
-                    break;
-                }
-            }
         }
 
         public override void OnDisabled()

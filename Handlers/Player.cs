@@ -22,7 +22,7 @@ namespace Subclass.Handlers
         public void OnSpawning(SpawningEventArgs ev)
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
-            Timing.CallDelayed(0.1f, () =>
+            Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 Tracking.QueuedCassieMessages.Clear();
                 if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
@@ -48,7 +48,7 @@ namespace Subclass.Handlers
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveZombie(ev.Player);
-            Timing.CallDelayed(0.1f, () =>
+            Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 Tracking.QueuedCassieMessages.Clear();
                 Tracking.RemoveAndAddRoles(ev.Player, false, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
@@ -71,8 +71,7 @@ namespace Subclass.Handlers
                     {
                         if (Tracking.OnCooldown(ev.Player, AbilityType.PryGates, subClass))
                         {
-                            float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.PryGates, subClass, Time.time);
-                            ev.Player.Broadcast((ushort) Mathf.Clamp(timeLeft - timeLeft/4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "pry gates").Replace("{seconds}", timeLeft.ToString()));
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.PryGates, subClass, "pry gates", Time.time);
                         } else
                         {
                             Tracking.AddCooldown(ev.Player, AbilityType.PryGates);
@@ -86,8 +85,7 @@ namespace Subclass.Handlers
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
-                    float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, Time.time);
-                    ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "bypass keycard readers").Replace("{seconds}", timeLeft.ToString()));
+                    Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
                 }
                 else
                 {
@@ -107,8 +105,7 @@ namespace Subclass.Handlers
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
-                    float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, Time.time);
-                    ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "bypass keycard readers").Replace("{seconds}", timeLeft.ToString()));
+                    Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
                 }
                 else
                 {
@@ -128,8 +125,7 @@ namespace Subclass.Handlers
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
-                    float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, Time.time);
-                    ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "bypass keycard readers").Replace("{seconds}", timeLeft.ToString()));
+                    Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
                 }
                 else
                 {
@@ -244,7 +240,7 @@ namespace Subclass.Handlers
         public void OnShooting(ShootingEventArgs ev)
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Shooter)) Tracking.PlayersInvisibleByCommand.Remove(ev.Shooter);
-            Exiled.API.Features.Player target = Exiled.API.Features.Player.Get(ev.Target);
+            EPlayer target = EPlayer.Get(ev.Target);
             if (target != null)
             {
                 if (Tracking.PlayerHasFFToPlayer(ev.Shooter, target))
@@ -273,8 +269,7 @@ namespace Subclass.Handlers
             }
             if (Tracking.OnCooldown(ev.Player, AbilityType.BypassTeslaGates, subClass))
             {
-                float timeLeft = Tracking.TimeLeftOnCooldown(ev.Player, AbilityType.BypassTeslaGates, subClass, Time.time);
-                ev.Player.Broadcast((ushort)Mathf.Clamp(timeLeft - timeLeft / 4, 0.5f, 3), subClass.StringOptions["AbilityCooldownMessage"].Replace("{ability}", "bypass tesla gates").Replace("{seconds}", timeLeft.ToString()));
+                Tracking.DisplayCooldown(ev.Player, AbilityType.BypassTeslaGates, subClass, "bypass tesla gates", Time.time);
             }
             else
             {
