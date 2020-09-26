@@ -21,6 +21,7 @@ namespace Subclass
         public static Dictionary<Player, SubClass> PlayersWithSubclasses = new Dictionary<Player, SubClass>();
 
         public static Dictionary<Player, Dictionary<AbilityType, float>> Cooldowns = new Dictionary<Player, Dictionary<AbilityType, float>>();
+        public static Dictionary<Player, Dictionary<AbilityType, int>> AbilityUses = new Dictionary<Player, Dictionary<AbilityType, int>>();
 
         public static Dictionary<Player, float> PlayersThatBypassedTeslaGates = new Dictionary<Player, float>();
 
@@ -257,6 +258,7 @@ namespace Subclass
             }
 
             if (p.ReferenceHub.serverRoles.HiddenBadge != null && p.ReferenceHub.serverRoles.HiddenBadge != "") p.ReferenceHub.serverRoles.HiddenBadge = null;
+            p.Scale = new Vector3(1, 1, 1);
 
             SubClass subClass = PlayersWithSubclasses.ContainsKey(p) ? PlayersWithSubclasses[p] : null;
 
