@@ -51,6 +51,7 @@ namespace Subclass.Handlers
             Tracking.PlayersThatJustGotAClass.Clear();
             Tracking.SubClassesSpawned.Clear();
             Tracking.PreviousSubclasses.Clear();
+            Tracking.PreviousBadges.Clear();
             API.EnableAllClasses();
         }
 

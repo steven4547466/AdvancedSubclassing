@@ -46,6 +46,8 @@ namespace Subclass
         public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
         public static List<SubClass> SpawnWaveSpawns = new List<SubClass>();
 
+        public static Dictionary<Player, string> PreviousBadges = new Dictionary<Player, string>();
+
         static System.Random rnd = new System.Random();
 
         public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
@@ -197,10 +199,12 @@ namespace Subclass
 
             if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
             {
+                AddPreviousBadge(player, true);
                 if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
             }
             else
             {
+                AddPreviousBadge(player);
                 if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
                 if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
             }
@@ -262,13 +266,12 @@ namespace Subclass
                 else PreviousSubclasses[p] = subClass;
                 if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
                 {
-                    p.RankName = null;
-                    p.RankColor = null;
+                    p.RankName = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null;
+                    p.RankColor = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[1] : null;
                 }
                 else if (subClass.StringOptions.ContainsKey("Badge") && p.ReferenceHub.serverRoles.HiddenBadge == subClass.StringOptions["Badge"])
                 {
-                    p.ReferenceHub.serverRoles.HiddenBadge = null;
-                    p.RankColor = null;
+                    p.ReferenceHub.serverRoles.HiddenBadge = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null; ;
                 }
 
             }
@@ -392,29 +395,33 @@ namespace Subclass
             Log.Debug($"Checking FF rules for Attacker: {attacker.Nickname} Target: {target?.Nickname}", Subclass.Instance.Config.Debug);
             if (target != null)
             {
+                Log.Debug($"Checking zombies", Subclass.Instance.Config.Debug);
                 if (PlayersWithZombies.Where(p => p.Value.Contains(target)).Count() > 0)
                 {
                     return true;
                 }
 
+                Log.Debug($"Checking classes", Subclass.Instance.Config.Debug);
                 if (PlayersWithSubclasses.ContainsKey(attacker) && PlayersWithSubclasses.ContainsKey(target) &&
                     PlayersWithSubclasses[attacker].AdvancedFFRules.Contains(PlayersWithSubclasses[target].Name))
                 {
                     return true;
                 }
 
-                if (FriendlyFired.Contains(target) || (PlayersWithSubclasses.ContainsKey(attacker) &&
-                    !PlayersWithSubclasses[attacker].BoolOptions["DisregardHasFF"] &&
-                    PlayersWithSubclasses[attacker].BoolOptions["HasFriendlyFire"]) ||
+                Log.Debug($"Checking FF rules in classes", Subclass.Instance.Config.Debug);
+                if (FriendlyFired.Contains(target) || 
+                    (PlayersWithSubclasses.ContainsKey(attacker) &&
+                    !PlayersWithSubclasses[attacker].BoolOptions["DisregardHasFF"] && PlayersWithSubclasses[attacker].BoolOptions["HasFriendlyFire"]) ||
                     (PlayersWithSubclasses.ContainsKey(target) && !PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
                     PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
                 {
-                    if (!FriendlyFired.Contains(target) && !PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
+                    if (!FriendlyFired.Contains(target) && !(PlayersWithSubclasses.ContainsKey(target) && PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"]))
                         AddToFF(attacker);
                     return true;
                 }
                 else
                 {
+                    Log.Debug($"Checking takes friendly fire", Subclass.Instance.Config.Debug);
                     if (PlayersWithSubclasses.ContainsKey(target) && !PlayersWithSubclasses[target].BoolOptions["DisregardTakesFF"] &&
                     !PlayersWithSubclasses[target].BoolOptions["TakesFriendlyFire"])
                     {
@@ -487,6 +494,19 @@ namespace Subclass
         {
             if (!SubClassesSpawned.ContainsKey(subClass)) return 0;
             return SubClassesSpawned[subClass];
+        }
+
+        public static void AddPreviousBadge(Player p, bool hidden = false)
+        {
+            if (hidden)
+            {
+                if (PreviousBadges.ContainsKey(p)) PreviousBadges[p] = p.ReferenceHub.serverRoles.HiddenBadge + " [-/-] ";
+                else PreviousBadges.Add(p, p.ReferenceHub.serverRoles.HiddenBadge + " [-/-] ");
+            }else
+            {
+                if (PreviousBadges.ContainsKey(p)) PreviousBadges[p] = p.RankName + " [-/-] " + p.RankColor;
+                else PreviousBadges.Add(p, p.RankName + " [-/-] " + p.RankColor);
+            }
         }
     }
 }
