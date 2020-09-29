@@ -69,6 +69,12 @@ namespace Subclass.Handlers
                     SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
                     if (subClass.Abilities.Contains(AbilityType.PryGates))
                     {
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.PryGates, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.PryGates, subClass, "pry gates");
+                            return;
+                        }
+
                         if (Tracking.OnCooldown(ev.Player, AbilityType.PryGates, subClass))
                         {
                             Tracking.DisplayCooldown(ev.Player, AbilityType.PryGates, subClass, "pry gates", Time.time);
@@ -83,6 +89,12 @@ namespace Subclass.Handlers
                       Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
             {
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass))
+                {
+                    Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers");
+                    return;
+                }
+
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
                     Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
@@ -103,6 +115,12 @@ namespace Subclass.Handlers
                 Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
             {
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass))
+                {
+                    Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers");
+                    return;
+                }
+
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
                     Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
@@ -123,6 +141,12 @@ namespace Subclass.Handlers
                 Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
             {
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass))
+                {
+                    Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers");
+                    return;
+                }
+
                 if (Tracking.OnCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass))
                 {
                     Tracking.DisplayCooldown(ev.Player, AbilityType.BypassKeycardReaders, subClass, "bypass keycard readers", Time.time);
@@ -262,6 +286,12 @@ namespace Subclass.Handlers
         {
             if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassTeslaGates)) return;
             SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+            if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass))
+            {
+                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass, "bypass tesla gates");
+                return;
+            }
+
             if (Tracking.PlayerJustBypassedTeslaGate(ev.Player)) // The triggering tesla happens a lot, this allows the bypass to last 3 seconds.
             {
                 ev.IsTriggerable = false;

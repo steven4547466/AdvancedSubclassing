@@ -2,7 +2,6 @@
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using Microsoft.SqlServer.Server;
 using RemoteAdmin;
 
 namespace Subclass.Commands

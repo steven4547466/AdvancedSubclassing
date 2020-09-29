@@ -218,6 +218,11 @@ namespace Subclass
                     foreach (string effect in subClass.OnSpawnEffects)
                     {
                         Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
+                        if(!subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Chance")))
+                        {
+                            Log.Error($"ERROR! Spawn effect {effect} chance not found! Please make sure to add this to your float options");
+                            continue;
+                        }
                         if ((rnd.NextDouble() * 100) < subClass.FloatOptions[("OnSpawn" + effect + "Chance")])
                         {
                             player.ReferenceHub.playerEffectsController.EnableByString(effect,
@@ -315,6 +320,27 @@ namespace Subclass
             {
                 throw new Exception($"You are missing an ability cooldown that MUST have a cooldown. Make sure to add {ability} to your ability cooldowns.", e);
             }
+        }
+
+        public static void UseAbility(Player p, AbilityType ability, SubClass subClass)
+        {
+            if (!subClass.IntOptions.ContainsKey(ability.ToString() + "MaxUses")) return;
+            if (!AbilityUses.ContainsKey(p)) AbilityUses.Add(p, new Dictionary<AbilityType, int>());
+            if (!AbilityUses[p].ContainsKey(ability)) AbilityUses[p].Add(ability, 0);
+            AbilityUses[p][ability]++;
+        }
+
+        public static bool CanUseAbility(Player p, AbilityType ability, SubClass subClass)
+        {
+            if (!AbilityUses.ContainsKey(p) || !AbilityUses[p].ContainsKey(ability) || !subClass.IntOptions.ContainsKey(ability.ToString() + "MaxUses") ||
+                AbilityUses[p][ability] < subClass.IntOptions[(ability.ToString() + "MaxUses")]) return true;
+            return false;
+        }
+
+        public static void DisplayCantUseAbility(Player p, AbilityType ability, SubClass subClass, string abilityName)
+        {
+            p.ClearBroadcasts();
+            p.Broadcast(4, subClass.StringOptions["OutOfAbilityUses"].Replace("{ability}", abilityName));
         }
 
         public static bool OnCooldown(Player p, AbilityType ability, SubClass subClass)

@@ -86,14 +86,16 @@ namespace Subclass.Handlers
                     (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                     (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
-                        if ((rnd.NextDouble() * 100) < subClass.FloatOptions["ChanceToGet"] && 
+                        double rng = (rnd.NextDouble() * 100);
+                        Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug);
+                        if (rng < subClass.FloatOptions["ChanceToGet"] && 
                             (!subClass.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) && 
                             (subClass.EndsRoundWith == Team.RIP || teamsAlive.Contains(subClass.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                             Tracking.AddClass(player, subClass, is035);
+                            break;
                         }
                         else
                         {
@@ -103,15 +105,16 @@ namespace Subclass.Handlers
                 }
                 else
                 {
-                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
                     double num = (rnd.NextDouble() * 100);
+                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}. Additive chance. Number generated: {num}", Subclass.Instance.Config.Debug);
+
 
                     if (!Subclass.Instance.ClassesAdditive.ContainsKey(player.Role)) return;
 
                     foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && 
                     e.Key.AffectsRoles.Contains(player.Role) && (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
                     {
-                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
                             (!possibity.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(possibity.Key) < possibity.Key.IntOptions["MaxSpawnPerRound"]) &&
@@ -254,6 +257,11 @@ namespace Subclass.Handlers
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Revive, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Revive, subClass, "revive");
+                            return;
+                        }
                         AttemptRevive(ev, subClass);
                     }else
                     {
@@ -266,6 +274,11 @@ namespace Subclass.Handlers
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Necromancy))
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Necromancy, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Necromancy, subClass, "necromancy");
+                            return;
+                        }
                         AttemptRevive(ev, subClass, true);
                     }
                     else
@@ -287,6 +300,11 @@ namespace Subclass.Handlers
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Echolocate))
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Echolocate, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Echolocate, subClass, "echolocate");
+                            return;
+                        }
                         if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
@@ -311,6 +329,11 @@ namespace Subclass.Handlers
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.NoClip))
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.NoClip, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.NoClip, subClass, "noclip");
+                            return;
+                        }
                         if (Tracking.OnCooldown(ev.Player, AbilityType.NoClip, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
@@ -340,6 +363,12 @@ namespace Subclass.Handlers
                     if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.FlashOnCommand))
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass, "flash on command");
+                            return;
+                        }
+
                         if (Tracking.OnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to flash on command", Subclass.Instance.Config.Debug);
@@ -375,6 +404,11 @@ namespace Subclass.Handlers
                     if (scp268 != null)
                     {
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible on command");
+                            return;
+                        }
 
                         if (scp268.Enabled)
                         {
