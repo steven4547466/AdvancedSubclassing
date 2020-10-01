@@ -35,7 +35,7 @@ namespace Subclass
             foreach (var subClass in Subclass.Instance.Classes) subClass.Value.BoolOptions["Enabled"] = true;
         }
 
-        public static void DisabledAllClasses()
+        public static void DisableAllClasses()
         {
             foreach (var subClass in Subclass.Instance.Classes) subClass.Value.BoolOptions["Enabled"] = false;
         }

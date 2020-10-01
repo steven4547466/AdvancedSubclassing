@@ -73,11 +73,25 @@ namespace Subclass.Handlers
                     teamsAlive.Add(item.Value.EndsRoundWith);
                 }
 
-                teamsAlive.ForEach(t => {
-                    if (t == Team.CDP) t = Team.CHI;
-                    else if (t == Team.RSC) t = Team.MTF;
-                    else if (t == Team.TUT) t = Team.SCP;
-                });
+                for (int i = 0; i < teamsAlive.Count; i++)
+                {
+                    Team t = teamsAlive[i];
+                    if (t == Team.CDP)
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, Team.CHI);
+                    }
+                    else if (t == Team.RSC)
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, Team.MTF);
+                    }
+                    else if (t == Team.TUT)
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, Team.SCP);
+                    }
+                }
 
                 if (!Subclass.Instance.Config.AdditiveChance)
                 {

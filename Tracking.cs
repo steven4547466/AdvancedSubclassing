@@ -138,24 +138,6 @@ namespace Subclass
                 {
                     player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
                 }
-
-                int index = rnd.Next(subClass.SpawnLocations.Count);
-                if (!lite && subClass.SpawnLocations[index] != RoomType.Unknown)
-                {
-                    List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
-                    if (spawnLocations.Count != 0)
-                    {
-                        Timing.CallDelayed(0.1f, () =>
-                        {
-                            Vector3 offset = new Vector3(0, 2f, 0);
-                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
-                            if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-                            player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
-                        });
-                    }
-                }
-
             }
             catch (KeyNotFoundException e)
             {
@@ -197,17 +179,19 @@ namespace Subclass
                 player.Ammo[2] = uint.MaxValue;
             }
 
-
-            if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
+            if (!is035)
             {
-                AddPreviousBadge(player, true);
-                if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
-            }
-            else
-            {
-                AddPreviousBadge(player);
-                if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
-                if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+                if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
+                {
+                    AddPreviousBadge(player, true);
+                    if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
+                }
+                else
+                {
+                    AddPreviousBadge(player);
+                    if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
+                    if (subClass.StringOptions.ContainsKey("BadgeColor")) player.RankColor = subClass.StringOptions["BadgeColor"];
+                }
             }
 
             if (subClass.OnSpawnEffects.Count != 0)
@@ -242,6 +226,23 @@ namespace Subclass
                 Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
             }
 
+            int index = rnd.Next(subClass.SpawnLocations.Count);
+            if (!lite && subClass.SpawnLocations[index] != RoomType.Unknown)
+            {
+                List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                if (spawnLocations.Count != 0)
+                {
+                    Timing.CallDelayed(0.1f, () =>
+                    {
+                        Vector3 offset = new Vector3(0, 2f, 0);
+                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
+                        if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
+                        player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
+                    });
+                }
+            }
+
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
         }
 
@@ -271,14 +272,18 @@ namespace Subclass
             {
                 if (!PreviousSubclasses.ContainsKey(p)) PreviousSubclasses.Add(p, subClass);
                 else PreviousSubclasses[p] = subClass;
-                if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
+
+                if (PreviousBadges.ContainsKey(p))
                 {
-                    p.RankName = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null;
-                    p.RankColor = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[1] : null;
-                }
-                else if (subClass.StringOptions.ContainsKey("Badge") && p.ReferenceHub.serverRoles.HiddenBadge == subClass.StringOptions["Badge"])
-                {
-                    p.ReferenceHub.serverRoles.HiddenBadge = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null; ;
+                    if (subClass.StringOptions.ContainsKey("Badge") && p.RankName == subClass.StringOptions["Badge"])
+                    {
+                        p.RankName = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null;
+                        p.RankColor = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[1] : null;
+                    }
+                    else if (subClass.StringOptions.ContainsKey("Badge") && p.ReferenceHub.serverRoles.HiddenBadge == subClass.StringOptions["Badge"])
+                    {
+                        p.ReferenceHub.serverRoles.HiddenBadge = PreviousBadges.ContainsKey(p) ? System.Text.RegularExpressions.Regex.Split(PreviousBadges[p], System.Text.RegularExpressions.Regex.Escape(" [-/-] "))[0] : null;
+                    }
                 }
 
             }
@@ -480,11 +485,25 @@ namespace Subclass
                 teamsAlive.Add(item.Value.EndsRoundWith);
             }
 
-            teamsAlive.ForEach(t => {
-                if (t == Team.CDP) t = Team.CHI;
-                else if (t == Team.RSC) t = Team.MTF;
-                else if (t == Team.TUT) t = Team.SCP;
-            });
+            for (int i = 0; i < teamsAlive.Count; i++)
+            {
+                Team t = teamsAlive[i];
+                if (t == Team.CDP)
+                {
+                    teamsAlive.RemoveAt(i);
+                    teamsAlive.Insert(i, Team.CHI);
+                }
+                else if (t == Team.RSC)
+                {
+                    teamsAlive.RemoveAt(i);
+                    teamsAlive.Insert(i, Team.MTF);
+                }
+                else if (t == Team.TUT)
+                {
+                    teamsAlive.RemoveAt(i);
+                    teamsAlive.Insert(i, Team.SCP);
+                }
+            }
 
             List<Team> uniqueTeamsAlive = new List<Team>();
 
