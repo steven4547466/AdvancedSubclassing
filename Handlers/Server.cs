@@ -599,6 +599,8 @@ namespace Subclass.Handlers
                     owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
                     if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains(owner.Role))
                         Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
+                    else if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
+                    else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
                 }
                 else if (necro)
                 {
