@@ -57,7 +57,7 @@ namespace Subclass.Handlers
 
 
 
-        public void MaybeAddRoles(EPlayer player, bool is035 = false)
+        public void MaybeAddRoles(EPlayer player, bool is035 = false, bool escaped = false)
         {
             if (!rolesForClass.ContainsKey(player.Role))
                 rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] &&
@@ -98,7 +98,8 @@ namespace Subclass.Handlers
                     Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
                     foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) && 
                     (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
-                    (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"])))
+                    (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                    (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"]))))
                     {
                         double rng = (rnd.NextDouble() * 100);
                         Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug);
@@ -108,7 +109,7 @@ namespace Subclass.Handlers
                             (subClass.EndsRoundWith == Team.RIP || teamsAlive.Contains(subClass.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-                            Tracking.AddClass(player, subClass, is035);
+                            Tracking.AddClass(player, subClass, is035, is035 || escaped);
                             break;
                         }
                         else
@@ -126,16 +127,17 @@ namespace Subclass.Handlers
                     if (!Subclass.Instance.ClassesAdditive.ContainsKey(player.Role)) return;
 
                     foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] && 
-                    e.Key.AffectsRoles.Contains(player.Role) && (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"])))
+                    e.Key.AffectsRoles.Contains(player.Role) && (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                    (!e.Key.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.Key.BoolOptions["GivenOnEscape"] && !escaped) || e.Key.BoolOptions["GivenOnEscape"])) &&
+                    (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"])))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
-                            (!possibity.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(possibity.Key) < possibity.Key.IntOptions["MaxSpawnPerRound"]) &&
                             (possibity.Key.EndsRoundWith == Team.RIP || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
-                            Tracking.AddClass(player, possibity.Key, is035);
+                            Tracking.AddClass(player, possibity.Key, is035, is035 || escaped);
                             break;
                         }else
                         {
@@ -267,194 +269,278 @@ namespace Subclass.Handlers
             switch(ev.Name)
             {
                 case "revive":
-                    Log.Debug($"Player {ev.Player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
                     {
-                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Revive, subClass))
+                        Log.Debug($"Player {ev.Player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Revive, subClass, "revive");
-                            return;
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.Revive, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Revive, subClass, "revive");
+                                return;
+                            }
+                            AttemptRevive(ev, subClass);
                         }
-                        AttemptRevive(ev, subClass);
-                    }else
-                    {
-                        ev.ReturnMessage = "You don't have the ability to revive!";
+                        else
+                        {
+                            ev.ReturnMessage = "You don't have the ability to revive!";
+                        }
+                        break;
                     }
-                    break;
-
                 case "necro":
-                    Log.Debug($"Player {ev.Player.Nickname} is attempting to necro", Subclass.Instance.Config.Debug);
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Necromancy))
                     {
-                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Necromancy, subClass))
+                        Log.Debug($"Player {ev.Player.Nickname} is attempting to necro", Subclass.Instance.Config.Debug);
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Necromancy))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Necromancy, subClass, "necromancy");
-                            return;
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.Necromancy, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Necromancy, subClass, "necromancy");
+                                return;
+                            }
+                            AttemptRevive(ev, subClass, true);
                         }
-                        AttemptRevive(ev, subClass, true);
+                        else
+                        {
+                            ev.ReturnMessage = "You don't have the ability to necro!";
+                        }
+                        break;
                     }
-                    else
-                    {
-                        ev.ReturnMessage = "You don't have the ability to necro!";
-                    }
-                    break;
-
                 case "locate":
-                    if (ev.Player.Role != RoleType.Scp93953 && ev.Player.Role != RoleType.Scp93989 && 
-                        (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || 
-                        !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Scp939Vision)))
                     {
-                        Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
-                        ev.ReturnMessage = "You must be SCP-939 or have a subclass with its visuals to use this command";
-                        return;
-                    }
-
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Echolocate))
-                    {
-                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Echolocate, subClass))
-                        {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Echolocate, subClass, "echolocate");
-                            return;
-                        }
-                        if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
+                        if (ev.Player.Role != RoleType.Scp93953 && ev.Player.Role != RoleType.Scp93989 &&
+                            (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) ||
+                            !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Scp939Vision)))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
-                            Tracking.DisplayCooldown(ev.Player, AbilityType.Echolocate, subClass, "echolocation", Time.time);
+                            ev.ReturnMessage = "You must be SCP-939 or have a subclass with its visuals to use this command";
                             return;
-                        }
-                        
-                        Collider[] colliders = Physics.OverlapSphere(ev.Player.Position, subClass.FloatOptions.ContainsKey("EcholocateRadius") ? subClass.FloatOptions["EcholocateRadius"] : 10f);
-                        
-                        foreach(Collider PlayerCollider in colliders.Where(c => EPlayer.Get(c.gameObject) != null))
-                        {
-                            EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync?.CmdScp939Noise(100f);
                         }
 
-                        Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
-                        Log.Debug($"Player {ev.Player.Nickname} successfully used echolocate", Subclass.Instance.Config.Debug);
-                    } 
-                    break;
-
-                case "noclip":
-                    Log.Debug($"Player {ev.Player.Nickname} is attempting to noclip", Subclass.Instance.Config.Debug);
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.NoClip))
-                    {
-                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.NoClip, subClass))
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Echolocate))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.NoClip, subClass, "noclip");
-                            return;
-                        }
-                        if (Tracking.OnCooldown(ev.Player, AbilityType.NoClip, subClass))
-                        {
-                            Log.Debug($"Player {ev.Player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
-                            Tracking.DisplayCooldown(ev.Player, AbilityType.NoClip, subClass, "noclip", Time.time);
-                            return;
-                        }
-                        bool previous = ev.Player.NoClipEnabled;
-                        ev.Player.NoClipEnabled = !ev.Player.NoClipEnabled;
-                        Tracking.AddCooldown(ev.Player, AbilityType.NoClip);
-                        if(subClass.FloatOptions.ContainsKey("NoClipTime"))
-                        {
-                            Timing.CallDelayed(subClass.FloatOptions["NoClipTime"], () => 
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.Echolocate, subClass))
                             {
-                                if (ev.Player.NoClipEnabled != previous) ev.Player.NoClipEnabled = previous;
-                            });
-                        }
-                        Log.Debug($"Player {ev.Player.Nickname} successfully noclipped", Subclass.Instance.Config.Debug);
-                    }
-                    else
-                    {
-                        ev.ReturnMessage = "You must have the noclip ability to use this command";
-                        Log.Debug($"Player {ev.Player.Nickname} could not noclip", Subclass.Instance.Config.Debug);
-                    }
-                    break;
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Echolocate, subClass, "echolocate");
+                                return;
+                            }
+                            if (Tracking.OnCooldown(ev.Player, AbilityType.Echolocate, subClass))
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
+                                Tracking.DisplayCooldown(ev.Player, AbilityType.Echolocate, subClass, "echolocation", Time.time);
+                                return;
+                            }
 
+                            Collider[] lcolliders = Physics.OverlapSphere(ev.Player.Position, subClass.FloatOptions.ContainsKey("EcholocateRadius") ? subClass.FloatOptions["EcholocateRadius"] : 10f);
+
+                            foreach (Collider PlayerCollider in lcolliders.Where(c => EPlayer.Get(c.gameObject) != null))
+                            {
+                                EPlayer.Get(PlayerCollider.gameObject).ReferenceHub.footstepSync?.CmdScp939Noise(100f);
+                            }
+
+                            Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
+                            Log.Debug($"Player {ev.Player.Nickname} successfully used echolocate", Subclass.Instance.Config.Debug);
+                        }
+                        break;
+                    }
+                case "noclip":
+                    {
+                        Log.Debug($"Player {ev.Player.Nickname} is attempting to noclip", Subclass.Instance.Config.Debug);
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.NoClip))
+                        {
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.NoClip, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.NoClip, subClass, "noclip");
+                                return;
+                            }
+                            if (Tracking.OnCooldown(ev.Player, AbilityType.NoClip, subClass))
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
+                                Tracking.DisplayCooldown(ev.Player, AbilityType.NoClip, subClass, "noclip", Time.time);
+                                return;
+                            }
+                            bool previous = ev.Player.NoClipEnabled;
+                            ev.Player.NoClipEnabled = !ev.Player.NoClipEnabled;
+                            Tracking.AddCooldown(ev.Player, AbilityType.NoClip);
+                            if (subClass.FloatOptions.ContainsKey("NoClipTime"))
+                            {
+                                Timing.CallDelayed(subClass.FloatOptions["NoClipTime"], () =>
+                                {
+                                    if (ev.Player.NoClipEnabled != previous) ev.Player.NoClipEnabled = previous;
+                                });
+                            }
+                            Log.Debug($"Player {ev.Player.Nickname} successfully noclipped", Subclass.Instance.Config.Debug);
+                        }
+                        else
+                        {
+                            ev.ReturnMessage = "You must have the noclip ability to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} could not noclip", Subclass.Instance.Config.Debug);
+                        }
+                        break;
+                    }
                 case "flash":
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.FlashOnCommand))
                     {
-                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass))
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.FlashOnCommand))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass, "flash on command");
-                            return;
-                        }
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.FlashOnCommand, subClass, "flash on command");
+                                return;
+                            }
 
-                        if (Tracking.OnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass))
+                            if (Tracking.OnCooldown(ev.Player, AbilityType.FlashOnCommand, subClass))
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to flash on command", Subclass.Instance.Config.Debug);
+                                Tracking.DisplayCooldown(ev.Player, AbilityType.FlashOnCommand, subClass, "flash", Time.time);
+                                return;
+                            }
+
+                            // Credit to KoukoCocoa's AdminTools for the grenade spawn script below, I was lost. https://github.com/KoukoCocoa/AdminTools/
+                            GrenadeManager grenadeManager = ev.Player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
+                            GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFlash);
+                            Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
+                            grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
+                            grenade.FullInitData(grenadeManager, ev.Player.Position, Quaternion.Euler(grenade.throwStartAngle),
+                                grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+                            NetworkServer.Spawn(grenade.gameObject);
+                            Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
+                            Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
+                        }
+                        else
                         {
-                            Log.Debug($"Player {ev.Player.Nickname} failed to flash on command", Subclass.Instance.Config.Debug);
-                            Tracking.DisplayCooldown(ev.Player, AbilityType.FlashOnCommand, subClass, "flash", Time.time);
-                            return;
+                            ev.ReturnMessage = "You must have the flash on command ability to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} could not flash on command", Subclass.Instance.Config.Debug);
                         }
-
-                        // Credit to KoukoCocoa's AdminTools for the grenade spawn script below, I was lost. https://github.com/KoukoCocoa/AdminTools/
-                        GrenadeManager grenadeManager = ev.Player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
-                        GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFlash);
-                        Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
-                        grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
-                        grenade.FullInitData(grenadeManager, ev.Player.Position, Quaternion.Euler(grenade.throwStartAngle), 
-                            grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
-                        NetworkServer.Spawn(grenade.gameObject);
-                        Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
-                        Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
-                    }else
-                    {
-                        ev.ReturnMessage = "You must have the flash on command ability to use this command";
-                        Log.Debug($"Player {ev.Player.Nickname} could not flash on command", Subclass.Instance.Config.Debug);
+                        break;
                     }
-                    break;
-
                 case "invis":
-                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.InvisibleOnCommand))
                     {
-                        ev.ReturnMessage = "You must have the invisible on command ability to use this command";
-                        Log.Debug($"Player {ev.Player.Nickname} could not go invisible on command", Subclass.Instance.Config.Debug);
-                        return;
+                        if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.InvisibleOnCommand))
+                        {
+                            ev.ReturnMessage = "You must have the invisible on command ability to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} could not go invisible on command", Subclass.Instance.Config.Debug);
+                            return;
+                        }
+                        Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
+                        if (scp268 != null)
+                        {
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible on command");
+                                return;
+                            }
+
+                            if (scp268.Enabled)
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
+                                ev.Player.Broadcast(3, "You're already invisible!");
+                                return;
+                            }
+
+                            if (Tracking.OnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
+                                Tracking.DisplayCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible", Time.time);
+                                return;
+                            }
+
+                            //scp268.Duration = subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
+                            //    subClass.FloatOptions["InvisibleOnCommandDuration"]*2f : 30f*2f;
+
+                            //ev.Player.ReferenceHub.playerEffectsController.EnableEffect(scp268);
+
+                            ev.Player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+                            Tracking.PlayersInvisibleByCommand.Add(ev.Player);
+                            Timing.CallDelayed(subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
+                                subClass.FloatOptions["InvisibleOnCommandDuration"] : 30f, () =>
+                                {
+                                    if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
+                                    if (scp268.Enabled) ev.Player.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
+                                });
+
+                            Tracking.AddCooldown(ev.Player, AbilityType.InvisibleOnCommand);
+
+                        }
+                        break;
                     }
-                    Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
-                    if (scp268 != null)
+                case "disguise":
                     {
+                        if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Disguise))
+                        {
+                            ev.ReturnMessage = "You must have the disguise ability to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} could not disguise", Subclass.Instance.Config.Debug);
+                            return;
+                        }
                         SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.Disguise, subClass))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible on command");
+                            Log.Debug($"Player {ev.Player.Nickname} failed to disguise", Subclass.Instance.Config.Debug);
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.Disguise, subClass, "disguise", Time.time);
                             return;
                         }
 
-                        if (scp268.Enabled)
+                        Team mostTeam = Team.RIP;
+                        Dictionary<Team, int> occurrences = new Dictionary<Team, int>();
+                        Collider[] dcolliders = Physics.OverlapSphere(ev.Player.Position, 50);
+                        foreach (Collider c in dcolliders.Where(c => c.enabled && EPlayer.Get(c.gameObject) != null))
                         {
-                            Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
-                            ev.Player.Broadcast(3, "You're already invisible!");
+                            EPlayer player = EPlayer.Get(c.gameObject);
+                            Team t = player.Team;
+                            if (t == Team.CDP) t = Team.CHI;
+                            if (t == Team.RSC) t = Team.MTF;
+                            if (!occurrences.ContainsKey(t)) occurrences.Add(t, 0);
+                            occurrences[t]++;
+                        }
+                        var copy = occurrences.ToList();
+                        copy.Sort((x, y) => y.Value.CompareTo(x.Value));
+                        mostTeam = copy[0].Key;
+                        if (mostTeam == ev.Player.Team || mostTeam == Team.RIP || mostTeam == Team.SCP)
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to disguise", Subclass.Instance.Config.Debug);
+                            ev.ReturnMessage = "No one's around.";
+                            ev.Player.Broadcast(3, "Disguise failed, your team, or SCPs, are the most within range.");
                             return;
                         }
-
-                        if (Tracking.OnCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass))
+                        RoleType role = RoleType.None;
+                        switch(mostTeam)
                         {
-                            Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
-                            Tracking.DisplayCooldown(ev.Player, AbilityType.InvisibleOnCommand, subClass, "invisible", Time.time);
-                            return;
+                            case Team.CDP:
+                                role = RoleType.ClassD;
+                                break;
+
+                            case Team.CHI:
+                                role = RoleType.ChaosInsurgency;
+                                break;
+
+                            case Team.MTF:
+                                role = RoleType.NtfCadet;
+                                break;
+
+                            case Team.RSC:
+                                role = RoleType.Scientist;
+                                break;
+
+                            case Team.TUT:
+                                role = RoleType.Tutorial;
+                                break;
                         }
-
-                        //scp268.Duration = subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
-                        //    subClass.FloatOptions["InvisibleOnCommandDuration"]*2f : 30f*2f;
-
-                        //ev.Player.ReferenceHub.playerEffectsController.EnableEffect(scp268);
-
-                        ev.Player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
-                        Tracking.PlayersInvisibleByCommand.Add(ev.Player);
-                        Timing.CallDelayed(subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
-                            subClass.FloatOptions["InvisibleOnCommandDuration"] : 30f, () => {
-                                if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
-                                if (scp268.Enabled) ev.Player.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
-                            });
-
-                        Tracking.AddCooldown(ev.Player, AbilityType.InvisibleOnCommand);
-
+                        Tracking.PlayersThatJustGotAClass[ev.Player] = Time.time + 3f;
+                        RoleType trueRole = ev.Player.Role;
+                        bool roundWasLockedBefore = Round.IsLocked;
+                        Round.IsLocked = true;
+                        ev.Player.SetRole(role, true);
+                        Timing.CallDelayed(Tracking.PlayersWithSubclasses[ev.Player].FloatOptions["DisguiseDuration"], () =>
+                        {
+                            Tracking.PlayersThatJustGotAClass[ev.Player] = Time.time + 3f;
+                            ev.Player.SetRole(trueRole, true);
+                            Round.IsLocked = roundWasLockedBefore;
+                        });
+                        break;
                     }
-                    break;
                 default:
                     ev.IsAllowed = true;
                     break;
@@ -496,11 +582,24 @@ namespace Subclass.Handlers
                 return;
             }
 
+            if(doll.owner.DeathCause.GetDamageType() == DamageTypes.Lure)
+            {
+                Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
+                ev.ReturnMessage = "This player is not revivable.";
+                ev.Player.Broadcast(2, "This player is not revivable.");
+                return;
+            }
+
             EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
             if (owner != null && !owner.IsAlive)
             {
                 if (!necro && Tracking.GetPreviousTeam(owner) != null &&
-                Tracking.GetPreviousTeam(owner) == ev.Player.Team) owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                Tracking.GetPreviousTeam(owner) == ev.Player.Team)
+                {
+                    owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                    if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains(owner.Role))
+                        Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
+                }
                 else if (necro)
                 {
                     owner.Role = RoleType.Scp0492;
@@ -511,7 +610,7 @@ namespace Subclass.Handlers
                 {
                     Timing.CallDelayed(0.2f, () =>
                     {
-                        owner.Position = colliders[0].gameObject.transform.position + new Vector3(0, 1f, 0);
+                        owner.Position = ev.Player.Position + new Vector3(0.3f, 1f, 0);
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);

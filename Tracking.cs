@@ -28,7 +28,6 @@ namespace Subclass
         public static Dictionary<Player, float> PlayersThatJustGotAClass = new Dictionary<Player, float>();
 
         public static Dictionary<Player, List<Player>> PlayersWithZombies = new Dictionary<Player, List<Player>>();
-
         public static Dictionary<Player, List<Player>> PlayersThatHadZombies = new Dictionary<Player, List<Player>>();
 
         public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
@@ -232,7 +231,7 @@ namespace Subclass
                 List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
                 if (spawnLocations.Count != 0)
                 {
-                    Timing.CallDelayed(0.1f, () =>
+                    Timing.CallDelayed(0.3f, () =>
                     {
                         Vector3 offset = new Vector3(0, 2f, 0);
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
@@ -246,10 +245,11 @@ namespace Subclass
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
         }
 
-        public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false)
+        public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false)
         {
             if (PlayersThatJustGotAClass.ContainsKey(p) && PlayersThatJustGotAClass[p] > Time.time) return;
             if (RoundJustStarted()) return;
+            if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
             if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
             if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop)
@@ -302,7 +302,7 @@ namespace Subclass
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
-            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p, is035);
+            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p, is035, escaped);
         }
 
         public static void AddToFF(Player p)

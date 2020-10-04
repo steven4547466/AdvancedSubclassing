@@ -30,6 +30,7 @@ using Microsoft.SqlServer.Server;
 
 
 // I took this from Exiled because I need the same thing, but I needed to change some things.
+// Well... I basically changed everything but the serializer and deserializer stuff.
 
 namespace Subclass.Managers
 {
@@ -113,6 +114,17 @@ namespace Subclass.Managers
                         Log.Debug($"Attempting to load on spawn effects for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> onSpawnEffects = obj.ContainsKey("on_spawn_effects") ? ((IEnumerable<object>)obj["on_spawn_effects"]).Cast<string>().ToList() : null;
 
+                        Log.Debug($"Attempting to load on damaged effects for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                        Dictionary<string, List<string>> onTakeDamage = new Dictionary<string, List<string>>();
+                        if (obj.ContainsKey("on_damaged_effects"))
+                        {
+                            Dictionary<object, object> onTakeDamageTemp = (Dictionary<object, object>)obj["on_damaged_effects"];
+                            foreach (var item in onTakeDamageTemp)
+                            {
+                                onTakeDamage.Add(((string)item.Key).ToUpper(), ((IEnumerable<object>)item.Value).Cast<string>().ToList());
+                            }
+                        }
+
                         Log.Debug($"Attempting to load ends round with for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Team endsRoundWith = obj.ContainsKey("ends_round_with") ? (Team)Enum.Parse(typeof(Team), (string)obj["ends_round_with"]) : Team.RIP;
 
@@ -193,8 +205,23 @@ namespace Subclass.Managers
                         Log.Debug($"Attempting to load spawns as for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         RoleType spawnsAs = obj.ContainsKey("spawns_as") ? (RoleType)Enum.Parse(typeof(RoleType), (string)obj["spawns_as"]) : RoleType.None;
 
+                        Log.Debug($"Attempting to load escapes as for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                        RoleType[] escapesAs = new RoleType[2];
+                        if (obj.ContainsKey("escapes_as"))
+                        {
+                            Dictionary<object, object> escapesAsTemp = (Dictionary<object, object>)obj["escapes_as"];
+                            if (escapesAsTemp.ContainsKey("not_cuffed"))
+                                escapesAs[0] = (RoleType)Enum.Parse(typeof(RoleType), (string)escapesAsTemp["not_cuffed"]);
+                            else
+                                escapesAs[0] = RoleType.None;
+                            if (escapesAsTemp.ContainsKey("cuffed"))
+                                escapesAs[1] = (RoleType)Enum.Parse(typeof(RoleType), (string)escapesAsTemp["cuffed"]);
+                            else
+                                escapesAs[1] = RoleType.None;
+                        }
+
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
-                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs));
+                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

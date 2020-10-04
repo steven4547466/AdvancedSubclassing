@@ -185,8 +185,15 @@ namespace Subclass.Handlers
         
         public void OnEscaping(EscapingEventArgs ev)
         {
-            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
-            Tracking.RemoveAndAddRoles(ev.Player, true);
+            bool cuffed = ev.Player.IsCuffed;
+            Timing.CallDelayed(0.05f, () => {
+                if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
+                {
+                    if (!cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0];
+                    else if (Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1];
+                }
+                Tracking.RemoveAndAddRoles(ev.Player, false, false, true);
+            });
         }
 
         public void OnHurting(HurtingEventArgs ev)
@@ -200,16 +207,27 @@ namespace Subclass.Handlers
             if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
                 (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0))
             {
-                if (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0)
+                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
                 {
-                    foreach (string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
+                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
                     {
-                        if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
-                        {
-                            ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
-                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
-                                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1);
-                        }
+                        ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
+                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
+                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1);
+                    }
+                }
+            }
+
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && (Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects.ContainsKey(ev.DamageType.name)))
+            {
+                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name])
+                {
+                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Chance")])
+                    {
+                        ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
+                            Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
+                            Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Duration")] : -1);
+                        Log.Debug("enabled " + effect);
                     }
                 }
             }

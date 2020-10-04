@@ -205,17 +205,21 @@ namespace Subclass
 
         public List<string> OnSpawnEffects = new List<string>();
 
+        public Dictionary<string, List<string>> OnDamagedEffects = new Dictionary<string, List<string>>();
+
         public List<RoleType> RolesThatCantDamage = new List<RoleType>();
 
         public Team EndsRoundWith = Team.RIP;
 
         public RoleType SpawnsAs = RoleType.None;
 
+        public RoleType[] EscapesAs = { RoleType.None, RoleType.None };
+
         public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
             Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
-            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None)
+            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -234,6 +238,8 @@ namespace Subclass
             if (cantDamage != null) RolesThatCantDamage = cantDamage;
             if (endsRoundWith != Team.RIP) EndsRoundWith = endsRoundWith;
             if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
+            if (escapesAs != null) EscapesAs = escapesAs;
+            if (onTakeDamage != null) OnDamagedEffects = onTakeDamage;
         }
 
         public SubClass(SubClass subClass)
@@ -255,6 +261,8 @@ namespace Subclass
             RolesThatCantDamage = new List<RoleType>(subClass.RolesThatCantDamage);
             EndsRoundWith = subClass.EndsRoundWith;
             SpawnsAs = subClass.SpawnsAs;
+            EscapesAs = subClass.EscapesAs;
+            OnDamagedEffects = subClass.OnDamagedEffects;
         }
     }
 
@@ -289,6 +297,7 @@ namespace Subclass
         Zombie106,
         FlashOnCommand,
         ExplodeOnDeath,
-        InvisibleOnCommand
+        InvisibleOnCommand,
+        Disguise
     }
 }
