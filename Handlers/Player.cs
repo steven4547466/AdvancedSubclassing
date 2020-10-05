@@ -83,6 +83,7 @@ namespace Subclass.Handlers
                         } else
                         {
                             Tracking.AddCooldown(ev.Player, AbilityType.PryGates);
+                            Tracking.UseAbility(ev.Player, AbilityType.PryGates, subClass);
                             ev.Door.PryGate();
                         }
                     }
@@ -105,6 +106,7 @@ namespace Subclass.Handlers
                 {
                     Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to access door with permission level {ev.Door.PermissionLevels}", Subclass.Instance.Config.Debug);
                     Tracking.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
+                    Tracking.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
                     ev.IsAllowed = true;
                 }
             }
@@ -131,6 +133,7 @@ namespace Subclass.Handlers
                 {
                     Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to access locked locker", Subclass.Instance.Config.Debug);
                     Tracking.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
+                    Tracking.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
                     ev.IsAllowed = true;
                 }
             }
@@ -157,6 +160,7 @@ namespace Subclass.Handlers
                 {
                     Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to access locked locker", Subclass.Instance.Config.Debug);
                     Tracking.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
+                    Tracking.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
                     ev.IsAllowed = true;
                 }
             }
@@ -222,7 +226,7 @@ namespace Subclass.Handlers
                 }
             }
 
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && (Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects.ContainsKey(ev.DamageType.name)))
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && (Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects.ContainsKey(ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", ""))))
             {
                 foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name])
                 {
@@ -327,6 +331,7 @@ namespace Subclass.Handlers
             {
                 Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to bypass tesla gate", Subclass.Instance.Config.Debug);
                 Tracking.AddCooldown(ev.Player, AbilityType.BypassTeslaGates);
+                Tracking.UseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass);
                 if (!Tracking.PlayersThatBypassedTeslaGates.ContainsKey(ev.Player)) Tracking.PlayersThatBypassedTeslaGates.Add(ev.Player, 0);
                 Tracking.PlayersThatBypassedTeslaGates[ev.Player] = Time.time;
                 ev.IsTriggerable = false;

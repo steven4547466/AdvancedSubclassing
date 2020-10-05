@@ -340,6 +340,7 @@ namespace Subclass.Handlers
                             }
 
                             Tracking.AddCooldown(ev.Player, AbilityType.Echolocate);
+                            Tracking.UseAbility(ev.Player, AbilityType.Echolocate, subClass);
                             Log.Debug($"Player {ev.Player.Nickname} successfully used echolocate", Subclass.Instance.Config.Debug);
                         }
                         break;
@@ -364,6 +365,7 @@ namespace Subclass.Handlers
                             bool previous = ev.Player.NoClipEnabled;
                             ev.Player.NoClipEnabled = !ev.Player.NoClipEnabled;
                             Tracking.AddCooldown(ev.Player, AbilityType.NoClip);
+                            Tracking.UseAbility(ev.Player, AbilityType.NoClip, subClass);
                             if (subClass.FloatOptions.ContainsKey("NoClipTime"))
                             {
                                 Timing.CallDelayed(subClass.FloatOptions["NoClipTime"], () =>
@@ -407,6 +409,7 @@ namespace Subclass.Handlers
                                 grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
                             NetworkServer.Spawn(grenade.gameObject);
                             Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
+                            Tracking.UseAbility(ev.Player, AbilityType.FlashOnCommand, subClass);
                             Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
                         }
                         else
@@ -463,6 +466,7 @@ namespace Subclass.Handlers
                                 });
 
                             Tracking.AddCooldown(ev.Player, AbilityType.InvisibleOnCommand);
+                            Tracking.UseAbility(ev.Player, AbilityType.InvisibleOnCommand, subClass);
 
                         }
                         break;
@@ -480,6 +484,12 @@ namespace Subclass.Handlers
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to disguise", Subclass.Instance.Config.Debug);
                             Tracking.DisplayCooldown(ev.Player, AbilityType.Disguise, subClass, "disguise", Time.time);
+                            return;
+                        }
+
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass, "bypass tesla gates");
                             return;
                         }
 
@@ -533,6 +543,8 @@ namespace Subclass.Handlers
                         bool roundWasLockedBefore = Round.IsLocked;
                         Round.IsLocked = true;
                         ev.Player.SetRole(role, true);
+                        Tracking.AddCooldown(ev.Player, AbilityType.Disguise);
+                        Tracking.UseAbility(ev.Player, AbilityType.Disguise, subClass);
                         Timing.CallDelayed(Tracking.PlayersWithSubclasses[ev.Player].FloatOptions["DisguiseDuration"], () =>
                         {
                             Tracking.PlayersThatJustGotAClass[ev.Player] = Time.time + 3f;
@@ -616,6 +628,7 @@ namespace Subclass.Handlers
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);
+                    Tracking.UseAbility(ev.Player, ability, subClass);
                     Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
                 }
                 else

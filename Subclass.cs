@@ -48,7 +48,11 @@ namespace Subclass
 
         public override void OnEnabled()
         {
-            if (Subclass.Instance.Config.IsEnabled == false) return;
+            if (Subclass.Instance.Config.IsEnabled == false)
+            {
+                Log.Info("Subclass was disabled, why did this run?");
+                return;
+            }
             base.OnEnabled();
             Log.Info("Subclass enabled.");
             RegisterEvents();
