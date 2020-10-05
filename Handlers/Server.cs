@@ -156,7 +156,7 @@ namespace Subclass.Handlers
 
         public void OnRespawningTeam(RespawningTeamEventArgs ev)
         {
-            Timing.CallDelayed(3f, () => // Clear them after the wave spawns instead.
+            Timing.CallDelayed(10f, () => // Clear them after the wave spawns instead.
             {
                 Tracking.NextSpawnWave.Clear();
                 Tracking.NextSpawnWaveGetsRole.Clear();

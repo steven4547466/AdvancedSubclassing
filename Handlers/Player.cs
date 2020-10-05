@@ -21,6 +21,7 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
+            ev.Player.Scale = new Vector3(1, 1, 1);
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
@@ -46,6 +47,7 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
+            ev.Player.Scale = new Vector3(1, 1, 1);
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
@@ -168,7 +170,7 @@ namespace Subclass.Handlers
                 GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
                 GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFrag);
                 Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
-                grenade.fuseDuration = Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("ExplodeOnDeathFuseTimer") ? 
+                grenade.fuseDuration = Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("ExplodeOnDeathFuseTimer") ?
                     Tracking.PlayersWithSubclasses[ev.Target].FloatOptions["ExplodeOnDeathFuseTimer"] : 2f;
                 grenade.FullInitData(grenadeManager, ev.Target.Position, Quaternion.Euler(grenade.throwStartAngle),
                     grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
@@ -178,13 +180,15 @@ namespace Subclass.Handlers
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveZombie(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
-            Timing.CallDelayed(0.1f, () => {
+            Timing.CallDelayed(0.1f, () =>
+            {
                 Tracking.CheckRoundEnd();
             });
         }
         
         public void OnEscaping(EscapingEventArgs ev)
         {
+            ev.Player.Scale = new Vector3(1, 1, 1);
             bool cuffed = ev.Player.IsCuffed;
             Timing.CallDelayed(0.05f, () => {
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))

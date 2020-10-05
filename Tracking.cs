@@ -264,7 +264,7 @@ namespace Subclass
             }
 
             if (p.ReferenceHub.serverRoles.HiddenBadge != null && p.ReferenceHub.serverRoles.HiddenBadge != "") p.ReferenceHub.serverRoles.HiddenBadge = null;
-            p.Scale = new Vector3(1, 1, 1);
+
 
             SubClass subClass = PlayersWithSubclasses.ContainsKey(p) ? PlayersWithSubclasses[p] : null;
 
