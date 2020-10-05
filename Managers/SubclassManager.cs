@@ -60,33 +60,42 @@ namespace Subclass.Managers
                 {
                     Log.Info("Subclasses directory not found, creating.");
                     Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses"));
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global")));
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses", "global"));
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString()));
                     return new Dictionary<string, SubClass>();
                 }
 
-                if (!Directory.Exists(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global"))))
+                if (!Directory.Exists(Path.Combine(Paths.Configs,"Subclasses", "global")))
                 {
                     Log.Info("Subclasses global directory not found, creating.");
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global")));
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses", "global"));
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString()));
                     return new Dictionary<string, SubClass>();
                 }
 
-                if (!Directory.Exists(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString()))))
+                if (!Directory.Exists(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString())))
                 {
                     Log.Info("Subclasses directory for this port not found, creating.");
-                    Directory.CreateDirectory(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString())));
+                    Directory.CreateDirectory(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString()));
                     return new Dictionary<string, SubClass>();
                 }
 
                 List<string> classes = new List<string>();
-                classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, Path.Combine("Subclasses", "global"))));
-                classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, Path.Combine("Subclasses", Server.Port.ToString()))));
+                classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, "Subclasses", "global")));
+                foreach (string directory in Directory.GetDirectories(Path.Combine(Paths.Configs, "Subclasses", "global")))
+                {
+                    classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, "Subclasses", "global", directory)));
+                }
+
+                classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString())));
+                foreach(string directory in Directory.GetDirectories(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString())))
+                {
+                    classes.AddRange(Directory.GetFiles(Path.Combine(Paths.Configs, "Subclasses", Server.Port.ToString(), directory)));
+                }
 
                 Dictionary<string, SubClass> subClasses = new Dictionary<string, SubClass>();
 
-                foreach (string path in classes)
+                foreach (string path in classes.Where(f => f.EndsWith("yml")))
                 {
                     string file = Read(path);
                     Dictionary<string, object> rawClass = Deserializer.Deserialize<Dictionary<string, object>>(file) ?? new Dictionary<string, object>();
@@ -206,7 +215,7 @@ namespace Subclass.Managers
                         RoleType spawnsAs = obj.ContainsKey("spawns_as") ? (RoleType)Enum.Parse(typeof(RoleType), (string)obj["spawns_as"]) : RoleType.None;
 
                         Log.Debug($"Attempting to load escapes as for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
-                        RoleType[] escapesAs = new RoleType[2];
+                        RoleType[] escapesAs = { RoleType.None, RoleType.None };
                         if (obj.ContainsKey("escapes_as"))
                         {
                             Dictionary<object, object> escapesAsTemp = (Dictionary<object, object>)obj["escapes_as"];
