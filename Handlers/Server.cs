@@ -22,7 +22,7 @@ namespace Subclass.Handlers
             Tracking.RoundStartedAt = Time.time;
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
-                Log.Debug("Round started", Subclass.Instance.Config.Debug);
+                Log.Debug("Round started!", Subclass.Instance.Config.Debug);
                 foreach (EPlayer player in EPlayer.List)
                 {
                     MaybeAddRoles(player);

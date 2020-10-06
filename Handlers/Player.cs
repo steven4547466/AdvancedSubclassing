@@ -11,6 +11,7 @@ using EMap = Exiled.API.Features.Map;
 using System.Collections.Generic;
 using Grenades;
 using Mirror;
+using System;
 
 namespace Subclass.Handlers
 {
@@ -25,24 +26,33 @@ namespace Subclass.Handlers
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
-                Tracking.QueuedCassieMessages.Clear();
-                if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
+                try
                 {
-                    Tracking.RemoveAndAddRoles(ev.Player, true);
-                    Tracking.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
-                }
-                else
+                    Tracking.QueuedCassieMessages.Clear();
+                    if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
+                    {
+                        Tracking.RemoveAndAddRoles(ev.Player, true);
+                        Tracking.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
+                    }
+                    else
+                    {
+                        if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
+                        {
+                            if(Subclass.Instance.Scp035Enabled) Tracking.RemoveAndAddRoles(ev.Player, false, scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
+                            else Tracking.RemoveAndAddRoles(ev.Player, false, false);
+                        }
+                    }
+                    foreach (string message in Tracking.QueuedCassieMessages)
+                    {
+                        Cassie.Message(message, true, false);
+                        Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
+                    }
+                    Tracking.CheckRoundEnd();
+                }catch(Exception e)
                 {
-                    if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player, false, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
+                    Log.Error(e);
                 }
-                foreach (string message in Tracking.QueuedCassieMessages)
-                {
-                    Cassie.Message(message, true, false);
-                    Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
-                }
-                Tracking.CheckRoundEnd();
             });
-
         }
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
@@ -52,12 +62,22 @@ namespace Subclass.Handlers
             Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
-                Tracking.QueuedCassieMessages.Clear();
-                Tracking.RemoveAndAddRoles(ev.Player, false, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
-                foreach (string message in Tracking.QueuedCassieMessages)
+                try
                 {
-                    Cassie.Message(message, true, false);
-                    Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
+                    Tracking.QueuedCassieMessages.Clear();
+
+                    if (Subclass.Instance.Scp035Enabled) Tracking.RemoveAndAddRoles(ev.Player, false, scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
+                    else Tracking.RemoveAndAddRoles(ev.Player, false, false);
+
+                    foreach (string message in Tracking.QueuedCassieMessages)
+                    {
+                        Cassie.Message(message, true, false);
+                        Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
                 }
                 Tracking.CheckRoundEnd();
             });
@@ -235,7 +255,6 @@ namespace Subclass.Handlers
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                             Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
                             Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Duration")] : -1);
-                        Log.Debug("enabled " + effect);
                     }
                 }
             }

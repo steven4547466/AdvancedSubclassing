@@ -29,7 +29,7 @@ namespace Subclass
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Name { get; } = "Subclass";
         public override string Author { get; } = "Steven4547466";
-        public override Version Version { get; } = new Version(1, 1, 1);
+        public override Version Version { get; } = new Version(1, 1, 2);
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 3);
         public override string Prefix { get; } = "Subclass";
 
@@ -40,8 +40,8 @@ namespace Subclass
         public Dictionary<string, SubClass> Classes { get; set; }
         public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
 
-        public bool Scp035Enabled = Loader.Plugins.Any(p => p.Name == "scp035");
-        public bool CommonUtilsEnabled = Loader.Plugins.Any(p => p.Name == "Common Utilities");
+        public bool Scp035Enabled = Loader.Plugins.Any(p => p.Name == "scp035" && p.Config.IsEnabled);
+        public bool CommonUtilsEnabled = Loader.Plugins.Any(p => p.Name == "Common Utilities" && p.Config.IsEnabled);
 
         int harmonyPatches = 0;
         private Harmony HarmonyInstance { get; set; }
