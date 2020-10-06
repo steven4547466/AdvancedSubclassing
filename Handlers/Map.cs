@@ -74,12 +74,11 @@ namespace Subclass.Handlers
                 EPlayer player = EPlayer.Get(collider.gameObject);
                 if (player != null && player.Team == ev.Thrower.Team)
                 {
-                    try
-                    {
+                    if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions.ContainsKey(type)) {
                         if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
                         else player.Health += Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];
                     }
-                    catch(KeyNotFoundException e)
+                    else
                     {
                         player.Health = player.MaxHealth;
                     }
@@ -94,11 +93,12 @@ namespace Subclass.Handlers
                 EPlayer player = EPlayer.Get(collider.gameObject);
                 if (player != null && player.Team == thrower.Team)
                 {
-                    try
+                    if (Tracking.PlayersWithSubclasses[thrower].FloatOptions.ContainsKey(type))
                     {
-                        player.Health += Tracking.PlayersWithSubclasses[thrower].FloatOptions[type];
+                        if (Tracking.PlayersWithSubclasses[thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
+                        else player.Health += Tracking.PlayersWithSubclasses[thrower].FloatOptions[type];
                     }
-                    catch (KeyNotFoundException e)
+                    else
                     {
                         player.Health = player.MaxHealth;
                     }
