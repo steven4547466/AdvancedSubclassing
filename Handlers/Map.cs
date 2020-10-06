@@ -20,10 +20,21 @@ namespace Subclass.Handlers
             }
             if(Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) && !ev.IsFrag)
             {
+                if (!Tracking.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower])) {
+                    Tracking.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower], "heal flash");
+                    return;
+                }
+                Tracking.UseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower]);
                 ev.IsAllowed = false;
                 UpdateHealths(ev, "HealGrenadeFlashHealAmount");
             }else if(Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag) && ev.IsFrag)
             {
+                if (!Tracking.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower]))
+                {
+                    Tracking.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower], "heal frag");
+                    return;
+                }
+                Tracking.UseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower]);
                 ev.IsAllowed = false;
                 UpdateHealths(ev, "HealGrenadeFragHealAmount");
             }
@@ -65,7 +76,8 @@ namespace Subclass.Handlers
                 {
                     try
                     {
-                        player.Health += Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];
+                        if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
+                        else player.Health += Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];
                     }
                     catch(KeyNotFoundException e)
                     {

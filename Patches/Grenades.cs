@@ -16,9 +16,17 @@ namespace Subclass.Patches
             Player thrower = Player.Get(__instance.thrower.gameObject);
             if (Tracking.PlayersWithSubclasses.ContainsKey(thrower) && Tracking.PlayersWithSubclasses[thrower].Abilities.Contains(AbilityType.HealGrenadeFrag))
             {
-                UnityEngine.Collider[] colliders = UnityEngine.Physics.OverlapSphere(__instance.transform.position, 4);
-                Subclass.Instance.map.UpdateHealths(colliders, thrower, "HealGrenadeFragHealAmount");
-                return false;
+                if (!Tracking.CanUseAbility(thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[thrower]))
+                {
+                    Tracking.DisplayCantUseAbility(thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[thrower], "heal frag");
+                }
+                else
+                {
+                    Tracking.UseAbility(thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[thrower]);
+                    UnityEngine.Collider[] colliders = UnityEngine.Physics.OverlapSphere(__instance.transform.position, 4);
+                    Subclass.Instance.map.UpdateHealths(colliders, thrower, "HealGrenadeFragHealAmount");
+                    return false;
+                }
             }
 
             string str = (((Grenade)((EffectGrenade)__instance)).thrower != null) ? ((Grenade)((EffectGrenade)__instance)).thrower.hub.LoggedNameFromRefHub() : ((string)"(UNKNOWN)");

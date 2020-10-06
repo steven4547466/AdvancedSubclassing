@@ -65,7 +65,7 @@ namespace Subclass.Handlers
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
         {
-            if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ev.Door.PermissionLevels != 0 && ev.Player.CurrentItemIndex == -1) {
+            if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ((ev.Door.PermissionLevels != 0 || ev.Door.Networklocked) && !ev.Door.isOpen && ev.Player.CurrentItemIndex == -1)) {
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
                     SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
