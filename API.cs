@@ -1,7 +1,9 @@
 ﻿using Exiled.API.Features;
+using Exiled.Loader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,7 +16,13 @@ namespace Subclass
         public static bool GiveClass(Player p, SubClass subClass, bool lite = false)
         {
             if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
-            Tracking.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035.API.Scp035Data.GetScp035().Id == p.Id, lite);
+            if (Subclass.Instance.Scp035Enabled) 
+            {
+                Player scp035 = (Player) Loader.Plugins[Loader.Plugins.FindIndex(pl => pl.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                Tracking.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035?.Id == p.Id, lite);
+                return true;
+            }
+            Tracking.AddClass(p, subClass, false, lite);
             return true;
         }
 

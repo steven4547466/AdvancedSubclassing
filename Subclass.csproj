@@ -67,9 +67,6 @@
     <Reference Include="NorthwoodLib">
       <HintPath>..\..\..\SCPSLServer\SCPSL_Data\Managed\NorthwoodLib.dll</HintPath>
     </Reference>
-    <Reference Include="scp035">
-      <HintPath>..\..\..\Downloads\EXILED plugin stuff\scp035.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />

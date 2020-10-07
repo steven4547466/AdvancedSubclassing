@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using Grenades;
 using Mirror;
 using System;
+using Exiled.Loader;
+using System.Reflection;
 
 namespace Subclass.Handlers
 {
@@ -38,7 +40,11 @@ namespace Subclass.Handlers
                     {
                         if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                         {
-                            if(Subclass.Instance.Scp035Enabled) Tracking.RemoveAndAddRoles(ev.Player, false, scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
+                            if (Subclass.Instance.Scp035Enabled)
+                            {
+                                EPlayer scp035 = (EPlayer)Loader.Plugins[Loader.Plugins.FindIndex(p => p.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                                Tracking.RemoveAndAddRoles(ev.Player, false, scp035?.Id == ev.Player.Id);
+                            }
                             else Tracking.RemoveAndAddRoles(ev.Player, false, false);
                         }
                     }
@@ -66,8 +72,13 @@ namespace Subclass.Handlers
                 {
                     Tracking.QueuedCassieMessages.Clear();
 
-                    if (Subclass.Instance.Scp035Enabled) Tracking.RemoveAndAddRoles(ev.Player, false, scp035.API.Scp035Data.GetScp035()?.Id == ev.Player.Id);
-                    else Tracking.RemoveAndAddRoles(ev.Player, false, false);
+
+                    if (Subclass.Instance.Scp035Enabled)
+                    {
+                        EPlayer scp035 = (EPlayer) Loader.Plugins[Loader.Plugins.FindIndex(p => p.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                        Tracking.RemoveAndAddRoles(ev.Player, false, scp035?.Id == ev.Player.Id);
+                    }
+                    Tracking.RemoveAndAddRoles(ev.Player, false, false);
 
                     foreach (string message in Tracking.QueuedCassieMessages)
                     {
