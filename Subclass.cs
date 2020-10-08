@@ -29,7 +29,7 @@ namespace Subclass
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Name { get; } = "Subclass";
         public override string Author { get; } = "Steven4547466";
-        public override Version Version { get; } = new Version(1, 1, 2);
+        public override Version Version { get; } = new Version(1, 1, 3);
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 3);
         public override string Prefix { get; } = "Subclass";
 
@@ -129,6 +129,7 @@ namespace Subclass
             Server.RoundEnded -= server.OnRoundEnded;
             Server.SendingConsoleCommand -= server.OnSendingConsoleCommand;
             Server.RespawningTeam -= server.OnRespawningTeam;
+
             server = null;
 
             Map.ExplodingGrenade -= map.OnExplodingGrenade;
@@ -193,7 +194,7 @@ namespace Subclass
 
         public Dictionary<string, float> FloatOptions = new Dictionary<string, float>();
 
-        public List<RoomType> SpawnLocations = new List<RoomType>();
+        public List<string> SpawnLocations = new List<string>();
 
         public Dictionary<int, Dictionary<ItemType, float>> SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>();
 
@@ -220,7 +221,7 @@ namespace Subclass
         public RoleType[] EscapesAs = { RoleType.None, RoleType.None };
 
         public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
-            Dictionary<string, int> ints, Dictionary<string, float> floats, List<RoomType> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
+            Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
             Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null)
@@ -254,7 +255,7 @@ namespace Subclass
             BoolOptions = new Dictionary<string, bool>(subClass.BoolOptions);
             IntOptions = new Dictionary<string, int>(subClass.IntOptions);
             FloatOptions = new Dictionary<string, float>(subClass.FloatOptions);
-            SpawnLocations = new List<RoomType>(subClass.SpawnLocations);
+            SpawnLocations = new List<string>(subClass.SpawnLocations);
             SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>(subClass.SpawnItems);
             SpawnAmmo = new Dictionary<AmmoType, int>(subClass.SpawnAmmo);
             Abilities = new List<AbilityType>(subClass.Abilities);
@@ -269,7 +270,6 @@ namespace Subclass
             OnDamagedEffects = subClass.OnDamagedEffects;
         }
     }
-
     public enum AbilityType
     {
         PryGates,

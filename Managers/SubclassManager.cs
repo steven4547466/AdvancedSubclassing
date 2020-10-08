@@ -175,9 +175,7 @@ namespace Subclass.Managers
                         }
 
                         Log.Debug($"Attempting to load spawns for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
-                        List<string> spawnsTemp = ((IEnumerable<object>)obj["spawn_locations"]).Cast<string>().ToList();
-                        List<RoomType> spawns = new List<RoomType>();
-                        foreach (var item in spawnsTemp) spawns.Add((RoomType)Enum.Parse(typeof(RoomType), item));
+                        List<string> spawns = ((IEnumerable<object>)obj["spawn_locations"]).Cast<string>().ToList();
 
                         Log.Debug($"Attempting to load spawn items for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> spawnItemsTemp = (Dictionary<object, object>)obj["spawn_items"];

@@ -62,7 +62,7 @@ namespace Subclass
                 copy.BoolOptions["TakesFriendlyFire"] = true;
                 copy.SpawnsAs = RoleType.None;
                 copy.SpawnLocations.Clear();
-                copy.SpawnLocations.Add(RoomType.Unknown);
+                copy.SpawnLocations.Add("Unknown");
                 copy.IntOptions["MaxHealth"] = -1;
                 copy.IntOptions["HealthOnSpawn"] = -1;
                 copy.IntOptions["MaxArmor"] = -1;
@@ -226,18 +226,35 @@ namespace Subclass
             }
 
             int index = rnd.Next(subClass.SpawnLocations.Count);
-            if (!lite && subClass.SpawnLocations[index] != RoomType.Unknown)
+            if (!lite && subClass.SpawnLocations[index] != "Unknown")
             {
-                List<Room> spawnLocations = Map.Rooms.Where(r => r.Type == subClass.SpawnLocations[index]).ToList();
+                List<Room> spawnLocations = new List<Room>();
+                if (subClass.SpawnLocations[index] == "Lcz173Armory") 
+                {
+                    Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
+                    spawnLocations.Add(new Room("Lcz173Armory", door.transform, door.transform.position + (Vector3.right * 3)));
+                }
+                else if (subClass.SpawnLocations[index] == "Lcz173")
+                {
+                    Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
+                    spawnLocations.Add(new Room("Lcz173", door.transform, door.transform.position));
+                }
+                else if (subClass.SpawnLocations[index] == "Lcz173Bottom")
+                {
+                    spawnLocations = Map.Rooms.Where(r => r.Type == RoomType.Lcz173).ToList();
+                }
+                else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[index]).ToList();
                 if (spawnLocations.Count != 0)
                 {
                     Timing.CallDelayed(0.3f, () =>
                     {
-                        Vector3 offset = new Vector3(0, 2f, 0);
+                        Vector3 offset = new Vector3(0, 1f, 0);
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-                        player.Position = spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset;
+                        Vector3 pos = Vector3.down;
+                        PlayerMovementSync.FindSafePosition(spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset, out pos);
+                        player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
                     });
                 }
             }
