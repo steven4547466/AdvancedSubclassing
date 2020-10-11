@@ -259,7 +259,7 @@ namespace Subclass.Handlers
 
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && (Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects.ContainsKey(ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", ""))))
             {
-                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name])
+                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", "")])
                 {
                     if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Chance")])
                     {

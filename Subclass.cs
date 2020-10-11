@@ -38,7 +38,7 @@ namespace Subclass
         public Handlers.Map map { get; set; }
 
         public Dictionary<string, SubClass> Classes { get; set; }
-        public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
+        public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = null;
 
         public bool Scp035Enabled = Loader.Plugins.Any(p => p.Name == "scp035" && p.Config.IsEnabled);
         public bool CommonUtilsEnabled = Loader.Plugins.Any(p => p.Name == "Common Utilities" && p.Config.IsEnabled);
@@ -143,6 +143,7 @@ namespace Subclass
             classes = SubclassManager.LoadClasses();
             if (config.AdditiveChance)
             {
+                ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
                 foreach (var item in classes)
                 {
                     foreach (RoleType role in item.Value.AffectsRoles)

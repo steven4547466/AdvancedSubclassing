@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEngine;
 using Exiled.Permissions.Extensions;
 using EPlayer = Exiled.API.Features.Player;
+using System.Collections;
 
 namespace Subclass.Handlers
 {

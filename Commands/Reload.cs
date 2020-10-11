@@ -20,24 +20,26 @@ namespace Subclass.Commands
         {
             if (sender is PlayerCommandSender player)
             {
-                Player p = Player.Get(player.SenderId);
-                if (!p.CheckPermission("sc.reload"))
+                if (!player.CheckPermission("sc.reload"))
                 {
                     response = "You do not have the necessary permissions to run this command. Requires: sc.reload";
                     return false;
                 }
 
                 response = "Reloaded";
-                Subclass.Instance.Classes.Clear();
-                if(Subclass.Instance.ClassesAdditive != null) Subclass.Instance.ClassesAdditive.Clear();
 
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
 
                 return true;
-                
+
             }
-            response = "";
-            return false;
+            else {
+                response = "Reloaded";
+                Subclass.Instance.Classes = Subclass.Instance.GetClasses();
+
+                return true;
+            }
+           
         }
     }
 }

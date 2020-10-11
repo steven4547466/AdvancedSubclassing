@@ -241,19 +241,19 @@ namespace Subclass
                 }
                 else if (subClass.SpawnLocations[index] == "Lcz173Bottom")
                 {
-                    spawnLocations = Map.Rooms.Where(r => r.Type == RoomType.Lcz173).ToList();
+                    spawnLocations.Add(Map.Rooms.First(r => r.Type == RoomType.Lcz173));
                 }
                 else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[index]).ToList();
                 if (spawnLocations.Count != 0)
                 {
                     Timing.CallDelayed(0.3f, () =>
                     {
-                        Vector3 offset = new Vector3(0, 1f, 0);
+                        Vector3 offset = new Vector3(0, 2f, 0);
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
                         Vector3 pos = Vector3.down;
-                        PlayerMovementSync.FindSafePosition(spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset, out pos);
+                        PlayerMovementSync.FindSafePosition(spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset, out pos, true);
                         player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
                     });
                 }
