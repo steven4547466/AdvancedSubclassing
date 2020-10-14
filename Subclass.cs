@@ -29,7 +29,7 @@ namespace Subclass
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Name { get; } = "Subclass";
         public override string Author { get; } = "Steven4547466";
-        public override Version Version { get; } = new Version(1, 1, 4);
+        public override Version Version { get; } = new Version(1, 1, 5);
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 3);
         public override string Prefix { get; } = "Subclass";
 

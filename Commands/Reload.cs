@@ -33,13 +33,13 @@ namespace Subclass.Commands
                 return true;
 
             }
-            else {
+            else
+            {
                 response = "Reloaded";
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
 
                 return true;
             }
-           
         }
     }
 }

@@ -265,7 +265,7 @@ namespace Subclass.Handlers
 
         public void OnSendingConsoleCommand(SendingConsoleCommandEventArgs ev)
         {
-            Log.Debug($"Player {ev.Player.Nickname} sent a console command", Subclass.Instance.Config.Debug);
+            Log.Debug($"Player {ev.Player?.Nickname} sent a console command", Subclass.Instance.Config.Debug);
             ev.IsAllowed = false;
             switch(ev.Name)
             {
@@ -606,22 +606,28 @@ namespace Subclass.Handlers
             EPlayer owner = EPlayer.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
             if (owner != null && !owner.IsAlive)
             {
+                bool revived = false;
                 if (!necro && Tracking.GetPreviousTeam(owner) != null &&
                 Tracking.GetPreviousTeam(owner) == ev.Player.Team)
                 {
-                    owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
                     if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains(owner.Role))
                         Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
-                    else if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
+                    
+                    if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
                     else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
+
+                    owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                    owner.Inventory.Clear();
+                    revived = true;
                 }
                 else if (necro)
                 {
                     owner.Role = RoleType.Scp0492;
                     Tracking.AddZombie(ev.Player, owner);
                     owner.IsFriendlyFireEnabled = true;
+                    revived = true;
                 }
-                if (owner.Role != RoleType.Spectator)
+                if (revived)
                 {
                     Timing.CallDelayed(0.2f, () =>
                     {

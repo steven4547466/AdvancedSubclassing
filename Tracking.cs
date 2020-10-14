@@ -96,13 +96,19 @@ namespace Subclass
             PlayersWithSubclasses.Add(player, subClass);
             if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
             else PlayersThatJustGotAClass[player] = Time.time + 3f;
+
+            int spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
+
             try
             {
                 player.Broadcast(subClass.FloatOptions.ContainsKey("BroadcastTimer") ? (ushort)subClass.FloatOptions["BroadcastTimer"] : (ushort)Subclass.Instance.Config.GlobalBroadcastTime, subClass.StringOptions["GotClassMessage"]);
                 if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
                     !QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
-                if (subClass.SpawnsAs != RoleType.None) player.Role = subClass.SpawnsAs;
+                if (subClass.SpawnsAs != RoleType.None)
+                {
+                    player.SetRole(subClass.SpawnsAs, subClass.SpawnLocations[spawnIndex] != "Unknown");
+                }
 
                 if (subClass.SpawnItems.Count != 0)
                 {
@@ -225,35 +231,35 @@ namespace Subclass
                 Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
             }
 
-            int index = rnd.Next(subClass.SpawnLocations.Count);
-            if (!lite && subClass.SpawnLocations[index] != "Unknown")
+            if (!lite && subClass.SpawnLocations[spawnIndex] != "Unknown")
             {
                 List<Room> spawnLocations = new List<Room>();
-                if (subClass.SpawnLocations[index] == "Lcz173Armory") 
+                if (subClass.SpawnLocations[spawnIndex] == "Lcz173Armory") 
                 {
                     Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
-                    spawnLocations.Add(new Room("Lcz173Armory", door.transform, door.transform.position + (Vector3.right * 3)));
+                    spawnLocations.Add(new Room("Lcz173Armory", door.transform, door.transform.position + (Vector3.right * 2)));
                 }
-                else if (subClass.SpawnLocations[index] == "Lcz173")
+                else if (subClass.SpawnLocations[spawnIndex] == "Lcz173")
                 {
                     Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
                     spawnLocations.Add(new Room("Lcz173", door.transform, door.transform.position));
                 }
-                else if (subClass.SpawnLocations[index] == "Lcz173Bottom")
+                else if (subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom")
                 {
-                    spawnLocations.Add(Map.Rooms.First(r => r.Type == RoomType.Lcz173));
+                    Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
+                    spawnLocations.Add(new Room("Lcz173Bottom", door.transform, door.transform.position));
                 }
-                else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[index]).ToList();
+                else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).ToList();
                 if (spawnLocations.Count != 0)
                 {
                     Timing.CallDelayed(0.3f, () =>
                     {
-                        Vector3 offset = new Vector3(0, 2f, 0);
+                        Vector3 offset = new Vector3(0, 1f, 0);
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-                        Vector3 pos = Vector3.down;
-                        PlayerMovementSync.FindSafePosition(spawnLocations[rnd.Next(spawnLocations.Count)].Position + offset, out pos, true);
+                        Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)].Position;
+                        PlayerMovementSync.FindSafePosition(pos + offset, out pos, true);
                         player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
                     });
                 }
