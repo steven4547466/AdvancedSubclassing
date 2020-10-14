@@ -306,7 +306,7 @@ namespace Subclass.Handlers
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && Tracking.PlayersWithSubclasses[ev.Attacker].Abilities.Contains(AbilityType.LifeSteal))
             {
                 ev.Attacker.Health += Mathf.Clamp(ev.Amount * ((Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("LifeStealPercent") ?
-                    Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["LiftStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth - ev.Attacker.Health);
+                    Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["LifeStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth - ev.Attacker.Health);
             }
 
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
