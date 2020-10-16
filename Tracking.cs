@@ -45,6 +45,8 @@ namespace Subclass
         public static List<Player> NextSpawnWave = new List<Player>();
         public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
         public static List<SubClass> SpawnWaveSpawns = new List<SubClass>();
+        public static Dictionary<SubClass, int> ClassesGiven = new Dictionary<SubClass, int>();
+        public static List<SubClass> DontGiveClasses = new List<SubClass>();
 
         public static Dictionary<Player, string> PreviousBadges = new Dictionary<Player, string>();
 
@@ -70,6 +72,7 @@ namespace Subclass
                 copy.SpawnItems.Clear();
                 copy.RolesThatCantDamage.Clear();
                 copy.StringOptions["GotClassMessage"] = subClass.StringOptions["GotClassMessage"] + " You are SCP-035.";
+                copy.CantDamageRoles = new List<RoleType>();
 
                 subClass = new SubClass(copy.Name + "-SCP-035 (p)", copy.AffectsRoles, copy.StringOptions, copy.BoolOptions, copy.IntOptions,
                     copy.FloatOptions, copy.SpawnLocations, copy.SpawnItems,
@@ -265,6 +268,26 @@ namespace Subclass
                 }
             }
 
+            if (subClass.IntOptions.ContainsKey("MaxPerSpawnWave"))
+            {
+                if (!ClassesGiven.ContainsKey(subClass))
+                {
+                    ClassesGiven.Add(subClass, 1);
+                    Timing.CallDelayed(5f, () =>
+                    {
+                        DontGiveClasses.Clear();
+                        ClassesGiven.Clear();
+                    });
+                }
+                else ClassesGiven[subClass]++;
+                if (ClassesGiven[subClass] >= subClass.IntOptions["MaxPerSpawnWave"])
+                {
+                    if (!DontGiveClasses.Contains(subClass))
+                    {
+                        DontGiveClasses.Add(subClass);
+                    }
+                }
+            }
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
         }
 
@@ -488,14 +511,13 @@ namespace Subclass
             return false;
         }
 
-        public static bool AllowedToDamage(Player p, Player a)
+        public static bool AllowedToDamage(Player t, Player a)
         {
-            Log.Debug($"Checking allowed damage rules for Attacker: {p.Nickname} to target role: {a.Role}", Subclass.Instance.Config.Debug);
-            if (a.Id == p.Id) return true;
-            if (PlayersWithSubclasses.ContainsKey(p))
-                return !PlayersWithSubclasses[p].RolesThatCantDamage.Contains(a.Role);
-            else
-                return true;
+            Log.Debug($"Checking allowed damage rules for Attacker: {a.Nickname} to target role: {t.Role}", Subclass.Instance.Config.Debug);
+            if (a.Id == t.Id) return true;
+            if (PlayersWithSubclasses.ContainsKey(a)) return !PlayersWithSubclasses[a].CantDamageRoles.Contains(t.Role);
+            if (PlayersWithSubclasses.ContainsKey(t)) return !PlayersWithSubclasses[t].RolesThatCantDamage.Contains(a.Role);
+            return true;
         }
 
         public static void CheckRoundEnd()

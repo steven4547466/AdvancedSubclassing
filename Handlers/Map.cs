@@ -74,6 +74,7 @@ namespace Subclass.Handlers
                 EPlayer player = EPlayer.Get(collider.gameObject);
                 if (player != null && player.Team == ev.Thrower.Team)
                 {
+                    if (Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.CantHeal)) return;
                     if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions.ContainsKey(type)) {
                         if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
                         else player.Health += Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];

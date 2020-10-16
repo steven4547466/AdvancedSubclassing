@@ -10,6 +10,7 @@ using UnityEngine;
 using Exiled.Permissions.Extensions;
 using EPlayer = Exiled.API.Features.Player;
 using System.Collections;
+using Exiled.API.Enums;
 
 namespace Subclass.Handlers
 {
@@ -104,6 +105,13 @@ namespace Subclass.Handlers
                     {
                         double rng = (rnd.NextDouble() * 100);
                         Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug);
+
+                        if (Tracking.DontGiveClasses.Contains(subClass)) 
+                        {
+                            Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+                            continue;
+                        }
+                        
                         if (rng < subClass.FloatOptions["ChanceToGet"] && 
                             (!subClass.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) && 
@@ -157,7 +165,7 @@ namespace Subclass.Handlers
 
         public void OnRespawningTeam(RespawningTeamEventArgs ev)
         {
-            Timing.CallDelayed(10f, () => // Clear them after the wave spawns instead.
+            Timing.CallDelayed(5f, () => // Clear them after the wave spawns instead.
             {
                 Tracking.NextSpawnWave.Clear();
                 Tracking.NextSpawnWaveGetsRole.Clear();
@@ -401,14 +409,7 @@ namespace Subclass.Handlers
                                 return;
                             }
 
-                            // Credit to KoukoCocoa's AdminTools for the grenade spawn script below, I was lost. https://github.com/KoukoCocoa/AdminTools/
-                            GrenadeManager grenadeManager = ev.Player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
-                            GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == ItemType.GrenadeFlash);
-                            Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
-                            grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
-                            grenade.FullInitData(grenadeManager, ev.Player.Position, Quaternion.Euler(grenade.throwStartAngle),
-                                grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
-                            NetworkServer.Spawn(grenade.gameObject);
+                            SpawnGrenade(ItemType.GrenadeFlash, ev.Player, subClass);
                             Tracking.AddCooldown(ev.Player, AbilityType.FlashOnCommand);
                             Tracking.UseAbility(ev.Player, AbilityType.FlashOnCommand, subClass);
                             Log.Debug($"Player {ev.Player.Nickname} successfully used flash on commad", Subclass.Instance.Config.Debug);
@@ -595,7 +596,7 @@ namespace Subclass.Handlers
                 return;
             }
 
-            if(doll.owner.DeathCause.GetDamageType() == DamageTypes.Lure)
+            if (doll.owner.DeathCause.GetDamageType() == DamageTypes.Lure)
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
                 ev.ReturnMessage = "This player is not revivable.";
@@ -610,13 +611,14 @@ namespace Subclass.Handlers
                 if (!necro && Tracking.GetPreviousTeam(owner) != null &&
                 Tracking.GetPreviousTeam(owner) == ev.Player.Team)
                 {
-                    if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains(owner.Role))
-                        Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
-                    
                     if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
                     else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
 
-                    owner.Role = (RoleType)Tracking.GetPreviousRole(owner);
+                    owner.SetRole((RoleType)Tracking.GetPreviousRole(owner), true);
+
+                    if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains((RoleType)Tracking.GetPreviousRole(owner)))
+                        Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
+
                     owner.Inventory.Clear();
                     revived = true;
                 }
@@ -631,9 +633,9 @@ namespace Subclass.Handlers
                 {
                     Timing.CallDelayed(0.2f, () =>
                     {
-                        owner.Position = ev.Player.Position + new Vector3(0.3f, 1f, 0);
+                        owner.ReferenceHub.playerMovementSync.OverridePosition(ev.Player.Position + new Vector3(0.3f, 1f, 0), 0, true);
                     });
-                    UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
+                    Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);
                     Tracking.UseAbility(ev.Player, ability, subClass);
                     Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
@@ -651,6 +653,19 @@ namespace Subclass.Handlers
                 ev.ReturnMessage = "This player is not revivable.";
                 ev.Player.Broadcast(2, "This player is not revivable.");
             }
+        }
+
+        public void SpawnGrenade(ItemType type, EPlayer player, SubClass subClass)
+        {
+            // Credit to KoukoCocoa's AdminTools for the grenade spawn script below, I was lost. https://github.com/KoukoCocoa/AdminTools/
+            GrenadeManager grenadeManager = player.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
+            GrenadeSettings settings = grenadeManager.availableGrenades.FirstOrDefault(g => g.inventoryID == type);
+            Grenade grenade = UnityEngine.Object.Instantiate(settings.grenadeInstance).GetComponent<Grenade>();
+            if (type == ItemType.GrenadeFlash) grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
+            else grenade.fuseDuration = subClass.FloatOptions.ContainsKey("GrenadeOnCommandFuseTimer") ? subClass.FloatOptions["GrenadeOnCommandFuseTimer"] : 0.3f;
+            grenade.FullInitData(grenadeManager, player.Position, Quaternion.Euler(grenade.throwStartAngle),
+                grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+            NetworkServer.Spawn(grenade.gameObject);
         }
     }
 }

@@ -145,6 +145,11 @@ namespace Subclass.Managers
                             foreach (string role in cantDamageTemp) cantDamage.Add((RoleType)Enum.Parse(typeof(RoleType), role));
                         }
 
+                        Log.Debug($"Attempting to load cant damage roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                        List<string> cantDamageRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
+                        List<RoleType> cantDamageRoles = new List<RoleType>();
+                        foreach (string role in cantDamageRolesTemp) cantDamageRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
+
                         Log.Debug($"Attempting to load affects roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> affectsRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
                         List<RoleType> affectsRoles = new List<RoleType>();
@@ -228,7 +233,8 @@ namespace Subclass.Managers
                         }
 
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
-                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage));
+                            spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
+                            cantDamageRoles));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

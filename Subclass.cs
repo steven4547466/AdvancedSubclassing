@@ -29,7 +29,7 @@ namespace Subclass
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Name { get; } = "Subclass";
         public override string Author { get; } = "Steven4547466";
-        public override Version Version { get; } = new Version(1, 1, 5);
+        public override Version Version { get; } = new Version(1, 2, 0);
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 3);
         public override string Prefix { get; } = "Subclass";
 
@@ -215,6 +215,8 @@ namespace Subclass
 
         public List<RoleType> RolesThatCantDamage = new List<RoleType>();
 
+        public List<RoleType> CantDamageRoles = new List<RoleType>();
+
         public Team EndsRoundWith = Team.RIP;
 
         public RoleType SpawnsAs = RoleType.None;
@@ -225,7 +227,7 @@ namespace Subclass
             Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
-            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null)
+            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -246,6 +248,7 @@ namespace Subclass
             if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
             if (escapesAs != null) EscapesAs = escapesAs;
             if (onTakeDamage != null) OnDamagedEffects = onTakeDamage;
+            if (cantDamageRoles != null) CantDamageRoles = cantDamageRoles;
         }
 
         public SubClass(SubClass subClass)
@@ -269,6 +272,7 @@ namespace Subclass
             SpawnsAs = subClass.SpawnsAs;
             EscapesAs = subClass.EscapesAs;
             OnDamagedEffects = subClass.OnDamagedEffects;
+            CantDamageRoles = subClass.CantDamageRoles;
         }
     }
     public enum AbilityType
@@ -301,8 +305,10 @@ namespace Subclass
         LifeSteal,
         Zombie106,
         FlashOnCommand,
+        GrenadeOnCommand,
         ExplodeOnDeath,
         InvisibleOnCommand,
-        Disguise
+        Disguise,
+        CantHeal
     }
 }

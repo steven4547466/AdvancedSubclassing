@@ -243,6 +243,7 @@ namespace Subclass.Handlers
                 ev.IsAllowed = false;
                 return;
             }
+
             if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
                 (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0))
             {
@@ -397,6 +398,15 @@ namespace Subclass.Handlers
         public void OnInteracted(InteractedEventArgs ev)
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
+        }
+
+        public void OnUsingMedicalItem(UsingMedicalItemEventArgs ev)
+        {
+            if (ev.Item == ItemType.SCP268) return;
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.CantHeal))
+            {
+                ev.IsAllowed = false;
+            }
         }
     }
 }
