@@ -249,8 +249,10 @@ namespace Subclass.Handlers
             {
                 foreach (string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
                 {
+                    Log.Debug($"Checking on hit effect: {effect}. For {ev.Attacker.Nickname} on {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                     if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
                     {
+                        Log.Debug($"Attempting to inflict on hit effect: {effect}. Inflicted by {ev.Attacker.Nickname} to {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                             Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
                             Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1);
@@ -262,8 +264,10 @@ namespace Subclass.Handlers
             {
                 foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", "")])
                 {
+                    Log.Debug($"Checking on hit damage: {effect} for {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                     if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Chance")])
                     {
+                        Log.Debug($"Attempting to inflict on damaged effect: {effect} to {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                             Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
                             Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Duration")] : -1);

@@ -421,6 +421,36 @@ namespace Subclass.Handlers
                         }
                         break;
                     }
+                case "grenade":
+                    {
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.GrenadeOnCommand))
+                        {
+                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.GrenadeOnCommand, subClass))
+                            {
+                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.GrenadeOnCommand, subClass, "grenade on command");
+                                return;
+                            }
+
+                            if (Tracking.OnCooldown(ev.Player, AbilityType.GrenadeOnCommand, subClass))
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to grenade on command", Subclass.Instance.Config.Debug);
+                                Tracking.DisplayCooldown(ev.Player, AbilityType.GrenadeOnCommand, subClass, "grenade", Time.time);
+                                return;
+                            }
+
+                            SpawnGrenade(ItemType.GrenadeFrag, ev.Player, subClass);
+                            Tracking.AddCooldown(ev.Player, AbilityType.GrenadeOnCommand);
+                            Tracking.UseAbility(ev.Player, AbilityType.GrenadeOnCommand, subClass);
+                            Log.Debug($"Player {ev.Player.Nickname} successfully used grenade on commad", Subclass.Instance.Config.Debug);
+                        }
+                        else
+                        {
+                            ev.ReturnMessage = "You must have the grenade on command ability to use this command";
+                            Log.Debug($"Player {ev.Player.Nickname} could not grenade on command", Subclass.Instance.Config.Debug);
+                        }
+                        break;
+                    }
                 case "invis":
                     {
                         if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.InvisibleOnCommand))
