@@ -225,6 +225,15 @@ namespace Subclass.Handlers
         {
             ev.Player.Scale = new Vector3(1, 1, 1);
             bool cuffed = ev.Player.IsCuffed;
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
+            {
+                if (!cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0] == ev.Player.Role
+                    || Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1] == ev.Player.Role)
+                {
+                    ev.IsAllowed = false;
+                    return;
+                }
+            }
             Timing.CallDelayed(0.05f, () => {
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
@@ -410,6 +419,16 @@ namespace Subclass.Handlers
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.CantHeal))
             {
                 ev.IsAllowed = false;
+            }
+        }
+
+        public void OnEnteringPocketDimension(EnteringPocketDimensionEventArgs ev)
+        {
+            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].RolesThatCantDamage.Contains(RoleType.Scp106)) ev.IsAllowed = false;
+            EPlayer scp106 = null;
+            if ((scp106 = EPlayer.List.FirstOrDefault(p => p.GameObject.GetComponent<Scp106PlayerScript>().iAm106)) != null)
+            {
+                if (Tracking.PlayersWithSubclasses.ContainsKey(scp106) && Tracking.PlayersWithSubclasses[scp106].CantDamageRoles.Contains(ev.Player.Role)) ev.IsAllowed = false;
             }
         }
     }

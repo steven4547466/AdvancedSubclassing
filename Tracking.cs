@@ -82,7 +82,7 @@ namespace Subclass
                         { AmmoType.Nato762, -1 },
                         { AmmoType.Nato9, -1 }
                     }, copy.Abilities, copy.AbilityCooldowns, copy.AdvancedFFRules, copy.OnHitEffects, copy.OnSpawnEffects, 
-                    copy.RolesThatCantDamage, Team.SCP
+                    copy.RolesThatCantDamage, "SCP", RoleType.None, null, subClass.OnDamagedEffects, null
                 );
             }
             if (NextSpawnWave.Contains(player) && NextSpawnWaveGetsRole.ContainsKey(player.Role) && !SpawnWaveSpawns.Contains(subClass))
@@ -152,6 +152,8 @@ namespace Subclass
                 Log.Error($"A required option was not provided. Class: {subClass.Name}");
                 throw new Exception($"A required option was not provided. Class: {subClass.Name}");
             }
+
+            player.DisplayNickname = subClass.StringOptions.ContainsKey("Nickname") ? subClass.StringOptions["Nickname"].Replace("{name}", player.Nickname) : null;
 
             if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
             if (subClass.Abilities.Contains(AbilityType.InvisibleUntilInteract)) player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
@@ -332,16 +334,17 @@ namespace Subclass
                     }
                 }
 
+                if (subClass.StringOptions.ContainsKey("Nickname")) p.DisplayNickname = null;
             }
 
-            if (p.GameObject.GetComponent<InfiniteSprint>() != null)
+            if (p.GameObject?.GetComponent<InfiniteSprint>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
                 p.GameObject.GetComponent<InfiniteSprint>().Destroy();
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
 
-            if (p.GameObject.GetComponent<ZombieEscape>() != null)
+            if (p.GameObject?.GetComponent<ZombieEscape>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has zombie escape, destroying", Subclass.Instance.Config.Debug);
                 p.GameObject.GetComponent<ZombieEscape>().Destroy();
@@ -522,42 +525,46 @@ namespace Subclass
 
         public static void CheckRoundEnd()
         {
-            List<Team> teamsAlive = Player.List.Select(p1 => p1.Team).ToList();
-            teamsAlive.RemoveAll(t => t == Team.RIP);
-            foreach (var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
+            Log.Debug("Checking round end", Subclass.Instance.Config.Debug);
+            List<string> teamsAlive = Player.List.Select(p1 => p1.Team.ToString()).ToList();
+            teamsAlive.RemoveAll(t => t == "RIP");
+            foreach (var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != "RIP"))
             {
-                teamsAlive.Remove(item.Key.Team);
+                teamsAlive.Remove(item.Key.Team.ToString());
                 teamsAlive.Add(item.Value.EndsRoundWith);
+                Log.Debug($"SubClass doesn't end with normal team, ends with: {item.Value.EndsRoundWith}", Subclass.Instance.Config.Debug);
             }
 
             for (int i = 0; i < teamsAlive.Count; i++)
             {
-                Team t = teamsAlive[i];
-                if (t == Team.CDP)
+                string t = teamsAlive[i];
+                if (t == "CDP")
                 {
                     teamsAlive.RemoveAt(i);
-                    teamsAlive.Insert(i, Team.CHI);
+                    teamsAlive.Insert(i, "CHI");
                 }
-                else if (t == Team.RSC)
+                else if (t == "RSC")
                 {
                     teamsAlive.RemoveAt(i);
-                    teamsAlive.Insert(i, Team.MTF);
+                    teamsAlive.Insert(i, "MTF");
                 }
-                else if (t == Team.TUT)
+                else if (t == "TUT")
                 {
                     teamsAlive.RemoveAt(i);
-                    teamsAlive.Insert(i, Team.SCP);
+                    teamsAlive.Insert(i, "MTF");
                 }
             }
 
-            List<Team> uniqueTeamsAlive = new List<Team>();
+            List<string> uniqueTeamsAlive = new List<string>();
 
-            foreach(Team t in teamsAlive)
+            foreach(string t in teamsAlive)
             {
                 if (!uniqueTeamsAlive.Contains(t)) uniqueTeamsAlive.Add(t);
             }
 
-            if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains(Team.SCP))
+            Log.Debug($"Number of unique teams alive: {uniqueTeamsAlive.Count}. Contains ALL? {uniqueTeamsAlive.Contains("ALL")}", Subclass.Instance.Config.Debug);
+
+            if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains("SCP"))
             {
                 List<Player> zombies = API.RevivedZombies();
                 if (Player.List.Where(p => p.Team == Team.SCP).All(p => zombies.Contains(p)))
@@ -566,16 +573,41 @@ namespace Subclass
                 }
             }
 
-            if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != Team.RIP) > 0)
+            if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains("ALL"))
+            {
+                string team = uniqueTeamsAlive.Find(t => t != "ALL");
+                foreach (var item in PlayersWithSubclasses)
+                {
+                    PlayersThatJustGotAClass[item.Key] += 3;
+                    if (team == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
+                    else if (team == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
+                    else item.Key.SetRole(RoleType.Scp0492, true);
+                }
+            }
+
+            if (uniqueTeamsAlive.Count == 1)
+            {
+                foreach (var item in PlayersWithSubclasses)
+                {
+                    PlayersThatJustGotAClass[item.Key] += 3;
+                    if (uniqueTeamsAlive[0] == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
+                    else if (uniqueTeamsAlive[0] == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
+                    else item.Key.SetRole(RoleType.Scp0492, true);
+                }
+            }
+
+            if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != "RIP") > 0)
             {
                 foreach (Player player in PlayersWithSubclasses.Keys)
                 {
-                    if (PlayersWithSubclasses[player].EndsRoundWith != Team.RIP && 
-                        PlayersWithSubclasses[player].EndsRoundWith != player.Team && 
-                        (teamsAlive.Count(e => e == PlayersWithSubclasses[player].EndsRoundWith) == 1 || teamsAlive.All(e => e == PlayersWithSubclasses[player].EndsRoundWith)))
+                    if (PlayersWithSubclasses[player].EndsRoundWith != "RIP" &&
+                        PlayersWithSubclasses[player].EndsRoundWith != "ALL" &&
+                        PlayersWithSubclasses[player].EndsRoundWith != player.Team.ToString() &&
+                        teamsAlive.Count(e => e == PlayersWithSubclasses[player].EndsRoundWith) == 1)
                     {
-                        if (PlayersWithSubclasses[player].EndsRoundWith == Team.MTF) player.SetRole(RoleType.NtfScientist, true);
-                        else if (PlayersWithSubclasses[player].EndsRoundWith == Team.CHI) player.SetRole(RoleType.ChaosInsurgency, true);
+                        PlayersThatJustGotAClass[player] += 3;
+                        if (PlayersWithSubclasses[player].EndsRoundWith == "MTF") player.SetRole(RoleType.NtfScientist, true);
+                        else if (PlayersWithSubclasses[player].EndsRoundWith == "CHI") player.SetRole(RoleType.ChaosInsurgency, true);
                         else player.SetRole(RoleType.Scp0492, true);
                     }
                 }

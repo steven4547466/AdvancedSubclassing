@@ -67,33 +67,61 @@ namespace Subclass.Handlers
 
             if (rolesForClass[player.Role] > 0)
             {
-                List<Team> teamsAlive = EPlayer.List.Select(p1 => p1.Team).ToList();
-                teamsAlive.RemoveAll(t => t == Team.RIP);
-                foreach (var item in Tracking.PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != Team.RIP))
+                List<string> teamsAlive = EPlayer.List.Select(p1 => p1.Team.ToString()).ToList();
+                teamsAlive.RemoveAll(t => t == "RIP");
+                foreach (var item in Tracking.PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != "RIP"))
                 {
-                    teamsAlive.Remove(item.Key.Team);
+                    teamsAlive.Remove(item.Key.Team.ToString());
                     teamsAlive.Add(item.Value.EndsRoundWith);
                 }
 
                 for (int i = 0; i < teamsAlive.Count; i++)
                 {
-                    Team t = teamsAlive[i];
-                    if (t == Team.CDP)
+                    string t = teamsAlive[i];
+                    if (t == "CDP")
                     {
                         teamsAlive.RemoveAt(i);
-                        teamsAlive.Insert(i, Team.CHI);
+                        teamsAlive.Insert(i, "CHI");
                     }
-                    else if (t == Team.RSC)
+                    else if (t == "RSC")
                     {
                         teamsAlive.RemoveAt(i);
-                        teamsAlive.Insert(i, Team.MTF);
+                        teamsAlive.Insert(i, "MTF");
                     }
-                    else if (t == Team.TUT)
+                    else if (t == "TUT")
                     {
                         teamsAlive.RemoveAt(i);
-                        teamsAlive.Insert(i, Team.SCP);
+                        teamsAlive.Insert(i, "MTF");
                     }
                 }
+
+                bool gotUniqueClass = false;
+                foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) && 
+                e.AffectsUsers.ContainsKey(player.RawUserId) &&
+                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"]))))
+                {
+                    double rng = (rnd.NextDouble() * 100);
+                    Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.RawUserId]} to get class", Subclass.Instance.Config.Debug);
+                    if (Tracking.DontGiveClasses.Contains(subClass))
+                    {
+                        Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+                        continue;
+                    }
+
+                    if (rng < subClass.AffectsUsers[player.RawUserId] && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
+                        Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
+                        (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith))) 
+                    {
+                        Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                        Tracking.AddClass(player, subClass, is035, is035 || escaped);
+                        gotUniqueClass = true;
+                        break;
+                    }
+                }
+
+                if (gotUniqueClass) return;
 
                 if (!Subclass.Instance.Config.AdditiveChance)
                 {
@@ -115,7 +143,7 @@ namespace Subclass.Handlers
                         if (rng < subClass.FloatOptions["ChanceToGet"] && 
                             (!subClass.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) && 
-                            (subClass.EndsRoundWith == Team.RIP || teamsAlive.Contains(subClass.EndsRoundWith)))
+                            (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
                             Tracking.AddClass(player, subClass, is035, is035 || escaped);
@@ -143,7 +171,7 @@ namespace Subclass.Handlers
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") || 
                             Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
-                            (possibity.Key.EndsRoundWith == Team.RIP || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
+                            (possibity.Key.EndsRoundWith == "RIP" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
                         {
                             Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
                             Tracking.AddClass(player, possibity.Key, is035, is035 || escaped);
@@ -275,6 +303,7 @@ namespace Subclass.Handlers
         {
             Log.Debug($"Player {ev.Player?.Nickname} sent a console command", Subclass.Instance.Config.Debug);
             ev.IsAllowed = false;
+            ev.ReturnMessage = "";
             switch(ev.Name)
             {
                 case "revive":
@@ -289,10 +318,6 @@ namespace Subclass.Handlers
                                 return;
                             }
                             AttemptRevive(ev, subClass);
-                        }
-                        else
-                        {
-                            ev.ReturnMessage = "You don't have the ability to revive!";
                         }
                         break;
                     }
@@ -309,10 +334,6 @@ namespace Subclass.Handlers
                             }
                             AttemptRevive(ev, subClass, true);
                         }
-                        else
-                        {
-                            ev.ReturnMessage = "You don't have the ability to necro!";
-                        }
                         break;
                     }
                 case "locate":
@@ -322,7 +343,6 @@ namespace Subclass.Handlers
                             !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Scp939Vision)))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to echolocate", Subclass.Instance.Config.Debug);
-                            ev.ReturnMessage = "You must be SCP-939 or have a subclass with its visuals to use this command";
                             return;
                         }
 
@@ -386,7 +406,6 @@ namespace Subclass.Handlers
                         }
                         else
                         {
-                            ev.ReturnMessage = "You must have the noclip ability to use this command";
                             Log.Debug($"Player {ev.Player.Nickname} could not noclip", Subclass.Instance.Config.Debug);
                         }
                         break;
@@ -416,7 +435,6 @@ namespace Subclass.Handlers
                         }
                         else
                         {
-                            ev.ReturnMessage = "You must have the flash on command ability to use this command";
                             Log.Debug($"Player {ev.Player.Nickname} could not flash on command", Subclass.Instance.Config.Debug);
                         }
                         break;
@@ -446,7 +464,6 @@ namespace Subclass.Handlers
                         }
                         else
                         {
-                            ev.ReturnMessage = "You must have the grenade on command ability to use this command";
                             Log.Debug($"Player {ev.Player.Nickname} could not grenade on command", Subclass.Instance.Config.Debug);
                         }
                         break;
@@ -455,7 +472,6 @@ namespace Subclass.Handlers
                     {
                         if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.InvisibleOnCommand))
                         {
-                            ev.ReturnMessage = "You must have the invisible on command ability to use this command";
                             Log.Debug($"Player {ev.Player.Nickname} could not go invisible on command", Subclass.Instance.Config.Debug);
                             return;
                         }
@@ -472,7 +488,7 @@ namespace Subclass.Handlers
                             if (scp268.Enabled)
                             {
                                 Log.Debug($"Player {ev.Player.Nickname} failed to go invisible on command", Subclass.Instance.Config.Debug);
-                                ev.Player.Broadcast(3, "You're already invisible!");
+                                ev.Player.Broadcast(3, Subclass.Instance.Config.AlreadyInvisibleMessage);
                                 return;
                             }
 
@@ -507,7 +523,6 @@ namespace Subclass.Handlers
                     {
                         if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Disguise))
                         {
-                            ev.ReturnMessage = "You must have the disguise ability to use this command";
                             Log.Debug($"Player {ev.Player.Nickname} could not disguise", Subclass.Instance.Config.Debug);
                             return;
                         }
@@ -543,8 +558,7 @@ namespace Subclass.Handlers
                         if (mostTeam == ev.Player.Team || mostTeam == Team.RIP || mostTeam == Team.SCP)
                         {
                             Log.Debug($"Player {ev.Player.Nickname} failed to disguise", Subclass.Instance.Config.Debug);
-                            ev.ReturnMessage = "No one's around.";
-                            ev.Player.Broadcast(3, "Disguise failed, your team, or SCPs, are the most within range.");
+                            ev.Player.Broadcast(3, Subclass.Instance.Config.DisguiseFailedMessage);
                             return;
                         }
                         RoleType role = RoleType.None;
@@ -611,8 +625,7 @@ namespace Subclass.Handlers
 
             if (colliders.Count == 0)
             {
-                ev.ReturnMessage = "You must be near a dead body to use this command";
-                ev.Player.Broadcast(2, "You must be near a dead body.");
+                ev.Player.Broadcast(2, Subclass.Instance.Config.ReviveFailedNoBodyMessage);
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} overlap did not hit a ragdoll", Subclass.Instance.Config.Debug);
                 return;
             }
@@ -621,16 +634,14 @@ namespace Subclass.Handlers
             if (doll.owner == null)
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                ev.ReturnMessage = "This player is not revivable.";
-                ev.Player.Broadcast(2, "This player is not revivable.");
+                ev.Player.Broadcast(2, Subclass.Instance.Config.CantReviveMessage);
                 return;
             }
 
             if (doll.owner.DeathCause.GetDamageType() == DamageTypes.Lure)
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                ev.ReturnMessage = "This player is not revivable.";
-                ev.Player.Broadcast(2, "This player is not revivable.");
+                ev.Player.Broadcast(2, Subclass.Instance.Config.CantReviveMessage);
                 return;
             }
 
@@ -673,15 +684,13 @@ namespace Subclass.Handlers
                 else
                 {
                     Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                    ev.ReturnMessage = "This player is not revivable.";
-                    ev.Player.Broadcast(2, "This player is not revivable.");
+                    ev.Player.Broadcast(2, Subclass.Instance.Config.CantReviveMessage);
                 }
             }
             else
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} failed", Subclass.Instance.Config.Debug);
-                ev.ReturnMessage = "This player is not revivable.";
-                ev.Player.Broadcast(2, "This player is not revivable.");
+                ev.Player.Broadcast(2, Subclass.Instance.Config.CantReviveMessage);
             }
         }
 

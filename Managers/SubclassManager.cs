@@ -135,7 +135,7 @@ namespace Subclass.Managers
                         }
 
                         Log.Debug($"Attempting to load ends round with for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
-                        Team endsRoundWith = obj.ContainsKey("ends_round_with") ? (Team)Enum.Parse(typeof(Team), (string)obj["ends_round_with"]) : Team.RIP;
+                        string endsRoundWith = obj.ContainsKey("ends_round_with") ? (string)obj["ends_round_with"] : "RIP";
 
                         Log.Debug($"Attempting to load roles that cant damage for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> cantDamageTemp = obj.ContainsKey("roles_that_cant_damage") ? ((IEnumerable<object>)obj["roles_that_cant_damage"]).Cast<string>().ToList() : null;
@@ -154,6 +154,14 @@ namespace Subclass.Managers
                         List<string> affectsRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
                         List<RoleType> affectsRoles = new List<RoleType>();
                         foreach (string role in affectsRolesTemp) affectsRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
+
+                        Log.Debug($"Attempting to affects users for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                        Dictionary<object, object> affectsUsersTemp = (Dictionary<object, object>)obj["affects_users"];
+                        Dictionary<string, float> affectsUsers = new Dictionary<string, float>();
+                        foreach (var item in affectsUsersTemp)
+                        {
+                            affectsUsers.Add((string)item.Key, float.Parse((string)item.Value));
+                        }
 
                         Log.Debug($"Attempting to load string options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         Dictionary<object, object> stringOptionsTemp = (Dictionary<object, object>)obj["string_options"];
@@ -234,7 +242,7 @@ namespace Subclass.Managers
 
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
                             spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
-                            cantDamageRoles));
+                            cantDamageRoles, affectsUsers));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

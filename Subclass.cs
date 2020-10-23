@@ -96,6 +96,8 @@ namespace Subclass
             Player.Escaping += player.OnEscaping;
             Player.FailingEscapePocketDimension += player.OnFailingEscapePocketDimension;
             Player.Interacted += player.OnInteracted;
+            Player.UsingMedicalItem += player.OnUsingMedicalItem;
+            Player.EnteringPocketDimension += player.OnEnteringPocketDimension;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -123,6 +125,8 @@ namespace Subclass
             Player.Escaping -= player.OnEscaping;
             Player.FailingEscapePocketDimension -= player.OnFailingEscapePocketDimension;
             Player.Interacted -= player.OnInteracted;
+            Player.UsingMedicalItem -= player.OnUsingMedicalItem;
+            Player.EnteringPocketDimension -= player.OnEnteringPocketDimension;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
@@ -185,7 +189,9 @@ namespace Subclass
     {
 
         public string Name = "";
+
         public List<RoleType> AffectsRoles = new List<RoleType>(){RoleType.None};
+        public Dictionary<string, float> AffectsUsers = new Dictionary<string, float>();
 
         public Dictionary<string, string> StringOptions = new Dictionary<string, string>();
 
@@ -217,7 +223,7 @@ namespace Subclass
 
         public List<RoleType> CantDamageRoles = new List<RoleType>();
 
-        public Team EndsRoundWith = Team.RIP;
+        public string EndsRoundWith = "RIP";
 
         public RoleType SpawnsAs = RoleType.None;
 
@@ -227,7 +233,8 @@ namespace Subclass
             Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
-            Team endsRoundWith = Team.RIP, RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null)
+            string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
+            Dictionary<string, float> affectsUsers = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -244,11 +251,12 @@ namespace Subclass
             if (onHitEffects != null) OnHitEffects = onHitEffects;
             if (spawnEffects != null) OnSpawnEffects = spawnEffects;
             if (cantDamage != null) RolesThatCantDamage = cantDamage;
-            if (endsRoundWith != Team.RIP) EndsRoundWith = endsRoundWith;
+            if (endsRoundWith != "RIP") EndsRoundWith = endsRoundWith;
             if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
             if (escapesAs != null) EscapesAs = escapesAs;
             if (onTakeDamage != null) OnDamagedEffects = onTakeDamage;
             if (cantDamageRoles != null) CantDamageRoles = cantDamageRoles;
+            if (affectsUsers != null) AffectsUsers = affectsUsers;
         }
 
         public SubClass(SubClass subClass)
