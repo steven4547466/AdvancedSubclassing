@@ -14,6 +14,7 @@ using Mirror;
 using System;
 using Exiled.Loader;
 using System.Reflection;
+using Subclass.Effects;
 
 namespace Subclass.Handlers
 {

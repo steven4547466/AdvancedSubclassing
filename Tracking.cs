@@ -54,6 +54,7 @@ namespace Subclass
 
         public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
         {
+            //ev.Player.ReferenceHub.playerEffectsController.AllEffects.Add(typeof(Aura), new Aura(ev.Player.ReferenceHub));
             if (is035)
             {
                 SubClass copy = new SubClass(subClass);
@@ -238,23 +239,23 @@ namespace Subclass
 
             if (!lite && subClass.SpawnLocations[spawnIndex] != "Unknown")
             {
-                List<Room> spawnLocations = new List<Room>();
+                List<Vector3> spawnLocations = new List<Vector3>();
                 if (subClass.SpawnLocations[spawnIndex] == "Lcz173Armory") 
                 {
                     Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
-                    spawnLocations.Add(new Room("Lcz173Armory", door.transform, door.transform.position + (Vector3.right * 2)));
+                    spawnLocations.Add(door.transform.position + (Vector3.right * 2));
                 }
                 else if (subClass.SpawnLocations[spawnIndex] == "Lcz173")
                 {
                     Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
-                    spawnLocations.Add(new Room("Lcz173", door.transform, door.transform.position));
+                    spawnLocations.Add(door.transform.position);
                 }
                 else if (subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom")
                 {
                     Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
-                    spawnLocations.Add(new Room("Lcz173Bottom", door.transform, door.transform.position));
+                    spawnLocations.Add(door.transform.position);
                 }
-                else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).ToList();
+                else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).Select(r => r.Transform.position).ToList();
                 if (spawnLocations.Count != 0)
                 {
                     Timing.CallDelayed(0.3f, () =>
@@ -263,7 +264,7 @@ namespace Subclass
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
                         if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-                        Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)].Position;
+                        Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)];
                         PlayerMovementSync.FindSafePosition(pos + offset, out pos, true);
                         player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
                     });
