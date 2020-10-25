@@ -14,15 +14,19 @@ namespace Subclass.Effects
 {
     public class Aura : PlayerEffect
     {
-        public bool SplitHealth = true;
 
         public float HealthPerTick = 5f;
 
-        public Aura(ReferenceHub hub)
+		public float Radius = 4f;
+
+        public Aura(ReferenceHub hub, float healthPerTick = 5f, float radius = 4f)
         {
 			Hub = hub;
             TimeBetweenTicks = 5f;
             TimeLeft = 5f;
+
+			HealthPerTick = healthPerTick;
+			Radius = radius;
         }
 
         public override void PublicUpdate()
@@ -37,6 +41,11 @@ namespace Subclass.Effects
 				if (TimeLeft <= 0f)
 				{
 					TimeLeft += TimeBetweenTicks;
+					IEnumerable<Player> players = Physics.OverlapSphere(Hub.transform.position, Radius).Where(t => Player.Get(t.gameObject) != null).Select(t => Player.Get(t.gameObject));
+					foreach (Player p in players)
+                    {
+						//if ()
+                    }
 				}
 			}
 			else

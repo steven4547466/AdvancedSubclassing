@@ -155,12 +155,15 @@ namespace Subclass.Managers
                         List<RoleType> affectsRoles = new List<RoleType>();
                         foreach (string role in affectsRolesTemp) affectsRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
 
-                        Log.Debug($"Attempting to affects users for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
-                        Dictionary<object, object> affectsUsersTemp = (Dictionary<object, object>)obj["affects_users"];
                         Dictionary<string, float> affectsUsers = new Dictionary<string, float>();
-                        foreach (var item in affectsUsersTemp)
+                        if (obj.ContainsKey("affects_users"))
                         {
-                            affectsUsers.Add((string)item.Key, float.Parse((string)item.Value));
+                            Log.Debug($"Attempting to affects users for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                            Dictionary<object, object> affectsUsersTemp = (Dictionary<object, object>)obj["affects_users"];
+                            foreach (var item in affectsUsersTemp)
+                            {
+                                affectsUsers.Add((string)item.Key, float.Parse((string)item.Value));
+                            }
                         }
 
                         Log.Debug($"Attempting to load string options for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
