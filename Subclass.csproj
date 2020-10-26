@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Subclass</RootNamespace>
-    <AssemblyName>Subclass-1.2.0-pre003</AssemblyName>
+    <AssemblyName>Subclass-1.2.0-pre004</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -103,12 +103,13 @@
     <Compile Include="Commands\GiveSubclass.cs" />
     <Compile Include="Commands\Reload.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Effects\Aura.cs" />
+    <Compile Include="Effects\DamageAura.cs" />
+    <Compile Include="Effects\HealAura.cs" />
     <Compile Include="Handlers\Map.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Handlers\Server.cs" />
     <Compile Include="Managers\SubclassManager.cs" />
-    <Compile Include="MonoBehaviours\ZombieEscape.cs" />
+    <Compile Include="MonoBehaviours\EscapeBehaviour.cs" />
     <Compile Include="MonoBehaviours\InfiniteSprint.cs" />
     <Compile Include="Patches\Grenades.cs" />
     <Compile Include="Patches\PlayerEffectPatches.cs" />

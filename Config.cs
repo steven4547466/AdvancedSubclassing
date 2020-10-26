@@ -30,5 +30,13 @@ namespace Subclass
 
         [Description("The message shown to players when their revive fails because the body is not revivable.")]
         public string CantReviveMessage { get; set; } = "This player is not revivable.";
+
+        [Description("The message shown to players when they use the help command and the class provided is not found.")]
+        public string HelpNoClassFound { get; set; } = "Class not found!";
+
+        [Description("The message shown to players when they use the help command and the class provided has no help string.")]
+        public string HelpNoHelpFound { get; set; } = "Class has no help message!";
+
+        public string HelpNoArgumentsProvided { get; set; } = "Please provide the class name if you don't have a subclass";
     }
 }

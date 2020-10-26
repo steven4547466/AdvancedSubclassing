@@ -306,33 +306,58 @@ namespace Subclass.Handlers
             ev.ReturnMessage = "";
             switch(ev.Name)
             {
-                case "revive":
+                case "help":
                     {
-                        Log.Debug($"Player {ev.Player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
-                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Revive))
+                        if (ev.Arguments.Count == 0)
                         {
-                            SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.Revive, subClass))
+                            if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                             {
-                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Revive, subClass, "revive");
+                                ev.ReturnMessage = Subclass.Instance.Config.HelpNoArgumentsProvided;
                                 return;
                             }
-                            AttemptRevive(ev, subClass);
+
+                            if (!Tracking.PlayersWithSubclasses[ev.Player].StringOptions.ContainsKey("HelpMessage"))
+                            {
+                                ev.ReturnMessage = Subclass.Instance.Config.HelpNoHelpFound;
+                                return;
+                            }
+
+                            ev.ReturnMessage = Tracking.PlayersWithSubclasses[ev.Player].StringOptions["HelpMessage"];
+                            return;
                         }
+                        string sc = string.Join(" ", ev.Arguments).ToLower();
+                        SubClass c = Subclass.Instance.Classes.FirstOrDefault(s => s.Key.ToLower() == sc).Value;
+                        
+                        if (c == null)
+                        {
+                            ev.ReturnMessage = Subclass.Instance.Config.HelpNoClassFound;
+                            return;
+                        }
+
+                        if (!c.StringOptions.ContainsKey("HelpMessage"))
+                        {
+                            ev.ReturnMessage = Subclass.Instance.Config.HelpNoHelpFound;
+                            return;
+                        }
+
+                        ev.ReturnMessage = c.StringOptions["HelpMessage"];
+
                         break;
                     }
+                case "revive":
                 case "necro":
                     {
-                        Log.Debug($"Player {ev.Player.Nickname} is attempting to necro", Subclass.Instance.Config.Debug);
-                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Necromancy))
+                        bool necro = ev.Name == "necro";
+                        Log.Debug($"Player {ev.Player.Nickname} is attempting to {(necro ? "necro" : "revive")}", Subclass.Instance.Config.Debug);
+                        if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(necro ? AbilityType.Necromancy : AbilityType.Revive))
                         {
                             SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
-                            if (!Tracking.CanUseAbility(ev.Player, AbilityType.Necromancy, subClass))
+                            if (!Tracking.CanUseAbility(ev.Player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass))
                             {
-                                Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Necromancy, subClass, "necromancy");
+                                Tracking.DisplayCantUseAbility(ev.Player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive");
                                 return;
                             }
-                            AttemptRevive(ev, subClass, true);
+                            AttemptRevive(ev, subClass, necro);
                         }
                         break;
                     }

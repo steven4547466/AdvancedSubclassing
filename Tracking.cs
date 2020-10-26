@@ -4,6 +4,7 @@ using Exiled.API.Extensions;
 using Exiled.API.Features;
 using MEC;
 using Mono.Unix.Native;
+using Subclass.Effects;
 using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,6 @@ namespace Subclass
 
         public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
         {
-            //ev.Player.ReferenceHub.playerEffectsController.AllEffects.Add(typeof(Aura), new Aura(ev.Player.ReferenceHub));
             if (is035)
             {
                 SubClass copy = new SubClass(subClass);
@@ -154,7 +154,7 @@ namespace Subclass
                 throw new Exception($"A required option was not provided. Class: {subClass.Name}");
             }
 
-            player.DisplayNickname = subClass.StringOptions.ContainsKey("Nickname") ? subClass.StringOptions["Nickname"].Replace("{name}", player.Nickname) : null;
+            if (subClass.StringOptions.ContainsKey("Nickname")) player.DisplayNickname = subClass.StringOptions["Nickname"].Replace("{name}", player.Nickname);
 
             if (subClass.Abilities.Contains(AbilityType.GodMode)) player.IsGodModeEnabled = true;
             if (subClass.Abilities.Contains(AbilityType.InvisibleUntilInteract)) player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
@@ -188,6 +188,40 @@ namespace Subclass
                 player.Ammo[0] = uint.MaxValue;
                 player.Ammo[1] = uint.MaxValue;
                 player.Ammo[2] = uint.MaxValue;
+            }
+
+            if(subClass.Abilities.Contains(AbilityType.HealAura))
+            {
+                bool affectSelf = subClass.BoolOptions.ContainsKey("HealAuraAffectsSelf") ? subClass.BoolOptions["HealAuraAffectsSelf"] : true;
+                bool affectAllies = subClass.BoolOptions.ContainsKey("HealAuraAffectsAllies") ? subClass.BoolOptions["HealAuraAffectsAllies"] : true;
+                bool affectEnemies = subClass.BoolOptions.ContainsKey("HealAuraAffectsEnemies") ? subClass.BoolOptions["HealAuraAffectsEnemies"] : false;
+
+                float healthPerTick = subClass.FloatOptions.ContainsKey("HealAuraHealthPerTick") ? subClass.FloatOptions["HealAuraHealthPerTick"] : 5f;
+                float radius = subClass.FloatOptions.ContainsKey("HealAuraRadius") ? subClass.FloatOptions["HealAuraRadius"] : 4f;
+                float tickRate = subClass.FloatOptions.ContainsKey("HealAuraTickRate") ? subClass.FloatOptions["HealAuraTickRate"] : 5f;
+
+                player.ReferenceHub.playerEffectsController.AllEffects.Add(typeof(HealAura), new HealAura(player.ReferenceHub, healthPerTick, radius, affectSelf, affectAllies, affectEnemies, tickRate));
+                Timing.CallDelayed(0.5f, () =>
+                {
+                    player.ReferenceHub.playerEffectsController.EnableEffect<HealAura>(float.MaxValue);
+                });
+            }
+
+            if (subClass.Abilities.Contains(AbilityType.DamageAura))
+            {
+                bool affectSelf = subClass.BoolOptions.ContainsKey("DamageAuraAffectsSelf") ? subClass.BoolOptions["DamageAuraAffectsSelf"] : false;
+                bool affectAllies = subClass.BoolOptions.ContainsKey("DamageAuraAffectsAllies") ? subClass.BoolOptions["DamageAuraAffectsAllies"] : false;
+                bool affectEnemies = subClass.BoolOptions.ContainsKey("DamageAuraAffectsEnemies") ? subClass.BoolOptions["DamageAuraAffectsEnemies"] : true;
+
+                float healthPerTick = subClass.FloatOptions.ContainsKey("DamageAuraDamagePerTick") ? subClass.FloatOptions["DamageAuraDamagePerTick"] : 5f;
+                float radius = subClass.FloatOptions.ContainsKey("DamageAuraRadius") ? subClass.FloatOptions["DamageAuraRadius"] : 4f;
+                float tickRate = subClass.FloatOptions.ContainsKey("DamageAuraTickRate") ? subClass.FloatOptions["DamageAuraTickRate"] : 5f;
+
+                player.ReferenceHub.playerEffectsController.AllEffects.Add(typeof(DamageAura), new DamageAura(player.ReferenceHub, healthPerTick, radius, affectSelf, affectAllies, affectEnemies, tickRate));
+                Timing.CallDelayed(0.5f, () =>
+                {
+                    player.ReferenceHub.playerEffectsController.EnableEffect<DamageAura>(float.MaxValue);
+                });
             }
 
             if (!is035)
@@ -291,6 +325,15 @@ namespace Subclass
                     }
                 }
             }
+
+            if (player.Role != RoleType.ClassD && player.Role != RoleType.Scientist && (subClass.EscapesAs[0] != RoleType.None || subClass.EscapesAs[1] != RoleType.None))
+            {
+                player.GameObject.AddComponent<EscapeBehaviour>();
+
+                EscapeBehaviour eb = player.GameObject.GetComponent<EscapeBehaviour>();
+                eb.EscapesAsNotCuffed = subClass.EscapesAs[0];
+                eb.EscapesAsCuffed = subClass.EscapesAs[1];
+            }
             Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
         }
 
@@ -305,12 +348,19 @@ namespace Subclass
                 && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
                 p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
-            if (PlayersWithZombies.ContainsKey(p))
-            {
-                PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);
-                foreach (Player z in PlayersThatHadZombies[p]) z.GameObject.AddComponent<ZombieEscape>();
-                PlayersWithZombies.Remove(p);
-            }
+            //if (PlayersWithZombies.ContainsKey(p) && escaped)
+            //{
+            //    PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);
+            //    foreach (Player z in PlayersThatHadZombies[p])
+            //    {
+            //        z.GameObject.AddComponent<EscapeBehaviour>();
+
+            //        RoleType r = RoleType.None;
+
+            //        z.GameObject.GetComponent<EscapeBehaviour>().EscapesAs = r;
+            //    }
+            //    PlayersWithZombies.Remove(p);
+            //}
 
             if (p.ReferenceHub.serverRoles.HiddenBadge != null && p.ReferenceHub.serverRoles.HiddenBadge != "") p.ReferenceHub.serverRoles.HiddenBadge = null;
 
@@ -336,6 +386,18 @@ namespace Subclass
                 }
 
                 if (subClass.StringOptions.ContainsKey("Nickname")) p.DisplayNickname = null;
+
+                if (subClass.Abilities.Contains(AbilityType.HealAura))
+                {
+                    p.ReferenceHub.playerEffectsController.DisableEffect<HealAura>();
+                    p.ReferenceHub.playerEffectsController.AllEffects.Remove(typeof(HealAura));
+                }
+
+                if (subClass.Abilities.Contains(AbilityType.DamageAura))
+                {
+                    p.ReferenceHub.playerEffectsController.DisableEffect<DamageAura>();
+                    p.ReferenceHub.playerEffectsController.AllEffects.Remove(typeof(DamageAura));
+                }
             }
 
             if (p.GameObject?.GetComponent<InfiniteSprint>() != null)
@@ -345,10 +407,10 @@ namespace Subclass
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
 
-            if (p.GameObject?.GetComponent<ZombieEscape>() != null)
+            if (p.GameObject?.GetComponent<EscapeBehaviour>() != null)
             {
-                Log.Debug($"Player {p.Nickname} has zombie escape, destroying", Subclass.Instance.Config.Debug);
-                p.GameObject.GetComponent<ZombieEscape>().Destroy();
+                Log.Debug($"Player {p.Nickname} has escapebehaviour, destroying", Subclass.Instance.Config.Debug);
+                p.GameObject.GetComponent<EscapeBehaviour>().Destroy();
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
@@ -588,7 +650,7 @@ namespace Subclass
 
             if (uniqueTeamsAlive.Count == 1)
             {
-                foreach (var item in PlayersWithSubclasses)
+                foreach (var item in PlayersWithSubclasses.Where(t => t.Value.EndsRoundWith != "RIP"))
                 {
                     PlayersThatJustGotAClass[item.Key] += 3;
                     if (uniqueTeamsAlive[0] == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);

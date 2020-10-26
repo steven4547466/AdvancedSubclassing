@@ -9,9 +9,11 @@ using UnityEngine;
 
 namespace Subclass.MonoBehaviours
 {
-    class ZombieEscape : NetworkBehaviour
+    class EscapeBehaviour : NetworkBehaviour
     {
         private Player player;
+        public RoleType EscapesAsCuffed = RoleType.None;
+        public RoleType EscapesAsNotCuffed = RoleType.None;
         public bool Enabled = true;
 
         private void Awake()
@@ -25,12 +27,8 @@ namespace Subclass.MonoBehaviours
             {
                 if (Vector3.Distance(base.transform.position, base.GetComponent<Escape>().worldPosition) < (Escape.radius))
                 {
-                    Player p = Player.Get(gameObject);
-                    if (p != null && Tracking.PlayersThatHadZombies.Any(e => e.Value.Contains(p)))
-                    {
-                        var item = Tracking.PlayersThatHadZombies.First(e => e.Value.Contains(p));
-                        p.SetRole(item.Key.IsAlive ? item.Key.Role : (RoleType) Tracking.GetPreviousRole(item.Key), false);
-                    }
+                    if (!player.IsCuffed && EscapesAsNotCuffed != RoleType.None) player.SetRole(EscapesAsNotCuffed);
+                    else if(EscapesAsCuffed != RoleType.None) player.SetRole(EscapesAsCuffed);
                 }
             }
         }

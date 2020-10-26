@@ -317,6 +317,8 @@ namespace Subclass
         ExplodeOnDeath,
         InvisibleOnCommand,
         Disguise,
-        CantHeal
+        CantHeal,
+        HealAura,
+        DamageAura
     }
 }
