@@ -145,10 +145,14 @@ namespace Subclass.Managers
                             foreach (string role in cantDamageTemp) cantDamage.Add((RoleType)Enum.Parse(typeof(RoleType), role));
                         }
 
-                        Log.Debug($"Attempting to load cant damage roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
-                        List<string> cantDamageRolesTemp = ((IEnumerable<object>)obj["cant_damage"]).Cast<string>().ToList();
                         List<RoleType> cantDamageRoles = new List<RoleType>();
-                        foreach (string role in cantDamageRolesTemp) cantDamageRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
+
+                        if (obj.ContainsKey("cant_damage"))
+                        {
+                            Log.Debug($"Attempting to load cant damage roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                            List<string> cantDamageRolesTemp = ((IEnumerable<object>)obj["cant_damage"]).Cast<string>().ToList();
+                            foreach (string role in cantDamageRolesTemp) cantDamageRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
+                        }
 
                         Log.Debug($"Attempting to load affects roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> affectsRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
