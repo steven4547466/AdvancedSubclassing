@@ -97,20 +97,20 @@ namespace Subclass.Handlers
 
                 bool gotUniqueClass = false;
                 foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) && 
-                e.AffectsUsers.ContainsKey(player.RawUserId) &&
+                e.AffectsUsers.ContainsKey(player.UserId) &&
                 (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                 (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
                 (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"]))))
                 {
                     double rng = (rnd.NextDouble() * 100);
-                    Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.RawUserId]} to get class", Subclass.Instance.Config.Debug);
+                    Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.UserId]} to get class", Subclass.Instance.Config.Debug);
                     if (Tracking.DontGiveClasses.Contains(subClass))
                     {
                         Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
                         continue;
                     }
 
-                    if (rng < subClass.AffectsUsers[player.RawUserId] && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
+                    if (rng < subClass.AffectsUsers[player.UserId] && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
                         Tracking.PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
                         (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith))) 
                     {
