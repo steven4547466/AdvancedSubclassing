@@ -414,6 +414,11 @@ namespace Subclass
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
+            if (escaped)
+            {
+                if (!PlayersThatJustGotAClass.ContainsKey(p)) PlayersThatJustGotAClass.Add(p, Time.time + 3f);
+                else PlayersThatJustGotAClass[p] = Time.time + 3f;
+            }
             if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p, is035, escaped);
         }
 
