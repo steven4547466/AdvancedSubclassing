@@ -224,6 +224,18 @@ namespace Subclass
                 });
             }
 
+            if (subClass.Abilities.Contains(AbilityType.Regeneration))
+            {
+                float healthPerTick = subClass.FloatOptions.ContainsKey("RegenerationHealthPerTick") ? subClass.FloatOptions["RegenerationHealthPerTick"] : 2f;
+                float tickRate = subClass.FloatOptions.ContainsKey("RegenerationTickRate") ? subClass.FloatOptions["RegenerationTickRate"] : 5f;
+
+                player.ReferenceHub.playerEffectsController.AllEffects.Add(typeof(Regeneration), new Regeneration(player.ReferenceHub, healthPerTick, tickRate));
+                Timing.CallDelayed(0.5f, () =>
+                {
+                    player.ReferenceHub.playerEffectsController.EnableEffect<Regeneration>(float.MaxValue);
+                });
+            }
+
             if (!is035)
             {
                 if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
@@ -398,6 +410,12 @@ namespace Subclass
                     p.ReferenceHub.playerEffectsController.DisableEffect<DamageAura>();
                     p.ReferenceHub.playerEffectsController.AllEffects.Remove(typeof(DamageAura));
                 }
+
+                if (subClass.Abilities.Contains(AbilityType.Regeneration))
+                {
+                    p.ReferenceHub.playerEffectsController.DisableEffect<Regeneration>();
+                    p.ReferenceHub.playerEffectsController.AllEffects.Remove(typeof(Regeneration));
+                }
             }
 
             if (p.GameObject?.GetComponent<InfiniteSprint>() != null)
@@ -414,6 +432,16 @@ namespace Subclass
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
+
+            foreach (var effect in p.ReferenceHub.playerEffectsController.AllEffects)
+            {
+                byte prev = effect.Value.Intensity;
+                effect.Value.Intensity = 0;
+                effect.Value.Duration = 0f;
+                effect.Value.ServerOnIntensityChange(prev, 0);
+            }
+            p.ReferenceHub.playerEffectsController.Resync();
+
             if (escaped)
             {
                 if (!PlayersThatJustGotAClass.ContainsKey(p)) PlayersThatJustGotAClass.Add(p, Time.time + 3f);

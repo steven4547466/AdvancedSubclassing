@@ -15,6 +15,7 @@ using System;
 using Exiled.Loader;
 using System.Reflection;
 using Subclass.Effects;
+using Subclass.MonoBehaviours;
 
 namespace Subclass.Handlers
 {
@@ -198,6 +199,16 @@ namespace Subclass.Handlers
             }
         }
 
+        public void OnDying(DyingEventArgs ev)
+        {
+            if (!Tracking.AllowedToDamage(ev.Target, ev.Killer))
+            {
+                Log.Debug("Not allowed to kill", Subclass.Instance.Config.Debug);
+                ev.IsAllowed = false;
+                return;
+            }
+        }
+
         public void OnDied(DiedEventArgs ev)
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Target)) Tracking.PlayersInvisibleByCommand.Remove(ev.Target);
@@ -254,58 +265,62 @@ namespace Subclass.Handlers
                 return;
             }
 
-            if(ev.DamageType != DamageTypes.Falldown && Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
-                (Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects.Count > 0))
+            // This optimization probably saves a lot of cpu time, I'll do similar things for the other methods later...
+            SubClass attackerClass = Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) ? Tracking.PlayersWithSubclasses[ev.Attacker] : null;
+            SubClass targetClass = Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) ? Tracking.PlayersWithSubclasses[ev.Target] : null;
+
+            if (ev.DamageType != DamageTypes.Falldown && attackerClass != null && 
+                (attackerClass.OnHitEffects.Count > 0))
             {
-                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Attacker].OnHitEffects)
+                foreach (string effect in attackerClass.OnHitEffects)
                 {
                     Log.Debug($"Checking on hit effect: {effect}. For {ev.Attacker.Nickname} on {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
-                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Chance")])
+                    if ((rnd.NextDouble() * 100) < attackerClass.FloatOptions[("OnHit" + effect + "Chance")])
                     {
                         Log.Debug($"Attempting to inflict on hit effect: {effect}. Inflicted by {ev.Attacker.Nickname} to {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
-                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
-                            Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions[("OnHit" + effect + "Duration")] : -1);
+                            attackerClass.FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
+                            attackerClass.FloatOptions[("OnHit" + effect + "Duration")] : -1);
                     }
                 }
             }
 
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && (Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects.ContainsKey(ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", ""))))
+            if (targetClass != null && (targetClass.OnDamagedEffects.ContainsKey(ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", ""))))
             {
-                foreach (string effect in Tracking.PlayersWithSubclasses[ev.Target].OnDamagedEffects[ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", "")])
+                foreach (string effect in targetClass.OnDamagedEffects[ev.DamageType.name.ToUpper().Replace("-", "").Replace(" ", "")])
                 {
                     Log.Debug($"Checking on hit damage: {effect} for {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
-                    if ((rnd.NextDouble() * 100) < Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Chance")])
+                    if ((rnd.NextDouble() * 100) < targetClass.FloatOptions[("OnDamaged" + effect + "Chance")])
                     {
                         Log.Debug($"Attempting to inflict on damaged effect: {effect} to {ev.Target.Nickname}", Subclass.Instance.Config.Debug);
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
-                            Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
-                            Tracking.PlayersWithSubclasses[ev.Target].FloatOptions[("OnDamaged" + effect + "Duration")] : -1);
+                            targetClass.FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
+                            targetClass.FloatOptions[("OnDamaged" + effect + "Duration")] : -1);
                     }
                 }
             }
 
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target))
+            if (targetClass != null)
             {
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
+                if (targetClass.Abilities.Contains(AbilityType.NoSCP207Damage) && ev.DamageType == DamageTypes.Scp207)
                     ev.IsAllowed = false;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType.isWeapon)
+                if (targetClass.Abilities.Contains(AbilityType.NoHumanDamage) && ev.DamageType.isWeapon)
                     ev.IsAllowed = false;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType.isScp)
+                if (targetClass.Abilities.Contains(AbilityType.NoSCPDamage) && ev.DamageType.isScp)
                     ev.IsAllowed = false;
 
-                if (Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.Nimble) && 
-                    (rnd.NextDouble() * 100) < (Tracking.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("NimbleChance") ? 
-                    Tracking.PlayersWithSubclasses[ev.Target].FloatOptions["NimbleChance"] : 15f))
+                if (targetClass.Abilities.Contains(AbilityType.Nimble) && 
+                    (rnd.NextDouble() * 100) < (targetClass.FloatOptions.ContainsKey("NimbleChance") ? 
+                    targetClass.FloatOptions["NimbleChance"] : 15f))
                 {
                     ev.IsAllowed = false;
                 }
                 if (Tracking.PlayersWithZombies.ContainsKey(ev.Target) && Tracking.PlayersWithZombies[ev.Target].Contains(ev.Attacker))
                     ev.IsAllowed = false;
 
-                if (ev.DamageType == DamageTypes.Grenade && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.GrenadeImmune))
+                if (ev.DamageType == DamageTypes.Grenade && targetClass.Abilities.Contains(AbilityType.GrenadeImmune))
                 {
                     Concussed concussedEffect = ev.Target.ReferenceHub.playerEffectsController.GetEffect<Concussed>();
                     concussedEffect.Intensity = 3;
@@ -317,17 +332,25 @@ namespace Subclass.Handlers
                 }
             }
 
-            if (ev.DamageType == DamageTypes.Falldown) return;
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && Tracking.PlayersWithSubclasses[ev.Attacker].Abilities.Contains(AbilityType.LifeSteal))
+            if (targetClass != null && targetClass.Abilities.Contains(AbilityType.Regeneration))
             {
-                ev.Attacker.Health += Mathf.Clamp(ev.Amount * ((Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("LifeStealPercent") ?
-                    Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["LifeStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth - ev.Attacker.Health);
+                if (ev.Target.ReferenceHub.playerEffectsController.AllEffects.ContainsKey(typeof(Regeneration)) && targetClass.FloatOptions.ContainsKey("RegenerationDisableDuration"))
+                {
+                    ((Regeneration)ev.Target.ReferenceHub.playerEffectsController.AllEffects[typeof(Regeneration)]).ActiveAt = Time.time + targetClass.FloatOptions["RegenerationDisableDuration"];
+                }
             }
 
-            if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) && 
-                Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions.ContainsKey("OnHitDamageMultiplier"))
+            if (ev.DamageType == DamageTypes.Falldown) return;
+            if (attackerClass != null && attackerClass.Abilities.Contains(AbilityType.LifeSteal))
             {
-                ev.Amount *= Tracking.PlayersWithSubclasses[ev.Attacker].FloatOptions["OnHitDamageMultiplier"];
+                ev.Attacker.Health += Mathf.Clamp(ev.Amount * ((attackerClass.FloatOptions.ContainsKey("LifeStealPercent") ?
+                    attackerClass.FloatOptions["LifeStealPercent"] : 2f) / 100), 0, ev.Attacker.MaxHealth - ev.Attacker.Health);
+            }
+
+            if (attackerClass != null && 
+                attackerClass.FloatOptions.ContainsKey("OnHitDamageMultiplier"))
+            {
+                ev.Amount *= attackerClass.FloatOptions["OnHitDamageMultiplier"];
             }
 
         }

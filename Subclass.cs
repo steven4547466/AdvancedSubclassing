@@ -85,6 +85,7 @@ namespace Subclass
             player = new Handlers.Player();
             Player.InteractingDoor += player.OnInteractingDoor;
             Player.Died += player.OnDied;
+            Player.Dying += player.OnDying;
             Player.Shooting += player.OnShooting;
             Player.InteractingLocker += player.OnInteractingLocker;
             Player.UnlockingGenerator += player.OnUnlockingGenerator;
@@ -114,6 +115,7 @@ namespace Subclass
             Log.Info("Events unregistered");
             Player.InteractingDoor -= player.OnInteractingDoor;
             Player.Died -= player.OnDied;
+            Player.Dying -= player.OnDying;
             Player.Shooting -= player.OnShooting;
             Player.InteractingLocker -= player.OnInteractingLocker;
             Player.UnlockingGenerator -= player.OnUnlockingGenerator;
@@ -319,6 +321,7 @@ namespace Subclass
         Disguise,
         CantHeal,
         HealAura,
-        DamageAura
+        DamageAura,
+        Regeneration
     }
 }
