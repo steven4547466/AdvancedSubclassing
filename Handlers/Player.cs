@@ -121,7 +121,7 @@ namespace Subclass.Handlers
                         }
                     }
                 }
-            }else if (!ev.IsAllowed && !ev.Door.Networkdestroyed && !ev.Door.Networklocked &&Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && 
+            }else if (!ev.IsAllowed && !ev.Door.Networkdestroyed && !ev.Door.Networklocked && Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) && 
                       Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
             {
                 SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
@@ -137,7 +137,7 @@ namespace Subclass.Handlers
                 }
                 else
                 {
-                    Log.Debug($"Player with subclass {Tracking.PlayersWithSubclasses[ev.Player].Name} has been allowed to access door with permission level {ev.Door.PermissionLevels}", Subclass.Instance.Config.Debug);
+                    Log.Debug($"Player with subclass {subClass.Name} has been allowed to access door with permission level {ev.Door.PermissionLevels}", Subclass.Instance.Config.Debug);
                     Tracking.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
                     Tracking.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
                     ev.IsAllowed = true;

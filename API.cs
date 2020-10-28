@@ -10,9 +10,13 @@ using UnityEngine;
 
 namespace Subclass
 {
+
+    /*
+        I get this looks weird because I'm making lists and dictionaries out of lists and dictionaries,
+        but I'm looking into ways to make it read only without creating new instaces of each thing.
+     */
     public static class API
     {
-
         public static bool GiveClass(Player p, SubClass subClass, bool lite = false)
         {
             if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
@@ -121,13 +125,13 @@ namespace Subclass
 
         public static List<Player> PlayersZombies(Player p)
         {
-            if (PlayerHasZombies(p)) return new List<Player>(Tracking.PlayersWithZombies[p].ToArray());
+            if (PlayerHasZombies(p)) return new List<Player>(Tracking.PlayersWithZombies[p]);
             return null;
         }
 
         public static List<Player> PlayersZombiesOld(Player p)
         {
-            if (PlayerHadZombies(p)) return new List<Player>(Tracking.PlayersThatHadZombies[p].ToArray());
+            if (PlayerHadZombies(p)) return new List<Player>(Tracking.PlayersThatHadZombies[p]);
             return null;
         }
 
@@ -138,15 +142,15 @@ namespace Subclass
             return zombies;
         }
 
-        public static bool? AbilityOnCooldown(Player p, AbilityType ability)
+        public static bool AbilityOnCooldown(Player p, AbilityType ability)
         {
-            if (!PlayerHasSubClass(p)) return null;
+            if (!PlayerHasSubClass(p)) return false;
             return Tracking.OnCooldown(p, ability, Tracking.PlayersWithSubclasses[p]);
         }
 
-        public static float? TimeLeftOnCooldown(Player p, AbilityType ability)
+        public static float TimeLeftOnCooldown(Player p, AbilityType ability)
         {
-            if (!PlayerHasSubClass(p)) return null;
+            if (!PlayerHasSubClass(p)) return 0;
             return Tracking.TimeLeftOnCooldown(p, ability, Tracking.PlayersWithSubclasses[p], Time.time);
         }
     }
