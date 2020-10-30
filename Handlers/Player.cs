@@ -250,7 +250,7 @@ namespace Subclass.Handlers
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
                     if (!cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0];
-                    else if (Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1];
+                    else if (cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1];
                 }
                 Tracking.RemoveAndAddRoles(ev.Player, false, false, true);
             });

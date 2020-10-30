@@ -418,17 +418,17 @@ namespace Subclass
                 }
             }
 
-            if (p.GameObject?.GetComponent<InfiniteSprint>() != null)
+            if (p.GameObject != null && p.GameObject.GetComponent<InfiniteSprint>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has infinite stamina, destroying", Subclass.Instance.Config.Debug);
-                p.GameObject.GetComponent<InfiniteSprint>().Destroy();
+                p.GameObject.GetComponent<InfiniteSprint>()?.Destroy();
                 p.IsUsingStamina = true; // Have to set it to true for it to remove fully... for some reason?
             }
 
-            if (p.GameObject?.GetComponent<EscapeBehaviour>() != null)
+            if (p.GameObject != null && p.GameObject.GetComponent<EscapeBehaviour>() != null)
             {
                 Log.Debug($"Player {p.Nickname} has escapebehaviour, destroying", Subclass.Instance.Config.Debug);
-                p.GameObject.GetComponent<EscapeBehaviour>().Destroy();
+                p.GameObject.GetComponent<EscapeBehaviour>()?.Destroy();
             }
 
             if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
