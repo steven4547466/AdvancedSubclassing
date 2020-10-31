@@ -73,7 +73,7 @@ namespace Subclass
                 copy.SpawnItems.Clear();
                 copy.RolesThatCantDamage.Clear();
                 copy.StringOptions["GotClassMessage"] = subClass.StringOptions["GotClassMessage"] + " You are SCP-035.";
-                copy.CantDamageRoles = new List<RoleType>();
+                copy.CantDamageRoles.Clear();
 
                 subClass = new SubClass(copy.Name + "-SCP-035 (p)", copy.AffectsRoles, copy.StringOptions, copy.BoolOptions, copy.IntOptions,
                     copy.FloatOptions, copy.SpawnLocations, copy.SpawnItems,
