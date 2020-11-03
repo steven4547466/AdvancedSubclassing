@@ -248,6 +248,7 @@ namespace Subclass.Handlers
                     Vector3 pos = ev.Target.Position;
                     Timing.CallDelayed(killerSubclass.FloatOptions.ContainsKey("InfectDelay") ? killerSubclass.FloatOptions["InfectDelay"] : 10, () =>
                     {
+                        if (ev.Target.IsAlive) return;
                         ev.Target.SetRole(RoleType.Scp0492, true);
                         ev.Target.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
                     });
