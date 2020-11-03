@@ -84,7 +84,7 @@ namespace Subclass
         {
             player = new Handlers.Player();
             Player.InteractingDoor += player.OnInteractingDoor;
-            Player.Died += player.OnDied;
+            //Player.Died += player.OnDied;
             Player.Dying += player.OnDying;
             Player.Shooting += player.OnShooting;
             Player.InteractingLocker += player.OnInteractingLocker;
@@ -114,7 +114,7 @@ namespace Subclass
         {
             Log.Info("Events unregistered");
             Player.InteractingDoor -= player.OnInteractingDoor;
-            Player.Died -= player.OnDied;
+            //Player.Died -= player.OnDied;
             Player.Dying -= player.OnDying;
             Player.Shooting -= player.OnShooting;
             Player.InteractingLocker -= player.OnInteractingLocker;
@@ -212,6 +212,7 @@ namespace Subclass
         public List<AbilityType> Abilities = new List<AbilityType>();
 
         public Dictionary<AbilityType, float> AbilityCooldowns = new Dictionary<AbilityType, float>();
+        public Dictionary<AbilityType, float> InitialAbilityCooldowns = new Dictionary<AbilityType, float>();
 
         public List<string> AdvancedFFRules = new List<string>();
 
@@ -236,7 +237,7 @@ namespace Subclass
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
             string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
-            Dictionary<string, float> affectsUsers = null)
+            Dictionary<string, float> affectsUsers = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -259,6 +260,7 @@ namespace Subclass
             if (onTakeDamage != null) OnDamagedEffects = onTakeDamage;
             if (cantDamageRoles != null) CantDamageRoles = cantDamageRoles;
             if (affectsUsers != null) AffectsUsers = affectsUsers;
+            if (initialAbilityCooldowns != null) InitialAbilityCooldowns = initialAbilityCooldowns;
         }
 
         public SubClass(SubClass subClass)
@@ -283,6 +285,8 @@ namespace Subclass
             EscapesAs = subClass.EscapesAs;
             OnDamagedEffects = subClass.OnDamagedEffects;
             CantDamageRoles = subClass.CantDamageRoles;
+            AffectsUsers = subClass.AffectsUsers;
+            InitialAbilityCooldowns = subClass.InitialAbilityCooldowns;
         }
     }
     public enum AbilityType
@@ -322,6 +326,8 @@ namespace Subclass
         CantHeal,
         HealAura,
         DamageAura,
-        Regeneration
+        Regeneration,
+        Infect,
+        BackupCommand
     }
 }

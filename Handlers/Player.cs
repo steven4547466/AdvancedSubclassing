@@ -207,10 +207,7 @@ namespace Subclass.Handlers
                 ev.IsAllowed = false;
                 return;
             }
-        }
 
-        public void OnDied(DiedEventArgs ev)
-        {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Target)) Tracking.PlayersInvisibleByCommand.Remove(ev.Target);
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
             {
@@ -227,11 +224,46 @@ namespace Subclass.Handlers
             Tracking.AddPreviousTeam(ev.Target);
             Tracking.RemoveZombie(ev.Target);
             Tracking.RemoveAndAddRoles(ev.Target, true);
+
+            if (ev.Killer != ev.Target && ev.Killer.Role == RoleType.Scp0492 && Tracking.PlayersWithSubclasses.ContainsKey(ev.Killer)
+                && Tracking.PlayersWithSubclasses[ev.Killer].Abilities.Contains(AbilityType.Infect))
+            {
+                SubClass killerSubclass = Tracking.PlayersWithSubclasses[ev.Killer];
+                if (Tracking.OnCooldown(ev.Killer, AbilityType.Infect, killerSubclass))
+                {
+                    Log.Debug($"Player {ev.Killer.Nickname} failed to infect (on cooldown)", Subclass.Instance.Config.Debug);
+                    Tracking.DisplayCooldown(ev.Killer, AbilityType.Infect, killerSubclass, "infect", Time.time);
+                    return;
+                }
+
+                if (!Tracking.CanUseAbility(ev.Killer, AbilityType.Infect, killerSubclass))
+                {
+                    Tracking.DisplayCantUseAbility(ev.Killer, AbilityType.Infect, killerSubclass, "infect");
+                    return;
+                }
+                if ((rnd.NextDouble() * 100) < (killerSubclass.FloatOptions.ContainsKey("InfectChance") ? killerSubclass.FloatOptions["InfectChance"] : 25))
+                {
+                    Tracking.AddCooldown(ev.Killer, AbilityType.Infect);
+                    Tracking.UseAbility(ev.Killer, AbilityType.Infect, killerSubclass);
+                    Vector3 pos = ev.Target.Position;
+                    Timing.CallDelayed(killerSubclass.FloatOptions.ContainsKey("InfectDelay") ? killerSubclass.FloatOptions["InfectDelay"] : 10, () =>
+                    {
+                        ev.Target.SetRole(RoleType.Scp0492, true);
+                        ev.Target.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
+                    });
+                }
+            }
+
             Timing.CallDelayed(0.1f, () =>
             {
                 Tracking.CheckRoundEnd();
             });
         }
+
+        //public void OnDied(DiedEventArgs ev)
+        //{
+            
+        //}
         
         public void OnEscaping(EscapingEventArgs ev)
         {

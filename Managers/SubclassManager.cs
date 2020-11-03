@@ -229,6 +229,17 @@ namespace Subclass.Managers
                             abilityCooldowns.Add((AbilityType)Enum.Parse(typeof(AbilityType), (string)item.Key), float.Parse((string)item.Value));
                         }
 
+                        Log.Debug($"Attempting to load ability cooldowns for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                        Dictionary<AbilityType, float> initialAbilityCooldowns = new Dictionary<AbilityType, float>();
+                        if (obj.ContainsKey("initial_ability_cooldowns")) 
+                        {
+                            Dictionary<object, object> initialAbilityCooldownsTemp = (Dictionary<object, object>)obj["ability_cooldowns"];
+                            foreach (var item in initialAbilityCooldownsTemp)
+                            {
+                                initialAbilityCooldowns.Add((AbilityType)Enum.Parse(typeof(AbilityType), (string)item.Key), float.Parse((string)item.Value));
+                            }
+                        }
+
                         Log.Debug($"Attempting to load spawns as for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         RoleType spawnsAs = obj.ContainsKey("spawns_as") ? (RoleType)Enum.Parse(typeof(RoleType), (string)obj["spawns_as"]) : RoleType.None;
 
@@ -249,7 +260,7 @@ namespace Subclass.Managers
 
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
                             spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
-                            cantDamageRoles, affectsUsers));
+                            cantDamageRoles, affectsUsers, initialAbilityCooldowns));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

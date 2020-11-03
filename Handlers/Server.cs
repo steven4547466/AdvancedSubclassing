@@ -11,6 +11,7 @@ using Exiled.Permissions.Extensions;
 using EPlayer = Exiled.API.Features.Player;
 using System.Collections;
 using Exiled.API.Enums;
+using System;
 
 namespace Subclass.Handlers
 {
@@ -559,9 +560,9 @@ namespace Subclass.Handlers
                             return;
                         }
 
-                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass))
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Disguise, subClass))
                         {
-                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BypassTeslaGates, subClass, "bypass tesla gates");
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Disguise, subClass, "disguise");
                             return;
                         }
 
@@ -623,6 +624,72 @@ namespace Subclass.Handlers
                             Round.IsLocked = roundWasLockedBefore;
                         });
                         break;
+                    }
+
+                case "backup":
+                    {
+                        if ((ev.Player.Team != Team.MTF && ev.Player.Team != Team.CHI) ||
+                            !Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || 
+                            !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BackupCommand))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} could not use the backup command", Subclass.Instance.Config.Debug);
+                            return;
+                        }
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.BackupCommand, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to use the backup command", Subclass.Instance.Config.Debug);
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.BackupCommand, subClass, "backup", Time.time);
+                            return;
+                        }
+
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.BackupCommand, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.BackupCommand, subClass, "backup");
+                            return;
+                        }
+
+                        Tracking.UseAbility(ev.Player, AbilityType.BackupCommand, subClass);
+                        Tracking.AddCooldown(ev.Player, AbilityType.BackupCommand);
+
+                        int min = subClass.IntOptions.ContainsKey("BackupMinSpawn") ? subClass.IntOptions["BackupMinSpawn"] : 3;
+                        int max = subClass.IntOptions.ContainsKey("BackupMaxSpawn") ? subClass.IntOptions["BackupMaxSpawn"] : 7;
+
+                        List<EPlayer> spectators = EPlayer.List.Where(p => p.Role == RoleType.Spectator).ToList();
+
+                        int spawns = Mathf.Clamp((int)(rnd.NextDouble() * ((max - min) + 1)) + min, 0, spectators.Count);
+
+                        bool isMTF = ev.Player.Team == Team.MTF;
+
+                        int commanders = spawns / spawns;
+                        int lieutenants = Mathf.Clamp(spawns - commanders, 0, 3);
+                        int cadets = spawns - lieutenants - commanders;
+
+						for (int i = 0; i < spawns; i++)
+						{
+							int index = rnd.Next(spectators.Count);
+							EPlayer p = spectators[index];
+							spectators.RemoveAt(index);
+							if (!isMTF)
+							{
+                                p.SetRole(RoleType.ChaosInsurgency);
+							} else
+							{
+                                if (commanders > 0)
+								{
+                                    p.SetRole(RoleType.NtfCommander);
+                                    commanders--;
+								}else if(lieutenants > 0)
+								{
+                                    p.SetRole(RoleType.NtfLieutenant);
+                                    lieutenants--;
+                                }
+                                else p.SetRole(RoleType.NtfCadet);
+							}
+
+						}
+
+						break;
                     }
                 default:
                     ev.IsAllowed = true;
@@ -701,7 +768,7 @@ namespace Subclass.Handlers
                     {
                         owner.ReferenceHub.playerMovementSync.OverridePosition(ev.Player.Position + new Vector3(0.3f, 1f, 0), 0, true);
                     });
-                    Object.DestroyImmediate(doll.gameObject, true);
+                    UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
                     Tracking.AddCooldown(ev.Player, ability);
                     Tracking.UseAbility(ev.Player, ability, subClass);
                     Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);

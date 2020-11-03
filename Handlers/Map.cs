@@ -11,7 +11,7 @@ namespace Subclass.Handlers
     {
         public void OnExplodingGrenade(ExplodingGrenadeEventArgs ev)
         {
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Thrower) ||
+			if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Thrower) ||
                 (!Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) &&
                  !Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag)))
             {

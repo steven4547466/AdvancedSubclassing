@@ -116,7 +116,7 @@ namespace Subclass
 
                 if (subClass.SpawnItems.Count != 0)
                 {
-                    player.ClearInventory();
+                    player.Inventory.items.Clear();
                     foreach (var item in subClass.SpawnItems)
                     {
                         foreach (var item2 in item.Value)
@@ -235,6 +235,11 @@ namespace Subclass
                     player.ReferenceHub.playerEffectsController.EnableEffect<Regeneration>(float.MaxValue);
                 });
             }
+
+            foreach(var cooldown in subClass.InitialAbilityCooldowns)
+			{
+                AddCooldown(player, cooldown.Key, true);
+			}
 
             if (!is035)
             {
@@ -460,12 +465,13 @@ namespace Subclass
             if (FriendlyFired.Contains(p)) FriendlyFired.Remove(p);
         }
 
-        public static void AddCooldown(Player p, AbilityType ability)
+        public static void AddCooldown(Player p, AbilityType ability, bool initial = false)
         {
             try
             {
+                SubClass subClass = PlayersWithSubclasses[p];
                 if (!Cooldowns.ContainsKey(p)) Cooldowns.Add(p, new Dictionary<AbilityType, float>());
-                Cooldowns[p][ability] = Time.time;
+                Cooldowns[p][ability] = Time.time + (!initial ? subClass.AbilityCooldowns[ability] : subClass.InitialAbilityCooldowns[ability]);
             }catch(KeyNotFoundException e)
             {
                 throw new Exception($"You are missing an ability cooldown that MUST have a cooldown. Make sure to add {ability} to your ability cooldowns.", e);
@@ -496,7 +502,7 @@ namespace Subclass
         public static bool OnCooldown(Player p, AbilityType ability, SubClass subClass)
         {
             return Cooldowns.ContainsKey(p) && Cooldowns[p].ContainsKey(ability)
-                && Time.time - Cooldowns[p][ability] < subClass.AbilityCooldowns[ability];
+                && Time.time <= Cooldowns[p][ability];
         }
 
         public static float TimeLeftOnCooldown(Player p, AbilityType ability, SubClass subClass, float time)
