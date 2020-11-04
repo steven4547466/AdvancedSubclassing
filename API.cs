@@ -22,7 +22,7 @@ namespace Subclass
             if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
             if (Subclass.Instance.Scp035Enabled) 
             {
-                Player scp035 = (Player) Loader.Plugins[Loader.Plugins.FindIndex(pl => pl.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                Player scp035 = (Player) Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
                 Tracking.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035?.Id == p.Id, lite);
                 return true;
             }

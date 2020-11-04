@@ -44,7 +44,7 @@ namespace Subclass.Handlers
                         {
                             if (Subclass.Instance.Scp035Enabled)
                             {
-                                EPlayer scp035 = (EPlayer)Loader.Plugins[Loader.Plugins.FindIndex(p => p.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                                EPlayer scp035 = (EPlayer)Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
                                 Tracking.RemoveAndAddRoles(ev.Player, false, scp035?.Id == ev.Player.Id);
                             }
                             else Tracking.RemoveAndAddRoles(ev.Player, false, false);
@@ -77,7 +77,7 @@ namespace Subclass.Handlers
 
                     if (Subclass.Instance.Scp035Enabled)
                     {
-                        EPlayer scp035 = (EPlayer) Loader.Plugins[Loader.Plugins.FindIndex(p => p.Name == "scp035")].Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                        EPlayer scp035 = (EPlayer) Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
                         Tracking.RemoveAndAddRoles(ev.Player, false, scp035?.Id == ev.Player.Id);
                     }
                     Tracking.RemoveAndAddRoles(ev.Player, false, false);
