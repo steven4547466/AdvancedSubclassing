@@ -19,7 +19,7 @@ namespace Subclass
     {
         public static bool GiveClass(Player p, SubClass subClass, bool lite = false)
         {
-            if (PlayerHasSubClass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
+            if (PlayerHasSubclass(p) || !subClass.AffectsRoles.Contains(p.Role)) return false;
             if (Subclass.Instance.Scp035Enabled) 
             {
                 Player scp035 = (Player) Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
@@ -32,7 +32,7 @@ namespace Subclass
 
         public static bool RemoveClass(Player p)
         {
-            if (!PlayerHasSubClass(p)) return false;
+            if (!PlayerHasSubclass(p)) return false;
             Tracking.RemoveAndAddRoles(p, true);
             return true;
         }
@@ -108,7 +108,13 @@ namespace Subclass
             return Tracking.PlayersWithSubclasses.ToDictionary(x => x.Key, x => x.Value);
         }
 
-        public static bool PlayerHasSubClass(Player p)
+        public static SubClass GetPlayersSubclass(Player p)
+		{
+            if (!PlayerHasSubclass(p)) return null;
+            return new SubClass(Tracking.PlayersWithSubclasses[p]);
+		}
+
+        public static bool PlayerHasSubclass(Player p)
         {
             return Tracking.PlayersWithSubclasses.ContainsKey(p);
         }
@@ -144,13 +150,13 @@ namespace Subclass
 
         public static bool AbilityOnCooldown(Player p, AbilityType ability)
         {
-            if (!PlayerHasSubClass(p)) return false;
+            if (!PlayerHasSubclass(p)) return false;
             return Tracking.OnCooldown(p, ability, Tracking.PlayersWithSubclasses[p]);
         }
 
         public static float TimeLeftOnCooldown(Player p, AbilityType ability)
         {
-            if (!PlayerHasSubClass(p)) return 0;
+            if (!PlayerHasSubclass(p)) return 0;
             return Tracking.TimeLeftOnCooldown(p, ability, Tracking.PlayersWithSubclasses[p], Time.time);
         }
     }

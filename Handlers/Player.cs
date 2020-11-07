@@ -65,6 +65,28 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
+            object afkComp = ev.Player.GameObject.GetComponent("AFKComponent");
+            if (afkComp != null)
+			{
+                if (afkComp.GetType().GetMember("PlayerToReplace").Length > 0)
+                {
+                    EPlayer p = (EPlayer)((FieldInfo)afkComp.GetType().GetMember("PlayerToReplace")[0]).GetValue(afkComp);
+                    if (p != null)
+                    {
+                        if (API.PlayerHasSubclass(ev.Player))
+						{
+                            SubClass subClass = API.GetPlayersSubclass(ev.Player);
+                            if (!Tracking.PlayersThatJustGotAClass.ContainsKey(p)) Tracking.PlayersThatJustGotAClass.Add(p, Time.time + 5f);
+                            else Tracking.PlayersThatJustGotAClass[p] = Time.time + 5f;
+                            Timing.CallDelayed(1f, () =>
+                            {
+                                API.GiveClass(p, subClass, true);
+                            });
+                        }
+                    }
+                }
+            }
+
             ev.Player.Scale = new Vector3(1, 1, 1);
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveZombie(ev.Player);

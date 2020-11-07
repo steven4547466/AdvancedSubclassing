@@ -114,7 +114,7 @@ namespace Subclass
                     player.SetRole(subClass.SpawnsAs, subClass.SpawnLocations[spawnIndex] != "Unknown");
                 }
 
-                if (subClass.SpawnItems.Count != 0)
+                if (!lite && subClass.SpawnItems.Count != 0)
                 {
                     player.Inventory.items.Clear();
                     foreach (var item in subClass.SpawnItems)
@@ -131,9 +131,9 @@ namespace Subclass
                     }
                 }
                 if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
-                if (subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
+                if (!lite && subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
                 if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
-                if (subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+                if (!lite && subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
 
                 Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
 
@@ -168,17 +168,17 @@ namespace Subclass
             }
             if (subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
 
-            if (subClass.SpawnAmmo[AmmoType.Nato556] != -1)
+            if (!lite && subClass.SpawnAmmo[AmmoType.Nato556] != -1)
             {
                 player.Ammo[(int)AmmoType.Nato556] = (uint)subClass.SpawnAmmo[AmmoType.Nato556];
             }
 
-            if (subClass.SpawnAmmo[AmmoType.Nato762] != -1)
+            if (!lite && subClass.SpawnAmmo[AmmoType.Nato762] != -1)
             {
                 player.Ammo[(int)AmmoType.Nato762] = (uint)subClass.SpawnAmmo[AmmoType.Nato762];
             }
 
-            if (subClass.SpawnAmmo[AmmoType.Nato9] != -1)
+            if (!lite && subClass.SpawnAmmo[AmmoType.Nato9] != -1)
             {
                 player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
             }
@@ -236,10 +236,13 @@ namespace Subclass
                 });
             }
 
-            foreach(var cooldown in subClass.InitialAbilityCooldowns)
-			{
-                AddCooldown(player, cooldown.Key, true);
-			}
+            if (!lite)
+            {
+                foreach (var cooldown in subClass.InitialAbilityCooldowns)
+                {
+                    AddCooldown(player, cooldown.Key, true);
+                }
+            }
 
             if (!is035)
             {
@@ -256,7 +259,7 @@ namespace Subclass
                 }
             }
 
-            if (subClass.OnSpawnEffects.Count != 0)
+            if (!lite && subClass.OnSpawnEffects.Count != 0)
             {
                 Timing.CallDelayed(0.1f, () =>
                 {
