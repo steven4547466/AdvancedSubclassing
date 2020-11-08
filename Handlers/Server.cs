@@ -695,6 +695,15 @@ namespace Subclass.Handlers
                     }
                 case "vent":
                     {
+
+                        Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
+                        if (Tracking.PlayersVenting.Contains(ev.Player) && scp268 != null && scp268.Enabled)
+                        {
+                            Tracking.PlayersVenting.Remove(ev.Player);
+                            scp268.ServerDisable();
+                            return;
+                        }
+
                         if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Vent))
                         {
                             Log.Debug($"Player {ev.Player.Nickname} could not vent", Subclass.Instance.Config.Debug);
@@ -714,7 +723,6 @@ namespace Subclass.Handlers
                             return;
                         }
 
-                        Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
                         if (scp268 != null)
                         {
                             if (scp268.Enabled)
