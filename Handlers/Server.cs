@@ -101,6 +101,7 @@ namespace Subclass.Handlers
                 e.AffectsUsers.ContainsKey(player.UserId) &&
                 (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                 (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyGivenOnEscape") || (e.BoolOptions["OnlyGivenOnEscape"] && escaped)) &&
                 (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"]))))
                 {
                     double rng = (rnd.NextDouble() * 100);
@@ -300,6 +301,7 @@ namespace Subclass.Handlers
             Tracking.NextSpawnWave = ev.Players;
         }
 
+        // I want to switch this to a better method soon, but this is all I got for now.
         public void OnSendingConsoleCommand(SendingConsoleCommandEventArgs ev)
         {
             Log.Debug($"Player {ev.Player?.Nickname} sent a console command", Subclass.Instance.Config.Debug);
@@ -690,6 +692,94 @@ namespace Subclass.Handlers
 						}
 
 						break;
+                    }
+                case "vent":
+                    {
+                        if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.Vent))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} could not vent", Subclass.Instance.Config.Debug);
+                            return;
+                        }
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.Vent, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to vent", Subclass.Instance.Config.Debug);
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.Vent, subClass, "vent", Time.time);
+                            return;
+                        }
+
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.Vent, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.Vent, subClass, "vent");
+                            return;
+                        }
+
+                        Scp268 scp268 = ev.Player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
+                        if (scp268 != null)
+                        {
+                            if (scp268.Enabled)
+                            {
+                                Log.Debug($"Player {ev.Player.Nickname} failed to vent", Subclass.Instance.Config.Debug);
+                                ev.Player.Broadcast(3, Subclass.Instance.Config.AlreadyInvisibleMessage);
+                                return;
+                            }
+
+                            //scp268.Duration = subClass.FloatOptions.ContainsKey("InvisibleOnCommandDuration") ?
+                            //    subClass.FloatOptions["InvisibleOnCommandDuration"]*2f : 30f*2f;
+
+                            //ev.Player.ReferenceHub.playerEffectsController.EnableEffect(scp268);
+
+                            ev.Player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
+                            Tracking.PlayersInvisibleByCommand.Add(ev.Player);
+                            Tracking.PlayersVenting.Add(ev.Player);
+                            Timing.CallDelayed(subClass.FloatOptions.ContainsKey("VentDuration") ?
+                                subClass.FloatOptions["VentDuration"] : 15f, () =>
+                                {
+                                    if (Tracking.PlayersVenting.Contains(ev.Player)) Tracking.PlayersVenting.Remove(ev.Player);
+                                    if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
+                                    if (scp268.Enabled) ev.Player.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
+                                });
+
+                            Tracking.AddCooldown(ev.Player, AbilityType.Vent);
+                            Tracking.UseAbility(ev.Player, AbilityType.Vent, subClass);
+
+                        }
+
+                        break;
+                    }
+                case "surge":
+                    {
+                        if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Player) || !Tracking.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.PowerSurge))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} could not use power surge", Subclass.Instance.Config.Debug);
+                            return;
+                        }
+                        SubClass subClass = Tracking.PlayersWithSubclasses[ev.Player];
+                        if (Tracking.OnCooldown(ev.Player, AbilityType.PowerSurge, subClass))
+                        {
+                            Log.Debug($"Player {ev.Player.Nickname} failed to vent", Subclass.Instance.Config.Debug);
+                            Tracking.DisplayCooldown(ev.Player, AbilityType.PowerSurge, subClass, "power surge", Time.time);
+                            return;
+                        }
+
+                        if (!Tracking.CanUseAbility(ev.Player, AbilityType.PowerSurge, subClass))
+                        {
+                            Tracking.DisplayCantUseAbility(ev.Player, AbilityType.PowerSurge, subClass, "power surge");
+                            return;
+                        }
+
+                        float radius = subClass.FloatOptions.ContainsKey("PowerSurgeRadius") ? subClass.FloatOptions["PowerSurgeRadius"] : 30f;
+                        foreach(Room room in Exiled.API.Features.Map.Rooms)
+						{
+                            if (Vector3.Distance(room.Position, ev.Player.Position) <= radius)
+							{
+                                room.TurnOffLights(subClass.FloatOptions.ContainsKey("PowerSurgeDuration") ? subClass.FloatOptions["PowerSurgeDuration"] : 15f);
+							}
+						}
+
+                        Tracking.AddCooldown(ev.Player, AbilityType.PowerSurge);
+                        Tracking.UseAbility(ev.Player, AbilityType.PowerSurge, subClass);
+                        break;
                     }
                 default:
                     ev.IsAllowed = true;

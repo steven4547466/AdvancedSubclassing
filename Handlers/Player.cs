@@ -27,7 +27,6 @@ namespace Subclass.Handlers
         public void OnSpawning(SpawningEventArgs ev)
         {
             ev.Player.Scale = new Vector3(1, 1, 1);
-            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 try
@@ -88,7 +87,6 @@ namespace Subclass.Handlers
             }
 
             ev.Player.Scale = new Vector3(1, 1, 1);
-            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Player)) Tracking.PlayersInvisibleByCommand.Remove(ev.Player);
             Tracking.RemoveZombie(ev.Player);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
@@ -120,6 +118,13 @@ namespace Subclass.Handlers
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
         {
+            if (Tracking.PlayersVenting.Contains(ev.Player))
+			{
+                ev.IsAllowed = false;
+                ev.Player.Position += (ev.Player.GameObject.transform.forward * 3.5f);
+                return;
+			}
+
             if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ((ev.Door.PermissionLevels != 0 || ev.Door.Networklocked) && !ev.Door.isOpen && ev.Player.CurrentItemIndex == -1)) {
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
@@ -230,7 +235,6 @@ namespace Subclass.Handlers
                 return;
             }
 
-            if (Tracking.PlayersInvisibleByCommand.Contains(ev.Target)) Tracking.PlayersInvisibleByCommand.Remove(ev.Target);
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) && Tracking.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
             {
                 GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
@@ -413,6 +417,7 @@ namespace Subclass.Handlers
         public void OnShooting(ShootingEventArgs ev)
         {
             if (Tracking.PlayersInvisibleByCommand.Contains(ev.Shooter)) Tracking.PlayersInvisibleByCommand.Remove(ev.Shooter);
+            if (Tracking.PlayersVenting.Contains(ev.Shooter)) Tracking.PlayersVenting.Remove(ev.Shooter);
             EPlayer target = EPlayer.Get(ev.Target);
             if (target != null)
             {

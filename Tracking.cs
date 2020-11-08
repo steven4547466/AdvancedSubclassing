@@ -38,6 +38,7 @@ namespace Subclass
         public static List<Player> FriendlyFired = new List<Player>();
 
         public static List<Player> PlayersInvisibleByCommand = new List<Player>();
+        public static List<Player> PlayersVenting = new List<Player>();
 
         public static List<string> QueuedCassieMessages = new List<string>();
 
@@ -368,6 +369,8 @@ namespace Subclass
                 && Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
             if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
                 p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
+            if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
+            if (PlayersVenting.Contains(p)) PlayersVenting.Remove(p);
             //if (PlayersWithZombies.ContainsKey(p) && escaped)
             //{
             //    PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);

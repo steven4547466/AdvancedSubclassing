@@ -29,6 +29,7 @@ namespace Subclass.Commands
                 response = "Reloaded";
 
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
+                Subclass.Instance.server.rolesForClass.Clear();
 
                 return true;
 
@@ -37,6 +38,7 @@ namespace Subclass.Commands
             {
                 response = "Reloaded";
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
+                Subclass.Instance.server.rolesForClass.Clear();
 
                 return true;
             }

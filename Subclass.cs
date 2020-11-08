@@ -328,6 +328,8 @@ namespace Subclass
         DamageAura,
         Regeneration,
         Infect,
-        BackupCommand
+        BackupCommand,
+        Vent,
+        PowerSurge
     }
 }
