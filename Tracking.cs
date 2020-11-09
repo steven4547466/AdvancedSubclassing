@@ -278,6 +278,8 @@ namespace Subclass
                             player.ReferenceHub.playerEffectsController.EnableByString(effect,
                                 subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Duration")) ?
                                 subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
+                            player.ReferenceHub.playerEffectsController.ChangeByString(effect, subClass.IntOptions.ContainsKey(("OnSpawn" + effect + "Intensity")) ?
+                            (byte)subClass.IntOptions[("OnSpawn" + effect + "Intensity")] : (byte)1);
                             Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
                         }
                         else

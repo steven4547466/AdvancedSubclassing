@@ -340,6 +340,8 @@ namespace Subclass.Handlers
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                             attackerClass.FloatOptions.ContainsKey(("OnHit" + effect + "Duration")) ?
                             attackerClass.FloatOptions[("OnHit" + effect + "Duration")] : -1);
+                        ev.Target.ReferenceHub.playerEffectsController.ChangeByString(effect, attackerClass.IntOptions.ContainsKey(("OnHit" + effect + "Intensity")) ?
+                            (byte) attackerClass.IntOptions[("OnHit" + effect + "Intensity")] : (byte) 1);
                     }
                 }
             }
@@ -355,6 +357,8 @@ namespace Subclass.Handlers
                         ev.Target.ReferenceHub.playerEffectsController.EnableByString(effect,
                             targetClass.FloatOptions.ContainsKey(("OnDamaged" + effect + "Duration")) ?
                             targetClass.FloatOptions[("OnDamaged" + effect + "Duration")] : -1);
+                        ev.Target.ReferenceHub.playerEffectsController.ChangeByString(effect, attackerClass.IntOptions.ContainsKey(("OnDamaged" + effect + "Intensity")) ?
+                            (byte)attackerClass.IntOptions[("OnDamaged" + effect + "Intensity")] : (byte)1);
                     }
                 }
             }
