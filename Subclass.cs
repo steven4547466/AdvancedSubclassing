@@ -103,7 +103,6 @@ namespace Subclass
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
             Server.RoundEnded += server.OnRoundEnded;
-            Server.SendingConsoleCommand += server.OnSendingConsoleCommand;
             Server.RespawningTeam += server.OnRespawningTeam;
 
             map = new Handlers.Map();
@@ -133,7 +132,6 @@ namespace Subclass
 
             Server.RoundStarted -= server.OnRoundStarted;
             Server.RoundEnded -= server.OnRoundEnded;
-            Server.SendingConsoleCommand -= server.OnSendingConsoleCommand;
             Server.RespawningTeam -= server.OnRespawningTeam;
 
             server = null;
@@ -194,6 +192,7 @@ namespace Subclass
 
         public List<RoleType> AffectsRoles = new List<RoleType>(){RoleType.None};
         public Dictionary<string, float> AffectsUsers = new Dictionary<string, float>();
+        public Dictionary<string, float> Permissions = new Dictionary<string, float>();
 
         public Dictionary<string, string> StringOptions = new Dictionary<string, string>();
 
@@ -237,7 +236,7 @@ namespace Subclass
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
             string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
-            Dictionary<string, float> affectsUsers = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null)
+            Dictionary<string, float> affectsUsers = null, Dictionary<string, float> permissions = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -260,6 +259,7 @@ namespace Subclass
             if (onTakeDamage != null) OnDamagedEffects = onTakeDamage;
             if (cantDamageRoles != null) CantDamageRoles = cantDamageRoles;
             if (affectsUsers != null) AffectsUsers = affectsUsers;
+            if (permissions != null) Permissions = permissions;
             if (initialAbilityCooldowns != null) InitialAbilityCooldowns = initialAbilityCooldowns;
         }
 
@@ -330,6 +330,7 @@ namespace Subclass
         Infect,
         BackupCommand,
         Vent,
-        PowerSurge
+        PowerSurge,
+        Summon
     }
 }

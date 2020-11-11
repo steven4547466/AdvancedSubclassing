@@ -37,6 +37,10 @@ namespace Subclass
         [Description("The message shown to players when they use the help command and the class provided has no help string.")]
         public string HelpNoHelpFound { get; set; } = "Class has no help message!";
 
-        public string HelpNoArgumentsProvided { get; set; } = "Please provide the class name if you don't have a subclass";
+        [Description("The message shown to players when they use the help command and provided no arguments.")]
+        public string HelpNoArgumentsProvided { get; set; } = "Please provide the class name if you don't have a subclass.";
+
+        [Description("The message shown to players when they use the an ability that requires spectators and there are none.")]
+        public string NoAvailableSpectators { get; set; } = "There are no available spectators.";
     }
 }

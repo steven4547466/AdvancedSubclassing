@@ -162,11 +162,22 @@ namespace Subclass.Managers
                         Dictionary<string, float> affectsUsers = new Dictionary<string, float>();
                         if (obj.ContainsKey("affects_users"))
                         {
-                            Log.Debug($"Attempting to affects users for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                            Log.Debug($"Attempting to load affects users for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                             Dictionary<object, object> affectsUsersTemp = (Dictionary<object, object>)obj["affects_users"];
                             foreach (var item in affectsUsersTemp)
                             {
                                 affectsUsers.Add((string)item.Key, float.Parse((string)item.Value));
+                            }
+                        }
+
+                        Dictionary<string, float> permissions = new Dictionary<string, float>();
+                        if (obj.ContainsKey("any_permissions"))
+                        {
+                            Log.Debug($"Attempting to load any permissions for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                            Dictionary<object, object> permissionsTemp = (Dictionary<object, object>)obj["any_permissions"];
+                            foreach (var item in permissionsTemp)
+                            {
+                                permissions.Add((string)item.Key, float.Parse((string)item.Value));
                             }
                         }
 
@@ -260,7 +271,7 @@ namespace Subclass.Managers
 
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
                             spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
-                            cantDamageRoles, affectsUsers, initialAbilityCooldowns));
+                            cantDamageRoles, affectsUsers, permissions, initialAbilityCooldowns));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

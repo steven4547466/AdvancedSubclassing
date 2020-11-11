@@ -2,7 +2,6 @@
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using Microsoft.SqlServer.Server;
 using RemoteAdmin;
 
 namespace Subclass.Commands
@@ -29,7 +28,7 @@ namespace Subclass.Commands
                 response = "Reloaded";
 
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
-                Subclass.Instance.server.rolesForClass.Clear();
+                Tracking.rolesForClass.Clear();
 
                 return true;
 
@@ -38,7 +37,7 @@ namespace Subclass.Commands
             {
                 response = "Reloaded";
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
-                Subclass.Instance.server.rolesForClass.Clear();
+                Tracking.rolesForClass.Clear();
 
                 return true;
             }

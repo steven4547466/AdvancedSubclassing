@@ -2,6 +2,7 @@
 using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using MEC;
 using Mono.Unix.Native;
 using Subclass.Effects;
@@ -17,6 +18,8 @@ namespace Subclass
 {
     public class Tracking
     {
+        public static Dictionary<RoleType, int> rolesForClass = new Dictionary<RoleType, int>();
+
         public static Dictionary<SubClass, int> SubClassesSpawned = new Dictionary<SubClass, int>();
 
         public static Dictionary<Player, SubClass> PlayersWithSubclasses = new Dictionary<Player, SubClass>();
@@ -46,6 +49,7 @@ namespace Subclass
 
         public static List<Player> NextSpawnWave = new List<Player>();
         public static Dictionary<RoleType, SubClass> NextSpawnWaveGetsRole = new Dictionary<RoleType, SubClass>();
+        public static Dictionary<Team, int> NumSpawnWaves = new Dictionary<Team, int>();
         public static List<SubClass> SpawnWaveSpawns = new List<SubClass>();
         public static Dictionary<SubClass, int> ClassesGiven = new Dictionary<SubClass, int>();
         public static List<SubClass> DontGiveClasses = new List<SubClass>();
@@ -53,6 +57,181 @@ namespace Subclass
         public static Dictionary<Player, string> PreviousBadges = new Dictionary<Player, string>();
 
         static System.Random rnd = new System.Random();
+
+
+        public static void MaybeAddRoles(Player player, bool is035 = false, bool escaped = false)
+        {
+            if (!rolesForClass.ContainsKey(player.Role))
+                rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] &&
+                    e.AffectsRoles.Contains(player.Role)));
+
+            if (rolesForClass[player.Role] > 0)
+            {
+                List<string> teamsAlive = Player.List.Select(p1 => p1.Team.ToString()).ToList();
+                teamsAlive.RemoveAll(t => t == "RIP");
+                foreach (var item in PlayersWithSubclasses.Where(s => s.Value.EndsRoundWith != "RIP"))
+                {
+                    teamsAlive.Remove(item.Key.Team.ToString());
+                    teamsAlive.Add(item.Value.EndsRoundWith);
+                }
+
+                for (int i = 0; i < teamsAlive.Count; i++)
+                {
+                    string t = teamsAlive[i];
+                    if (t == "CDP")
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, "CHI");
+                    }
+                    else if (t == "RSC")
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, "MTF");
+                    }
+                    else if (t == "TUT")
+                    {
+                        teamsAlive.RemoveAt(i);
+                        teamsAlive.Insert(i, "MTF");
+                    }
+                }
+
+                bool gotUniqueClass = CheckUserClass(player, is035, escaped, teamsAlive) || CheckPermissionClass(player, is035, escaped, teamsAlive);
+
+                if (gotUniqueClass) return;
+
+                if (!Subclass.Instance.Config.AdditiveChance)
+                {
+                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+                    foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
+                    (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
+                    (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                    (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"]) &&
+                    (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] &&
+                    GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"])))))
+                    {
+                        double rng = (rnd.NextDouble() * 100);
+                        Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug);
+
+                        if (DontGiveClasses.Contains(subClass))
+                        {
+                            Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+                            continue;
+                        }
+
+                        if (rng < subClass.FloatOptions["ChanceToGet"] &&
+                            (!subClass.IntOptions.ContainsKey("MaxAlive") ||
+                            PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
+                            (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+                        {
+                            Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                            AddClass(player, subClass, is035, is035 || escaped);
+                            break;
+                        }
+                        else
+                        {
+                            Log.Debug($"Player with name {player.Nickname} did not get subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                        }
+                    }
+                }
+                else
+                {
+                    double num = (rnd.NextDouble() * 100);
+                    Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}. Additive chance. Number generated: {num}", Subclass.Instance.Config.Debug);
+
+
+                    if (!Subclass.Instance.ClassesAdditive.ContainsKey(player.Role)) return;
+
+                    foreach (var possibity in Subclass.Instance.ClassesAdditive[player.Role].Where(e => e.Key.BoolOptions["Enabled"] &&
+                    e.Key.AffectsRoles.Contains(player.Role) && (!e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.Key.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                    (!e.Key.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.Key.BoolOptions["GivenOnEscape"] && !escaped) || e.Key.BoolOptions["GivenOnEscape"])) &&
+                    (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
+                    (!e.Key.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.Key.BoolOptions["WaitForSpawnWaves"] && 
+                    GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? (Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"]))))
+                    {
+                        Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
+                        if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") ||
+                            PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
+                            (possibity.Key.EndsRoundWith == "RIP" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
+                        {
+                            Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                            AddClass(player, possibity.Key, is035, is035 || escaped);
+                            break;
+                        }
+                        else
+                        {
+                            Log.Debug($"Player with name {player.Nickname} did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Log.Debug($"No subclasses for {player.Role}", Subclass.Instance.Config.Debug);
+            }
+        }
+
+        public static bool CheckUserClass(Player player, bool is035, bool escaped, List<string> teamsAlive)
+		{
+            foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
+                e.AffectsUsers.ContainsKey(player.UserId) &&
+                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyGivenOnEscape") || (e.BoolOptions["OnlyGivenOnEscape"] && escaped)) &&
+                (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"])) &&
+                (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] && 
+                GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"]))))
+            {
+                double rng = (rnd.NextDouble() * 100);
+                Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.UserId]} to get class", Subclass.Instance.Config.Debug);
+                if (DontGiveClasses.Contains(subClass))
+                {
+                    Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+                    continue;
+                }
+
+                if (rng < subClass.AffectsUsers[player.UserId] && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
+                    PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
+                    (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+                {
+                    Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                    AddClass(player, subClass, is035, is035 || escaped);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool CheckPermissionClass(Player player, bool is035, bool escaped, List<string> teamsAlive)
+		{
+            foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
+                e.Permissions.Count > 0 && e.Permissions.Keys.Any(p => player.CheckPermission("sc." + p)) &&
+                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
+                (!e.BoolOptions.ContainsKey("OnlyGivenOnEscape") || (e.BoolOptions["OnlyGivenOnEscape"] && escaped)) &&
+                (!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"])) &&
+                (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] &&
+                GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"]))))
+            {
+                double rng = (rnd.NextDouble() * 100);
+                float needed = subClass.Permissions.First(p => player.CheckPermission("sc." + p.Key)).Value;
+                Log.Debug($"Evaluating possible permission subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {needed} to get class", Subclass.Instance.Config.Debug);
+                if (DontGiveClasses.Contains(subClass))
+                {
+                    Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+                    continue;
+                }
+
+                if (rng < needed && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
+                    PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
+                    (subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+                {
+                    Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+                    AddClass(player, subClass, is035, is035 || escaped);
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
         {
@@ -460,7 +639,7 @@ namespace Subclass
                 if (!PlayersThatJustGotAClass.ContainsKey(p)) PlayersThatJustGotAClass.Add(p, Time.time + 3f);
                 else PlayersThatJustGotAClass[p] = Time.time + 3f;
             }
-            if (!dontAddRoles) Subclass.Instance.server.MaybeAddRoles(p, is035, escaped);
+            if (!dontAddRoles) MaybeAddRoles(p, is035, escaped);
         }
 
         public static void AddToFF(Player p)
@@ -742,5 +921,22 @@ namespace Subclass
                 else PreviousBadges.Add(p, p.RankName + " [-/-] " + p.RankColor);
             }
         }
+
+        public static int GetNumWavesSpawned(Team t)
+		{
+            if(t == Team.RIP)
+			{
+                int count = 0;
+                foreach (var spawns in NumSpawnWaves)
+				{
+                    count += spawns.Value;
+				}
+                return count;
+            }
+            else
+			{
+                return NumSpawnWaves.ContainsKey(t) ? NumSpawnWaves[t] : 0;
+			}
+		}
     }
 }
