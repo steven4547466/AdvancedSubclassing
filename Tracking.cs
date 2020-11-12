@@ -922,7 +922,7 @@ namespace Subclass
 				else if (t == "TUT")
 				{
 					teamsAlive.RemoveAt(i);
-					teamsAlive.Insert(i, "MTF");
+					teamsAlive.Insert(i, "SCP");
 				}
 			}
 			return teamsAlive;
@@ -974,7 +974,7 @@ namespace Subclass
 						}
 						else if (args[2] == "Alive")
 						{
-							if (Player.List.Count(p => p.Team == team) != param.Value)
+							if (GetTeamsAlive().Count(t => t == team.ToString()) != param.Value)
 							{
 								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 								return false;
@@ -1070,8 +1070,8 @@ namespace Subclass
 		public static bool IsInRange(List<string> evaluated, string[] args, SubClass subClass, string seperator, Team team = Team.RIP, RoleType role = RoleType.None)
 		{
 			int count = 0;
-			if (args[0] == "sc") count = PlayersWithSubclasses.Count(t => t.Value.Name == args[1]);
-			else if (args[0] == "team") count = Player.List.Count(p => p.Team == team);
+			if (args[0] == "sc") count = PlayersWithSubclasses.Count(e => e.Value.Name == args[1]);
+			else if (args[0] == "team") count = GetTeamsAlive().Count(t => t == team.ToString());
 			else if (args[0] == "players")
 			{
 				if (args[1] == "Alive") count = Player.List.Count(p => p.IsAlive);
