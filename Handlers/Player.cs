@@ -328,6 +328,8 @@ namespace Subclass.Handlers
             SubClass attackerClass = Tracking.PlayersWithSubclasses.ContainsKey(ev.Attacker) ? Tracking.PlayersWithSubclasses[ev.Attacker] : null;
             SubClass targetClass = Tracking.PlayersWithSubclasses.ContainsKey(ev.Target) ? Tracking.PlayersWithSubclasses[ev.Target] : null;
 
+            if (ev.Attacker.Id != ev.Target.Id) ev.Attacker.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
+
             if (ev.DamageType != DamageTypes.Falldown && attackerClass != null && 
                 (attackerClass.OnHitEffects.Count > 0))
             {

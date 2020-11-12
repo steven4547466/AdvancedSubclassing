@@ -273,7 +273,7 @@ namespace Subclass
 
 				if (subClass.SpawnsAs != RoleType.None)
 				{
-					player.SetRole(subClass.SpawnsAs, subClass.SpawnLocations[spawnIndex] != "Unknown");
+					player.SetRole(subClass.SpawnsAs, true);
 				}
 
 				if (!lite && subClass.SpawnItems.Count != 0)
