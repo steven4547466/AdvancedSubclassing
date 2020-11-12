@@ -193,6 +193,7 @@ namespace Subclass
         public List<RoleType> AffectsRoles = new List<RoleType>(){RoleType.None};
         public Dictionary<string, float> AffectsUsers = new Dictionary<string, float>();
         public Dictionary<string, float> Permissions = new Dictionary<string, float>();
+        public Dictionary<string, int> SpawnParameters = new Dictionary<string, int>();
 
         public Dictionary<string, string> StringOptions = new Dictionary<string, string>();
 
@@ -236,7 +237,8 @@ namespace Subclass
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
             string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
-            Dictionary<string, float> affectsUsers = null, Dictionary<string, float> permissions = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null)
+            Dictionary<string, float> affectsUsers = null, Dictionary<string, float> permissions = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null,
+            Dictionary<string, int> spawnParameters = null)
         {
             Name = name;
             AffectsRoles = role;
@@ -261,6 +263,7 @@ namespace Subclass
             if (affectsUsers != null) AffectsUsers = affectsUsers;
             if (permissions != null) Permissions = permissions;
             if (initialAbilityCooldowns != null) InitialAbilityCooldowns = initialAbilityCooldowns;
+            if (spawnParameters != null) SpawnParameters = spawnParameters;
         }
 
         public SubClass(SubClass subClass)
@@ -287,6 +290,8 @@ namespace Subclass
             CantDamageRoles = subClass.CantDamageRoles;
             AffectsUsers = subClass.AffectsUsers;
             InitialAbilityCooldowns = subClass.InitialAbilityCooldowns;
+            Permissions = subClass.Permissions;
+            SpawnParameters = subClass.SpawnParameters;
         }
     }
     public enum AbilityType

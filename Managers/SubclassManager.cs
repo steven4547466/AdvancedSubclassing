@@ -269,9 +269,20 @@ namespace Subclass.Managers
                                 escapesAs[1] = RoleType.None;
                         }
 
+
+                        Dictionary<string, int> spawnParameters = new Dictionary<string, int>();
+                        if (obj.ContainsKey("spawn_parameters")) {
+                            Log.Debug($"Attempting to load spawn parameters for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+                            Dictionary<object, object> spawnParametersTemp = (Dictionary<object, object>)obj["spawn_parameters"];
+                            foreach (var item in spawnParametersTemp)
+                            {
+                                spawnParameters.Add((string)item.Key, int.Parse((string)item.Value));
+                            }
+                        }
+
                         subClasses.Add((string)obj["name"], new SubClass((string) obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions, 
                             spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
-                            cantDamageRoles, affectsUsers, permissions, initialAbilityCooldowns));
+                            cantDamageRoles, affectsUsers, permissions, initialAbilityCooldowns, spawnParameters));
                         Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                     }
                     catch (YamlException yamlException)

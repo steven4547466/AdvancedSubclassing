@@ -79,8 +79,10 @@ namespace Subclass.Handlers
                 e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency)) &&
                 ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
                 (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"])) &&
-                (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"]
-                && Tracking.GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"]))))
+                (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] && 
+                Tracking.GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? 
+                (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"])) && 
+                Tracking.EvaluateSpawnParameters(e)))
                 {
                     if ((ntfSpawning ? (subClass.AffectsRoles.Contains(RoleType.NtfCadet) ||
                     subClass.AffectsRoles.Contains(RoleType.NtfCommander) || subClass.AffectsRoles.Contains(RoleType.NtfLieutenant)) 
@@ -131,7 +133,11 @@ namespace Subclass.Handlers
                     foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => e.Key.BoolOptions["Enabled"] &&
                     (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                     ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
-                    (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                    (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"])) &&
+                    (!e.Key.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.Key.BoolOptions["WaitForSpawnWaves"] &&
+                    Tracking.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
+                    (Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"])) && 
+                    Tracking.EvaluateSpawnParameters(e.Key)))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value)
@@ -152,7 +158,11 @@ namespace Subclass.Handlers
                         foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => e.Key.BoolOptions["Enabled"] &&
                         (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                         ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
-                        (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"]))))
+                        (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"])) &&
+                        (!e.Key.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.Key.BoolOptions["WaitForSpawnWaves"] &&
+                        Tracking.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
+                        (Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"]))
+                        && Tracking.EvaluateSpawnParameters(e.Key)))
                         {
                             Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                             if (num < possibity.Value)
