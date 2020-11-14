@@ -36,6 +36,7 @@ namespace Subclass
 
 		public static Dictionary<Player, RoleType> PreviousRoles = new Dictionary<Player, RoleType>();
 		public static Dictionary<Player, SubClass> PreviousSubclasses = new Dictionary<Player, SubClass>();
+		public static Dictionary<uint, RoleType> RagdollRoles = new Dictionary<uint, RoleType>();
 		// public static Player LastDiedTo035 = null; - I would love to implement this and keep 035 data... but there's no event to listen to for a player dying by picking up 035 :(
 
 		public static List<Player> FriendlyFired = new List<Player>();
@@ -607,14 +608,15 @@ namespace Subclass
 
 			if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
 
-			foreach (var effect in p.ReferenceHub.playerEffectsController.AllEffects)
-			{
-				byte prev = effect.Value.Intensity;
-				effect.Value.Intensity = 0;
-				effect.Value.Duration = 0f;
-				effect.Value.ServerOnIntensityChange(prev, 0);
-			}
-			p.ReferenceHub.playerEffectsController.Resync();
+			//foreach (var effect in p.ReferenceHub.playerEffectsController.AllEffects)
+			//{
+			//	if (effect.Key == typeof(Visuals939)) continue;
+			//	byte prev = effect.Value.Intensity;
+			//	effect.Value.Intensity = 0;
+			//	effect.Value.Duration = 0f;
+			//	effect.Value.ServerOnIntensityChange(prev, 0);
+			//}
+			//p.ReferenceHub.playerEffectsController.Resync();
 
 			if (escaped)
 			{
@@ -1091,6 +1093,12 @@ namespace Subclass
 			int min = subClass.SpawnParameters[minKey];
 			if (count < min || count > max) return false;
 			return true;
+		}
+
+		public static RoleType? RagdollRole(Ragdoll doll)
+		{
+			if (!RagdollRoles.ContainsKey(doll.netId)) return null;
+			return RagdollRoles[doll.netId];
 		}
 	}
 }

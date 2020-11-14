@@ -53,12 +53,12 @@ namespace Subclass.AbilityCommands
                 return;
             }
 
-            Player owner = Player.Get(colliders[0].gameObject.GetComponentInParent<Ragdoll>().owner.PlayerId);
+            Player owner = Player.Get(doll.owner.PlayerId);
             if (owner != null && !owner.IsAlive)
             {
                 bool revived = false;
                 if (!necro && Tracking.GetPreviousTeam(owner) != null &&
-                Tracking.GetPreviousTeam(owner) == player.Team)
+                Tracking.GetPreviousTeam(owner) == player.Team && Tracking.RagdollRole(doll) != null && Tracking.RagdollRole(doll) == Tracking.GetPreviousRole(owner))
                 {
                     if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
                     else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);

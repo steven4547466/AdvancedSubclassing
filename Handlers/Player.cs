@@ -26,15 +26,15 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
-            ev.Player.Scale = new Vector3(1, 1, 1);
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
+                ev.Player.Scale = new Vector3(1, 1, 1);
                 try
                 {
+                    Tracking.RemoveZombie(ev.Player);
                     Tracking.QueuedCassieMessages.Clear();
                     if (Tracking.NextSpawnWave.Contains(ev.Player) && Tracking.NextSpawnWaveGetsRole.ContainsKey(ev.Player.Role))
                     {
-                        Tracking.RemoveAndAddRoles(ev.Player, true);
                         Tracking.AddClass(ev.Player, Tracking.NextSpawnWaveGetsRole[ev.Player.Role]);
                     }
                     else
@@ -55,7 +55,8 @@ namespace Subclass.Handlers
                         Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
                     }
                     Tracking.CheckRoundEnd();
-                }catch(Exception e)
+                }
+                catch(Exception e)
                 {
                     Log.Error(e);
                 }
@@ -64,9 +65,10 @@ namespace Subclass.Handlers
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
-            object afkComp = ev.Player.GameObject.GetComponent("AFKComponent");
+			if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player, true);
+			object afkComp = ev.Player.GameObject.GetComponent("AFKComponent");
             if (afkComp != null)
-			{
+            {
                 if (afkComp.GetType().GetMember("PlayerToReplace").Length > 0)
                 {
                     EPlayer p = (EPlayer)((FieldInfo)afkComp.GetType().GetMember("PlayerToReplace")[0]).GetValue(afkComp);
@@ -85,35 +87,6 @@ namespace Subclass.Handlers
                     }
                 }
             }
-
-            ev.Player.Scale = new Vector3(1, 1, 1);
-            Tracking.RemoveZombie(ev.Player);
-            Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
-            {
-                try
-                {
-                    Tracking.QueuedCassieMessages.Clear();
-
-
-                    if (Subclass.Instance.Scp035Enabled)
-                    {
-                        EPlayer scp035 = (EPlayer) Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
-                        Tracking.RemoveAndAddRoles(ev.Player, false, scp035?.Id == ev.Player.Id);
-                    }
-                    Tracking.RemoveAndAddRoles(ev.Player, false, false);
-
-                    foreach (string message in Tracking.QueuedCassieMessages)
-                    {
-                        Cassie.Message(message, true, false);
-                        Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e);
-                }
-                Tracking.CheckRoundEnd();
-            });
         }
 
         public void OnInteractingDoor(InteractingDoorEventArgs ev)
@@ -287,11 +260,29 @@ namespace Subclass.Handlers
             });
         }
 
+        public void OnSpawningRagdoll(SpawningRagdollEventArgs ev)
+        {
+            Timing.CallDelayed(0.1f, () => 
+            {
+                foreach(Ragdoll doll in UnityEngine.Object.FindObjectsOfType<Ragdoll>())
+				{
+                    if (doll.owner.PlayerId == ev.PlayerId)
+					{
+                        if (Tracking.GetPreviousRole(ev.Owner) != null && !Tracking.RagdollRoles.ContainsKey(doll.netId))
+                        {
+                            Tracking.RagdollRoles.Add(doll.netId, (RoleType)Tracking.GetPreviousRole(ev.Owner));
+                            break;
+                        }
+					}
+				}
+			});
+        }
+
         //public void OnDied(DiedEventArgs ev)
         //{
-            
+
         //}
-        
+
         public void OnEscaping(EscapingEventArgs ev)
         {
             ev.Player.Scale = new Vector3(1, 1, 1);

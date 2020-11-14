@@ -40,6 +40,7 @@ namespace Subclass.Handlers
 
         public void OnRoundEnded(RoundEndedEventArgs ev)
         {
+            // I may just consider using reflection and just loop over all members and clear them if I can.
             Tracking.PlayersWithSubclasses.Clear();
             Tracking.Cooldowns.Clear();
             Tracking.FriendlyFired.Clear();
@@ -54,6 +55,14 @@ namespace Subclass.Handlers
             Tracking.SubClassesSpawned.Clear();
             Tracking.PreviousSubclasses.Clear();
             Tracking.PreviousBadges.Clear();
+            Tracking.RagdollRoles.Clear();
+            Tracking.AbilityUses.Clear();
+            Tracking.PlayersInvisibleByCommand.Clear();
+            Tracking.PlayersVenting.Clear();
+            Tracking.NumSpawnWaves.Clear();
+            Tracking.SpawnWaveSpawns.Clear();
+            Tracking.ClassesGiven.Clear();
+            Tracking.DontGiveClasses.Clear();
             API.EnableAllClasses();
         }
 

@@ -99,6 +99,7 @@ namespace Subclass
             Player.Interacted += player.OnInteracted;
             Player.UsingMedicalItem += player.OnUsingMedicalItem;
             Player.EnteringPocketDimension += player.OnEnteringPocketDimension;
+            Player.SpawningRagdoll += player.OnSpawningRagdoll;
 
             server = new Handlers.Server();
             Server.RoundStarted += server.OnRoundStarted;
@@ -128,6 +129,7 @@ namespace Subclass
             Player.Interacted -= player.OnInteracted;
             Player.UsingMedicalItem -= player.OnUsingMedicalItem;
             Player.EnteringPocketDimension -= player.OnEnteringPocketDimension;
+            Player.SpawningRagdoll -= player.OnSpawningRagdoll;
             player = null;
 
             Server.RoundStarted -= server.OnRoundStarted;
