@@ -16,7 +16,7 @@ namespace Subclass
         [Description("Makes chance to get classes additive instead of individual.")]
         public bool AdditiveChance { get; set; } = false;
 
-        [Description("The seperator for spawn parameter arguments. Set this to (a) character(s) that are unique in class names, team names, etc.")]
+        [Description("The separator for spawn parameter arguments. Set this to (a) character(s) that are unique in class names, team names, etc.")]
         public string SpawnParameterSeparator { get; set; } = "_";
 
         [Description("The default time the got class broadcast lasts, still can be overridden by specific classes.")]
