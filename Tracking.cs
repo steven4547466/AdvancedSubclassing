@@ -933,7 +933,7 @@ namespace Subclass
 		public static bool EvaluateSpawnParameters(SubClass subClass)
 		{
 			List<string> evaluated = new List<string>();
-			string seperator = Subclass.Instance.Config.SpawnParameterSeperator;
+			string seperator = Subclass.Instance.Config.SpawnParameterSeparator;
 			foreach (var param in subClass.SpawnParameters)
 			{
 				if (evaluated.Contains(param.Key)) continue;

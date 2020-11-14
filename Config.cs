@@ -17,7 +17,7 @@ namespace Subclass
         public bool AdditiveChance { get; set; } = false;
 
         [Description("The seperator for spawn parameter arguments. Set this to (a) character(s) that are unique in class names, team names, etc.")]
-        public string SpawnParameterSeperator { get; set; } = "_";
+        public string SpawnParameterSeparator { get; set; } = "_";
 
         [Description("The default time the got class broadcast lasts, still can be overridden by specific classes.")]
         public float GlobalBroadcastTime { get; set; } = 5f;
