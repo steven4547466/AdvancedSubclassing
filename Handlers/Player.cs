@@ -296,7 +296,7 @@ namespace Subclass.Handlers
                     return;
                 }
             }
-            Timing.CallDelayed(0.05f, () => {
+            Timing.CallDelayed(0.1f, () => {
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
                     if (!cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0];

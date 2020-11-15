@@ -101,7 +101,7 @@ namespace Subclass
 							(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
 						{
 							Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-							AddClass(player, subClass, is035, is035 || escaped);
+							AddClass(player, subClass, is035, is035 || escaped, escaped);
 							break;
 						}
 						else
@@ -133,7 +133,7 @@ namespace Subclass
 							(possibity.Key.EndsRoundWith == "RIP" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
 						{
 							Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
-							AddClass(player, possibity.Key, is035, is035 || escaped);
+							AddClass(player, possibity.Key, is035, is035 || escaped, escaped);
 							break;
 						}
 						else
@@ -175,7 +175,7 @@ namespace Subclass
 					(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-					AddClass(player, subClass, is035, is035 || escaped);
+					AddClass(player, subClass, is035, is035 || escaped, escaped);
 					return true;
 				}
 			}
@@ -209,14 +209,14 @@ namespace Subclass
 					(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
-					AddClass(player, subClass, is035, is035 || escaped);
+					AddClass(player, subClass, is035, is035 || escaped, escaped);
 					return true;
 				}
 			}
 			return false;
 		}
 
-		public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false)
+		public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false, bool escaped = false)
 		{
 			if (is035)
 			{
@@ -277,7 +277,7 @@ namespace Subclass
 					player.SetRole(subClass.SpawnsAs, true);
 				}
 
-				if (!lite && subClass.SpawnItems.Count != 0)
+				if ((!lite || escaped) && subClass.SpawnItems.Count != 0)
 				{
 					player.Inventory.items.Clear();
 					foreach (var item in subClass.SpawnItems)
@@ -294,9 +294,9 @@ namespace Subclass
 					}
 				}
 				if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
-				if (!lite && subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
+				if ((!lite || escaped) && subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
 				if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
-				if (!lite && subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
+				if ((!lite || escaped) && subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
 
 				Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
 
@@ -331,17 +331,17 @@ namespace Subclass
 			}
 			if (subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
 
-			if (!lite && subClass.SpawnAmmo[AmmoType.Nato556] != -1)
+			if ((!lite || escaped) && subClass.SpawnAmmo[AmmoType.Nato556] != -1)
 			{
 				player.Ammo[(int)AmmoType.Nato556] = (uint)subClass.SpawnAmmo[AmmoType.Nato556];
 			}
 
-			if (!lite && subClass.SpawnAmmo[AmmoType.Nato762] != -1)
+			if ((!lite || escaped) && subClass.SpawnAmmo[AmmoType.Nato762] != -1)
 			{
 				player.Ammo[(int)AmmoType.Nato762] = (uint)subClass.SpawnAmmo[AmmoType.Nato762];
 			}
 
-			if (!lite && subClass.SpawnAmmo[AmmoType.Nato9] != -1)
+			if ((!lite || escaped) && subClass.SpawnAmmo[AmmoType.Nato9] != -1)
 			{
 				player.Ammo[(int)AmmoType.Nato9] = (uint)subClass.SpawnAmmo[AmmoType.Nato9];
 			}
@@ -399,7 +399,7 @@ namespace Subclass
 				});
 			}
 
-			if (!lite)
+			if ((!lite || escaped))
 			{
 				foreach (var cooldown in subClass.InitialAbilityCooldowns)
 				{
@@ -422,7 +422,7 @@ namespace Subclass
 				}
 			}
 
-			if (!lite && subClass.OnSpawnEffects.Count != 0)
+			if ((!lite || escaped) && subClass.OnSpawnEffects.Count != 0)
 			{
 				Timing.CallDelayed(0.1f, () =>
 				{
@@ -456,7 +456,7 @@ namespace Subclass
 				Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
 			}
 
-			if (!lite && subClass.SpawnLocations[spawnIndex] != "Unknown")
+			if ((!lite || escaped) && subClass.SpawnLocations[spawnIndex] != "Unknown")
 			{
 				List<Vector3> spawnLocations = new List<Vector3>();
 				if (subClass.SpawnLocations[spawnIndex] == "Lcz173Armory")
