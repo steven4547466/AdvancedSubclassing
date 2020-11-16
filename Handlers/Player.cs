@@ -26,6 +26,8 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
+            bool wasLockedBefore = Round.IsLocked;
+            Round.IsLocked = true;
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 ev.Player.Scale = new Vector3(1, 1, 1);
@@ -60,12 +62,12 @@ namespace Subclass.Handlers
                 {
                     Log.Error(e);
                 }
+                Round.IsLocked = wasLockedBefore;
             });
         }
 
         public void OnChangingRole(ChangingRoleEventArgs ev)
         {
-			if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player)) Tracking.RemoveAndAddRoles(ev.Player, true);
 			object afkComp = ev.Player.GameObject.GetComponent("AFKComponent");
             if (afkComp != null)
             {
@@ -285,6 +287,8 @@ namespace Subclass.Handlers
 
         public void OnEscaping(EscapingEventArgs ev)
         {
+            bool wasLockedBefore = Round.IsLocked;
+            Round.IsLocked = true;
             ev.Player.Scale = new Vector3(1, 1, 1);
             bool cuffed = ev.Player.IsCuffed;
             if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
@@ -296,13 +300,15 @@ namespace Subclass.Handlers
                     return;
                 }
             }
-            Timing.CallDelayed(0.1f, () => {
+            Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () => {
+                Log.Info(Tracking.PlayersWithSubclasses.ContainsKey(ev.Player));
                 if (Tracking.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
                     if (!cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[0];
                     else if (cuffed && Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1] != RoleType.None) ev.Player.Role = Tracking.PlayersWithSubclasses[ev.Player].EscapesAs[1];
                 }
                 Tracking.RemoveAndAddRoles(ev.Player, false, false, true);
+                Round.IsLocked = wasLockedBefore;
             });
         }
 

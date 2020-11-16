@@ -272,7 +272,7 @@ namespace Subclass
 				if (subClass.StringOptions.ContainsKey("CassieAnnouncement") &&
 					!QueuedCassieMessages.Contains(subClass.StringOptions["CassieAnnouncement"])) QueuedCassieMessages.Add(subClass.StringOptions["CassieAnnouncement"]);
 
-				if (subClass.SpawnsAs != RoleType.None)
+				if ((!lite || escaped) && subClass.SpawnsAs != RoleType.None)
 				{
 					player.SetRole(subClass.SpawnsAs, true);
 				}
