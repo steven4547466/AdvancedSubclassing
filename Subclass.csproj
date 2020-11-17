@@ -115,6 +115,8 @@
     <Compile Include="AbilityCommands\Utils.cs" />
     <Compile Include="AbilityCommands\Vent.cs" />
     <Compile Include="API.cs" />
+    <Compile Include="Commands\Disable.cs" />
+    <Compile Include="Commands\Enable.cs" />
     <Compile Include="Commands\GiveSubclass.cs" />
     <Compile Include="Commands\Reload.cs" />
     <Compile Include="Config.cs" />

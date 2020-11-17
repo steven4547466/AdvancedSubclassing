@@ -112,7 +112,11 @@ namespace Subclass.Managers
                         {
                             boolOptions.Add((string)item.Key, bool.Parse((string)item.Value));
                         }
-                        if (!boolOptions["Enabled"]) continue;
+                        if (!boolOptions["Enabled"])
+                        {
+                            Log.Debug($"Class named {(string)obj["name"]} not loaded. Enabled is set to false", Subclass.Instance.Config.Debug);
+                            continue;
+                        }
 
                         Log.Debug($"Attempting to load ff rules for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
                         List<string> ffRules = obj.ContainsKey("advanced_ff_rules") ? ((IEnumerable<object>)obj["advanced_ff_rules"]).Cast<string>().ToList() : null;
@@ -293,6 +297,10 @@ namespace Subclass.Managers
                     {
                         Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}");
                     }
+                    catch (Exception e)
+					{
+                        Log.Error($"Class with path: {path} could not be loaded. {e}");
+					}
                 }
 
                 Log.Info("Classes loaded successfully!");
