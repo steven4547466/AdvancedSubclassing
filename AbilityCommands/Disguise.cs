@@ -91,7 +91,6 @@ namespace Subclass.AbilityCommands
             }
             Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
             RoleType trueRole = player.Role;
-            bool roundWasLockedBefore = Round.IsLocked;
             Round.IsLocked = true;
             player.SetRole(role, true);
             Tracking.AddCooldown(player, AbilityType.Disguise);
@@ -100,7 +99,7 @@ namespace Subclass.AbilityCommands
             {
                 Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
                 player.SetRole(trueRole, true);
-                Round.IsLocked = roundWasLockedBefore;
+                Round.IsLocked = false;
             });
             response = "";
             return true;

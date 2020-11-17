@@ -325,9 +325,12 @@ namespace Subclass
 			if (subClass.Abilities.Contains(AbilityType.Disable173Stop)) Scp173.TurnedPlayers.Add(player);
 			if (subClass.Abilities.Contains(AbilityType.Scp939Vision))
 			{
-				Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
-				visuals.Intensity = 2;
-				player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
+				Timing.CallDelayed(0.3f, () =>
+				{
+					Visuals939 visuals = player.ReferenceHub.playerEffectsController.GetEffect<Visuals939>();
+					visuals.Intensity = 3;
+					player.ReferenceHub.playerEffectsController.EnableEffect(visuals);
+				});
 			}
 			if (subClass.Abilities.Contains(AbilityType.NoArmorDecay)) player.ReferenceHub.playerStats.artificialHpDecay = 0f;
 

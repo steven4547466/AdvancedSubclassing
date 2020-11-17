@@ -27,8 +27,8 @@ namespace Subclass.MonoBehaviours
             {
                 if (Vector3.Distance(base.transform.position, base.GetComponent<Escape>().worldPosition) < (Escape.radius))
                 {
-                    if (!player.IsCuffed && EscapesAsNotCuffed != RoleType.None) player.SetRole(EscapesAsNotCuffed);
-                    else if(player.IsCuffed && EscapesAsCuffed != RoleType.None) player.SetRole(EscapesAsCuffed);
+                    if (!player.IsCuffed && EscapesAsNotCuffed != RoleType.None) player.SetRole(EscapesAsNotCuffed, false, true);
+                    else if(player.IsCuffed && EscapesAsCuffed != RoleType.None) player.SetRole(EscapesAsCuffed, false, true);
                 }
             }
         }
