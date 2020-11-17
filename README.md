@@ -15,3 +15,6 @@ Here's a small example of what's possible: https://www.youtube.com/watch?v=tMJ22
 
 # Development Boards:
 As of September 9th, 2020, I will start using a [GitKraken Board](https://app.gitkraken.com/glo/board/X2TFPCQxbQAR8KyS) as a roadmap and tracker. Stuff before that date is not tracked there.
+
+# 939 thing because I know it'll get asked
+939 visuals don't make other players go invisible anymore when you aren't 939, I'm going to dig through the base game code to see if I can do anything about it, but I'm not sure if this is something I can fix. If I can't the 939 visuals ability will be maked obsolete.
