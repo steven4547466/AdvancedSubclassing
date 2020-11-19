@@ -93,12 +93,20 @@ namespace Subclass.AbilityCommands
             RoleType trueRole = player.Role;
             Round.IsLocked = true;
             player.SetRole(role, true);
+            if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == subClass.StringOptions["Badge"])
+                player.RankName = null;
+            if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == subClass.StringOptions["BadgeColor"])
+                player.RankColor = null;
             Tracking.AddCooldown(player, AbilityType.Disguise);
             Tracking.UseAbility(player, AbilityType.Disguise, subClass);
             Timing.CallDelayed(Tracking.PlayersWithSubclasses[player].FloatOptions["DisguiseDuration"], () =>
             {
                 Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
                 player.SetRole(trueRole, true);
+                if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == null)
+                    player.RankName = subClass.StringOptions["Badge"];
+                if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == null)
+                    player.RankColor = subClass.StringOptions["BadgeColor"];
                 Round.IsLocked = false;
             });
             response = "";
