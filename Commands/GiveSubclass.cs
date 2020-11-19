@@ -15,6 +15,8 @@ namespace Subclass.Commands
 
         public string Description { get; } = "Gives a player a subclass";
 
+        Random rnd = new Random();
+
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (sender is PlayerCommandSender player)
@@ -28,34 +30,28 @@ namespace Subclass.Commands
 
                 if (arguments.Count == 0)
                 {
-                    response = "Command syntax should be subclass (player id) [class].";
+                    response = "Command syntax should be subclass (player id/all) [class].";
                     return false;
                 }
 
                 try
                 {
-                    if(Player.Get(Int32.Parse(arguments.Array[arguments.Offset])) != null)
+                    if(Player.Get(int.Parse(arguments.Array[arguments.Offset])) != null)
                     {
-                        Player player1 = Player.Get(Int32.Parse(arguments.Array[arguments.Offset]));
-                        if (!Subclass.Instance.Classes.ContainsKey(String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))))
+                        Player player1 = Player.Get(int.Parse(arguments.Array[arguments.Offset]));
+                        if (!Subclass.Instance.Classes.ContainsKey(string.Join(" ", arguments.Array.Segment(arguments.Offset + 1))))
                         {
                             response = "Class not found.";
                             return false;
                         }
                         else
                         {
-                            if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))].AffectsRoles.Contains(player1.Role))
-                            {
-                                response = "They are not the proper role for this class.";
-                                return false;
-                            }
-                            else
-                            {
-                                Tracking.RemoveAndAddRoles(player1, true);
-                                Tracking.AddClass(player1, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset + 1))]);
-                                response = "Success.";
-                                return true;
-                            }
+                            SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset + 1))];
+                            if (!sc.AffectsRoles.Contains(player1.Role)) player1.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
+                            Tracking.RemoveAndAddRoles(player1, true);
+                            Tracking.AddClass(player1, sc);
+                            response = "Success.";
+                            return true;
                         }
                     }
                     else
@@ -66,22 +62,40 @@ namespace Subclass.Commands
                 }
                 catch
                 {
-                    if (!Subclass.Instance.Classes.ContainsKey(String.Join(" ", arguments.Array.Segment(arguments.Offset))))
-                    {
-                        response = "Class not found.";
-                        return false;
-                    }
-                    else
-                    {
-                        if (!Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))].AffectsRoles.Contains(p.Role))
+                    if (arguments.Array[arguments.Offset].ToLower() != "all")
+					{
+                        if (!Subclass.Instance.Classes.ContainsKey(string.Join(" ", arguments.Array.Segment(arguments.Offset))))
                         {
-                            response = "You are not the proper role for this class.";
+                            response = "Class not found.";
                             return false;
                         }
                         else
                         {
+                            SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset))];
+                            if (!sc.AffectsRoles.Contains(p.Role)) p.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
                             Tracking.RemoveAndAddRoles(p, true);
-                            Tracking.AddClass(p, Subclass.Instance.Classes[String.Join(" ", arguments.Array.Segment(arguments.Offset))]);
+                            Tracking.AddClass(p, sc);
+                            response = "Success.";
+                            return true;
+                        }
+                    }
+                    else
+					{
+                        if (!Subclass.Instance.Classes.ContainsKey(string.Join(" ", arguments.Array.Segment(arguments.Offset + 1))))
+                        {
+                            response = "Class not found.";
+                            return false;
+                        }
+                        else
+						{
+                            SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset + 1))];
+                            foreach(Player p1 in Player.List)
+							{
+                                if (p1.Role == RoleType.Spectator) continue;
+                                if (!sc.AffectsRoles.Contains(p1.Role)) p1.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
+                                Tracking.RemoveAndAddRoles(p1, true);
+                                Tracking.AddClass(p1, sc);
+                            }
                             response = "Success.";
                             return true;
                         }
