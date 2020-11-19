@@ -89,24 +89,48 @@ namespace Subclass.AbilityCommands
                     role = RoleType.Tutorial;
                     break;
             }
-            Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
-            RoleType trueRole = player.Role;
+
             Round.IsLocked = true;
+
+            Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+
+            float health = player.Health;
+            float armor = player.AdrenalineHealth;
+            int maxHealth = player.MaxHealth;
+            int maxArmor = player.MaxAdrenalineHealth;
+
+            RoleType trueRole = player.Role;
+
             player.SetRole(role, true);
+            player.Health = health;
+            player.AdrenalineHealth = armor;
+
             if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == subClass.StringOptions["Badge"])
                 player.RankName = null;
             if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == subClass.StringOptions["BadgeColor"])
                 player.RankColor = null;
+
             Tracking.AddCooldown(player, AbilityType.Disguise);
             Tracking.UseAbility(player, AbilityType.Disguise, subClass);
+
             Timing.CallDelayed(Tracking.PlayersWithSubclasses[player].FloatOptions["DisguiseDuration"], () =>
             {
                 Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+
+                float curHealth = player.Health;
+                float curArmor = player.AdrenalineHealth;
+
                 player.SetRole(trueRole, true);
+                player.MaxHealth = maxHealth;
+                player.MaxAdrenalineHealth = maxArmor;
+                player.Health = curHealth;
+                player.AdrenalineHealth = curArmor;
+
                 if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == null)
                     player.RankName = subClass.StringOptions["Badge"];
                 if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == null)
                     player.RankColor = subClass.StringOptions["BadgeColor"];
+
                 Round.IsLocked = false;
             });
             response = "";
