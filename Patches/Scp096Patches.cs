@@ -39,72 +39,38 @@ namespace Subclass.Patches
     //    }
     //}
 
-    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.OnUpdate))]
+    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision))]
     static class Scp096OnUpdatePatch
     {
         public static bool Prefix(PlayableScps.Scp096 __instance)
         {
-            if (((PlayableScp)__instance).isLocalPlayer)
+            if (__instance._flash.Enabled)
             {
-                __instance._abilityManager.RunInputs();
-                CursorManager.ChangeMouseVisibility(LockReason.Scp096, (__instance.Charging || (__instance.TryingNotToCry || __instance.PryingGate)) ? MouseVisibilityType.InvisibleButCantMove : MouseVisibilityType.Invisible, false);
-                if (!__instance.PlayerState.IsOffensive() && !__instance._visionTargets.IsEmpty<TargetComponent>())
-                {
-                    foreach (TargetComponent component in __instance._visionTargets)
-                    {
-                        if (component != null)
-                        {
-                            component.IsTarget = false;
-                        }
-                    }
-                    __instance._visionTargets.Clear();
-                }
-                if (__instance.TryingNotToCry && (__instance.Hub.fpc.PlySpeed != Vector2.zero))
-                {
-                    Scp096InputMessage message = new Scp096InputMessage
-                    {
-                        InputState = Scp096InputState.None
-                    };
-                    NetworkClient.Send<Scp096InputMessage>(message, 0);
-                }
+                return false;
             }
-            if (NetworkServer.active)
+            Vector3 vector = __instance.Hub.transform.TransformPoint(PlayableScps.Scp096._headOffset);
+            foreach (KeyValuePair<GameObject, ReferenceHub> keyValuePair in ReferenceHub.GetAllHubs())
             {
-                __instance.UpdateShield();
-                __instance.UpdateEnrage();
-                __instance.UpdateCharging();
-                __instance.UpdatePry();
-                foreach (GameObject obj2 in PlayerManager.players)
+                ReferenceHub value = keyValuePair.Value;
+                Player p = Player.Get(value);
+                if (p != null && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p) &&
+                    TrackingAndMethods.PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger)) 
+                        continue;
+                CharacterClassManager characterClassManager = value.characterClassManager;
+                if (characterClassManager.CurClass != RoleType.Spectator && !(value == __instance.Hub) && !characterClassManager.IsAnyScp() 
+                    && Vector3.Dot((value.PlayerCameraReference.position - vector).normalized, __instance.Hub.PlayerCameraReference.forward) >= 0.1f)
                 {
-                    CharacterClassManager manager = obj2.GetComponent<CharacterClassManager>();
-                    if (manager == null || ((manager.CurClass != RoleType.Spectator) && !manager.IsAnyScp()))
+                    VisionInformation visionInformation = VisionInformation.GetVisionInformation(value, vector, -0.1f, 60f, true, true, __instance.Hub.localCurrentRoomEffects);
+                    if (visionInformation.IsLooking)
                     {
-                        Player player = Player.Get(obj2);
-                        if (player != null && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) &&
-                            TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disable096Trigger)) continue;
-                        VisionInformation visionInformation = __instance.GetVisionInformation(obj2);
-                        if (visionInformation.Looking)
+                        float delay = visionInformation.LookingAmount / 0.25f * (visionInformation.Distance * 0.1f);
+                        if (!__instance.Calming)
                         {
-                            __instance.ParseVisionInformation(visionInformation);
+                            __instance.AddTarget(value.gameObject);
                         }
-                    }
-                }
-                foreach (KeyValuePair<GameObject, Door> pair in PlayableScps.Scp096.takenDoors)
-                {
-                    if (pair.Value.isOpen)
-                    {
-                        PlayableScps.Scp096 scp = PlayableScps.Scp096.Get096FromPlayerObject(pair.Key);
-                        if (scp != null)
+                        if (__instance.CanEnrage && value.gameObject != null)
                         {
-                            if (pair.Key == null)
-                            {
-                                PlayableScps.Scp096.takenDoors.Remove(pair.Key);
-                            }
-                            else
-                            {
-                                scp.ResetState();
-                            }
-                            break;
+                            __instance.PreWindup(delay);
                         }
                     }
                 }

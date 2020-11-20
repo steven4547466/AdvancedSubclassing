@@ -221,7 +221,7 @@ namespace Subclass.Handlers
                 grenade.fuseDuration = TrackingAndMethods.PlayersWithSubclasses[ev.Target].FloatOptions.ContainsKey("ExplodeOnDeathFuseTimer") ?
                     TrackingAndMethods.PlayersWithSubclasses[ev.Target].FloatOptions["ExplodeOnDeathFuseTimer"] : 2f;
                 grenade.FullInitData(grenadeManager, ev.Target.Position, Quaternion.Euler(grenade.throwStartAngle),
-                    grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+                    grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity, ev.Target.Team);
                 NetworkServer.Spawn(grenade.gameObject);
             }
 

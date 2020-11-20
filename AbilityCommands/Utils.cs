@@ -111,7 +111,7 @@ namespace Subclass.AbilityCommands
             if (type == ItemType.GrenadeFlash) grenade.fuseDuration = subClass.FloatOptions.ContainsKey("FlashOnCommandFuseTimer") ? subClass.FloatOptions["FlashOnCommandFuseTimer"] : 0.3f;
             else grenade.fuseDuration = subClass.FloatOptions.ContainsKey("GrenadeOnCommandFuseTimer") ? subClass.FloatOptions["GrenadeOnCommandFuseTimer"] : 0.3f;
             grenade.FullInitData(grenadeManager, player.Position, Quaternion.Euler(grenade.throwStartAngle),
-                grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity);
+                grenade.throwLinearVelocityOffset, grenade.throwAngularVelocity, player.Team);
             NetworkServer.Spawn(grenade.gameObject);
         }
     }
