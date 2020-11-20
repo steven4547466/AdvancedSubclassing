@@ -24,26 +24,26 @@ namespace Subclass.AbilityCommands
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             Log.Debug($"Player {player.Nickname} is attempting to noclip", Subclass.Instance.Config.Debug);
-            if (Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.NoClip))
+            if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.NoClip))
             {
-                SubClass subClass = Tracking.PlayersWithSubclasses[player];
-                if (!Tracking.CanUseAbility(player, AbilityType.NoClip, subClass))
+                SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+                if (!TrackingAndMethods.CanUseAbility(player, AbilityType.NoClip, subClass))
                 {
-                    Tracking.DisplayCantUseAbility(player, AbilityType.NoClip, subClass, "noclip");
+                    TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.NoClip, subClass, "noclip");
                     response = "";
                     return true;
                 }
-                if (Tracking.OnCooldown(player, AbilityType.NoClip, subClass))
+                if (TrackingAndMethods.OnCooldown(player, AbilityType.NoClip, subClass))
                 {
                     Log.Debug($"Player {player.Nickname} failed to noclip - cooldown", Subclass.Instance.Config.Debug);
-                    Tracking.DisplayCooldown(player, AbilityType.NoClip, subClass, "noclip", Time.time);
+                    TrackingAndMethods.DisplayCooldown(player, AbilityType.NoClip, subClass, "noclip", Time.time);
                     response = "";
                     return true;
                 }
                 bool previous = player.NoClipEnabled;
                 player.NoClipEnabled = !player.NoClipEnabled;
-                Tracking.AddCooldown(player, AbilityType.NoClip);
-                Tracking.UseAbility(player, AbilityType.NoClip, subClass);
+                TrackingAndMethods.AddCooldown(player, AbilityType.NoClip);
+                TrackingAndMethods.UseAbility(player, AbilityType.NoClip, subClass);
                 if (subClass.FloatOptions.ContainsKey("NoClipTime"))
                 {
                     Timing.CallDelayed(subClass.FloatOptions["NoClipTime"], () =>

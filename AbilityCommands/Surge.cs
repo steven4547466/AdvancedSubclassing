@@ -22,24 +22,24 @@ namespace Subclass.AbilityCommands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.PowerSurge))
+            if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.PowerSurge))
             {
                 Log.Debug($"Player {player.Nickname} could not use power surge", Subclass.Instance.Config.Debug);
                 response = "";
                 return true;
             }
-            SubClass subClass = Tracking.PlayersWithSubclasses[player];
-            if (Tracking.OnCooldown(player, AbilityType.PowerSurge, subClass))
+            SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+            if (TrackingAndMethods.OnCooldown(player, AbilityType.PowerSurge, subClass))
             {
                 Log.Debug($"Player {player.Nickname} failed to power surge", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, AbilityType.PowerSurge, subClass, "power surge", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, AbilityType.PowerSurge, subClass, "power surge", Time.time);
                 response = "";
                 return true;
             }
 
-            if (!Tracking.CanUseAbility(player, AbilityType.PowerSurge, subClass))
+            if (!TrackingAndMethods.CanUseAbility(player, AbilityType.PowerSurge, subClass))
             {
-                Tracking.DisplayCantUseAbility(player, AbilityType.PowerSurge, subClass, "power surge");
+                TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.PowerSurge, subClass, "power surge");
                 response = "";
                 return true;
             }
@@ -53,8 +53,8 @@ namespace Subclass.AbilityCommands
                 }
             }
 
-            Tracking.AddCooldown(player, AbilityType.PowerSurge);
-            Tracking.UseAbility(player, AbilityType.PowerSurge, subClass);
+            TrackingAndMethods.AddCooldown(player, AbilityType.PowerSurge);
+            TrackingAndMethods.UseAbility(player, AbilityType.PowerSurge, subClass);
             response = "";
             return true;
         }

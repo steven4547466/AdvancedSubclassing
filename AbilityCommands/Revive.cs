@@ -22,12 +22,12 @@ namespace Subclass.AbilityCommands
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             Log.Debug($"Player {player.Nickname} is attempting to revive", Subclass.Instance.Config.Debug);
-            if (Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Revive))
+            if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Revive))
             {
-                SubClass subClass = Tracking.PlayersWithSubclasses[player];
-                if (!Tracking.CanUseAbility(player, AbilityType.Revive, subClass))
+                SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+                if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Revive, subClass))
                 {
-                    Tracking.DisplayCantUseAbility(player,AbilityType.Revive, subClass, "revive");
+                    TrackingAndMethods.DisplayCantUseAbility(player,AbilityType.Revive, subClass, "revive");
                     response = "";
                     return false;
                 }

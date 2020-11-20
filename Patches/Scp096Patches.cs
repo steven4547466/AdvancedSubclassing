@@ -80,8 +80,8 @@ namespace Subclass.Patches
                     if (manager == null || ((manager.CurClass != RoleType.Spectator) && !manager.IsAnyScp()))
                     {
                         Player player = Player.Get(obj2);
-                        if (player != null && Tracking.PlayersWithSubclasses.ContainsKey(player) &&
-                            Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disable096Trigger)) continue;
+                        if (player != null && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) &&
+                            TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disable096Trigger)) continue;
                         VisionInformation visionInformation = __instance.GetVisionInformation(obj2);
                         if (visionInformation.Looking)
                         {

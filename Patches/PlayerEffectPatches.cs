@@ -19,20 +19,20 @@ namespace Subclass.Patches
         {
             Player player = Player.Get(__instance.Hub);
             if (player == null) return true;
-            if (Tracking.PlayersVenting.Contains(player)) return false;
-            if (Tracking.PlayersInvisibleByCommand.Contains(player)) return false;
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
+            if (TrackingAndMethods.PlayersVenting.Contains(player)) return false;
+            if (TrackingAndMethods.PlayersInvisibleByCommand.Contains(player)) return false;
+            if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
             {
                 //Log.Debug($"Player {player.Nickname} does not have subclass or invibility", Subclass.Instance.Config.Debug);
                 return true;
             }
 
-            float cooldown = Tracking.PlayersWithSubclasses[player].AbilityCooldowns[AbilityType.InvisibleUntilInteract];
-            player.Broadcast((ushort)Mathf.Clamp(cooldown / 2, 0.5f, 3), Tracking.PlayersWithSubclasses[player].StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisibility").Replace("{seconds}", (cooldown).ToString()));
+            float cooldown = TrackingAndMethods.PlayersWithSubclasses[player].AbilityCooldowns[AbilityType.InvisibleUntilInteract];
+            player.Broadcast((ushort)Mathf.Clamp(cooldown / 2, 0.5f, 3), TrackingAndMethods.PlayersWithSubclasses[player].StringOptions["AbilityCooldownMessage"].Replace("{ability}", "invisibility").Replace("{seconds}", (cooldown).ToString()));
             Timing.CallDelayed(cooldown, () =>
             {
-                if (Tracking.PlayersWithSubclasses.ContainsKey(player) &&
-                Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
+                if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) &&
+                TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract))
                     player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
             });
             
@@ -49,7 +49,7 @@ namespace Subclass.Patches
             {
                 __instance.curTime += Time.deltaTime;
                 Player player = Player.Get(((PlayerEffect)__instance).Hub);
-                if (!(Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract)) && __instance.curTime > 15f)
+                if (!(TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.InvisibleUntilInteract)) && __instance.curTime > 15f)
                 {
                     ((PlayerEffect)__instance).ServerDisable();
                 }

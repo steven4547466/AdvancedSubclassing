@@ -28,7 +28,7 @@ namespace Subclass.Commands
                 response = "Reloaded";
 
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
-                Tracking.rolesForClass.Clear();
+                TrackingAndMethods.rolesForClass.Clear();
 
                 return true;
 
@@ -37,7 +37,7 @@ namespace Subclass.Commands
             {
                 response = "Reloaded";
                 Subclass.Instance.Classes = Subclass.Instance.GetClasses();
-                Tracking.rolesForClass.Clear();
+                TrackingAndMethods.rolesForClass.Clear();
 
                 return true;
             }

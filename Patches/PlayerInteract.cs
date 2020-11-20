@@ -16,8 +16,8 @@ namespace Subclass.Patches
             Player player = Player.Get(__instance._hub);
             if (player != null)
             {
-                if (Tracking.PlayersWithSubclasses.ContainsKey(player) && 
-                    Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.CantActivateFemurBreaker)) return false;
+                if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && 
+                    TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.CantActivateFemurBreaker)) return false;
             }
             return true;
         }

@@ -26,25 +26,25 @@ namespace Subclass.AbilityCommands
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             if ((player.Team != Team.MTF && player.Team != Team.CHI) ||
-                            !Tracking.PlayersWithSubclasses.ContainsKey(player) ||
-                            !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.BackupCommand))
+                            !TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) ||
+                            !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.BackupCommand))
             {
                 Log.Debug($"Player {player.Nickname} could not use the backup command", Subclass.Instance.Config.Debug);
                 response = "";
                 return true;
             }
-            SubClass subClass = Tracking.PlayersWithSubclasses[player];
-            if (Tracking.OnCooldown(player, AbilityType.BackupCommand, subClass))
+            SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+            if (TrackingAndMethods.OnCooldown(player, AbilityType.BackupCommand, subClass))
             {
                 Log.Debug($"Player {player.Nickname} failed to use the backup command", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, AbilityType.BackupCommand, subClass, "backup", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, AbilityType.BackupCommand, subClass, "backup", Time.time);
                 response = "";
                 return true;
             }
 
-            if (!Tracking.CanUseAbility(player, AbilityType.BackupCommand, subClass))
+            if (!TrackingAndMethods.CanUseAbility(player, AbilityType.BackupCommand, subClass))
             {
-                Tracking.DisplayCantUseAbility(player, AbilityType.BackupCommand, subClass, "backup");
+                TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.BackupCommand, subClass, "backup");
                 response = "";
                 return true;
             }
@@ -61,8 +61,8 @@ namespace Subclass.AbilityCommands
                 return true;
             }
 
-            Tracking.UseAbility(player, AbilityType.BackupCommand, subClass);
-            Tracking.AddCooldown(player, AbilityType.BackupCommand);
+            TrackingAndMethods.UseAbility(player, AbilityType.BackupCommand, subClass);
+            TrackingAndMethods.AddCooldown(player, AbilityType.BackupCommand);
 
             int spawns = Mathf.Clamp((int)(rnd.NextDouble() * ((max - min) + 1)) + min, 0, spectators.Count);
 

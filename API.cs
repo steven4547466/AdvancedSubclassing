@@ -23,17 +23,17 @@ namespace Subclass
             if (Subclass.Instance.Scp035Enabled) 
             {
                 Player scp035 = (Player) Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data").GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
-                Tracking.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035?.Id == p.Id, lite);
+                TrackingAndMethods.AddClass(p, subClass, Subclass.Instance.Scp035Enabled && scp035?.Id == p.Id, lite);
                 return true;
             }
-            Tracking.AddClass(p, subClass, false, lite);
+            TrackingAndMethods.AddClass(p, subClass, false, lite);
             return true;
         }
 
         public static bool RemoveClass(Player p)
         {
             if (!PlayerHasSubclass(p)) return false;
-            Tracking.RemoveAndAddRoles(p, true);
+            TrackingAndMethods.RemoveAndAddRoles(p, true);
             return true;
         }
 
@@ -105,59 +105,59 @@ namespace Subclass
 
         public static Dictionary<Player, SubClass> GetPlayersWithSubclasses()
         {
-            return Tracking.PlayersWithSubclasses.ToDictionary(x => x.Key, x => x.Value);
+            return TrackingAndMethods.PlayersWithSubclasses.ToDictionary(x => x.Key, x => x.Value);
         }
 
         public static SubClass GetPlayersSubclass(Player p)
 		{
             if (!PlayerHasSubclass(p)) return null;
-            return new SubClass(Tracking.PlayersWithSubclasses[p]);
+            return new SubClass(TrackingAndMethods.PlayersWithSubclasses[p]);
 		}
 
         public static bool PlayerHasSubclass(Player p)
         {
-            return Tracking.PlayersWithSubclasses.ContainsKey(p);
+            return TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p);
         }
 
         public static bool PlayerHasZombies(Player p)
         {
-            return Tracking.PlayersWithZombies.ContainsKey(p);
+            return TrackingAndMethods.PlayersWithZombies.ContainsKey(p);
         }
 
         public static bool PlayerHadZombies(Player p)
         {
-            return Tracking.PlayersThatHadZombies.ContainsKey(p);
+            return TrackingAndMethods.PlayersThatHadZombies.ContainsKey(p);
         }
 
         public static List<Player> PlayersZombies(Player p)
         {
-            if (PlayerHasZombies(p)) return new List<Player>(Tracking.PlayersWithZombies[p]);
+            if (PlayerHasZombies(p)) return new List<Player>(TrackingAndMethods.PlayersWithZombies[p]);
             return null;
         }
 
         public static List<Player> PlayersZombiesOld(Player p)
         {
-            if (PlayerHadZombies(p)) return new List<Player>(Tracking.PlayersThatHadZombies[p]);
+            if (PlayerHadZombies(p)) return new List<Player>(TrackingAndMethods.PlayersThatHadZombies[p]);
             return null;
         }
 
         public static List<Player> RevivedZombies()
         {
-            List<Player> zombies = Tracking.PlayersWithZombies.SelectMany(e => e.Value).ToList();
-            zombies.AddRange(Tracking.PlayersThatHadZombies.SelectMany(e => e.Value));
+            List<Player> zombies = TrackingAndMethods.PlayersWithZombies.SelectMany(e => e.Value).ToList();
+            zombies.AddRange(TrackingAndMethods.PlayersThatHadZombies.SelectMany(e => e.Value));
             return zombies;
         }
 
         public static bool AbilityOnCooldown(Player p, AbilityType ability)
         {
             if (!PlayerHasSubclass(p)) return false;
-            return Tracking.OnCooldown(p, ability, Tracking.PlayersWithSubclasses[p]);
+            return TrackingAndMethods.OnCooldown(p, ability, TrackingAndMethods.PlayersWithSubclasses[p]);
         }
 
         public static float TimeLeftOnCooldown(Player p, AbilityType ability)
         {
             if (!PlayerHasSubclass(p)) return 0;
-            return Tracking.TimeLeftOnCooldown(p, ability, Tracking.PlayersWithSubclasses[p], Time.time);
+            return TrackingAndMethods.TimeLeftOnCooldown(p, ability, TrackingAndMethods.PlayersWithSubclasses[p], Time.time);
         }
     }
 }

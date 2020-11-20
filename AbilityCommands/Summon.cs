@@ -24,24 +24,24 @@ namespace Subclass.AbilityCommands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Summon))
+            if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Summon))
             {
                 Log.Debug($"Player {player.Nickname} could not use summon", Subclass.Instance.Config.Debug);
                 response = "";
                 return true;
             }
-            SubClass subClass = Tracking.PlayersWithSubclasses[player];
-            if (Tracking.OnCooldown(player, AbilityType.Summon, subClass))
+            SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+            if (TrackingAndMethods.OnCooldown(player, AbilityType.Summon, subClass))
             {
                 Log.Debug($"Player {player.Nickname} failed to summon", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, AbilityType.Summon, subClass, "summon", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, AbilityType.Summon, subClass, "summon", Time.time);
                 response = "";
                 return true;
             }
 
-            if (!Tracking.CanUseAbility(player, AbilityType.Summon, subClass))
+            if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Summon, subClass))
             {
-                Tracking.DisplayCantUseAbility(player, AbilityType.Summon, subClass, "summon");
+                TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.Summon, subClass, "summon");
                 response = "";
                 return true;
             }
@@ -58,8 +58,8 @@ namespace Subclass.AbilityCommands
                 return true;
             }
 
-            Tracking.UseAbility(player, AbilityType.Summon, subClass);
-            Tracking.AddCooldown(player, AbilityType.Summon);
+            TrackingAndMethods.UseAbility(player, AbilityType.Summon, subClass);
+            TrackingAndMethods.AddCooldown(player, AbilityType.Summon);
 
             int spawns = Mathf.Clamp((int)(rnd.NextDouble() * ((max - min) + 1)) + min, 0, spectators.Count);
 
@@ -71,7 +71,7 @@ namespace Subclass.AbilityCommands
                 p.Role = RoleType.Scp0492;
                 p.IsFriendlyFireEnabled = true;
                 p.Position = player.Position + new Vector3(rnd.Next(-2, 2), 1, rnd.Next(-2, 2));
-                Tracking.AddZombie(player, p);
+                TrackingAndMethods.AddZombie(player, p);
             }
 
             response = "";

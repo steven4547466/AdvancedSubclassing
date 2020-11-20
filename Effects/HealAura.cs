@@ -56,7 +56,7 @@ namespace Subclass.Effects
 						if ((!AffectEnemies && p.Team != player.Team) || (p.Id != player.Id && !AffectAllies && p.Team == player.Team)) continue;
 						if (p.Id == player.Id && !AffectSelf) continue;
 						if (p.Health == p.MaxHealth) continue;
-						if (Tracking.PlayersWithSubclasses.ContainsKey(p) && Tracking.PlayersWithSubclasses[p].Abilities.Contains(AbilityType.CantHeal)) continue;
+						if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p) && TrackingAndMethods.PlayersWithSubclasses[p].Abilities.Contains(AbilityType.CantHeal)) continue;
 						if (p.Health + HealthPerTick < p.MaxHealth) p.Health += HealthPerTick;
 						else p.Health = p.MaxHealth;
 					}

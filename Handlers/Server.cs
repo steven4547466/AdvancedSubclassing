@@ -21,48 +21,48 @@ namespace Subclass.Handlers
         System.Random rnd = new System.Random();
         public void OnRoundStarted()
         {
-            Tracking.RoundStartedAt = Time.time;
+            TrackingAndMethods.RoundStartedAt = Time.time;
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 Log.Debug("Round started!", Subclass.Instance.Config.Debug);
                 foreach (EPlayer player in EPlayer.List)
                 {
-                    Tracking.MaybeAddRoles(player);
+                    TrackingAndMethods.MaybeAddRoles(player);
                 }
-                foreach(string message in Tracking.QueuedCassieMessages)
+                foreach(string message in TrackingAndMethods.QueuedCassieMessages)
                 {
                     Cassie.Message(message, true, false);
                     Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
                 }
-                Tracking.QueuedCassieMessages.Clear();
+                TrackingAndMethods.QueuedCassieMessages.Clear();
             });
         }
 
         public void OnRoundEnded(RoundEndedEventArgs ev)
         {
             // I may just consider using reflection and just loop over all members and clear them if I can.
-            Tracking.PlayersWithSubclasses.Clear();
-            Tracking.Cooldowns.Clear();
-            Tracking.FriendlyFired.Clear();
-            Tracking.PlayersThatBypassedTeslaGates.Clear();
-            Tracking.PreviousRoles.Clear();
-            Tracking.PlayersWithZombies.Clear();
-            Tracking.PlayersThatHadZombies.Clear();
-            Tracking.QueuedCassieMessages.Clear();
-            Tracking.NextSpawnWave.Clear();
-            Tracking.NextSpawnWaveGetsRole.Clear();
-            Tracking.PlayersThatJustGotAClass.Clear();
-            Tracking.SubClassesSpawned.Clear();
-            Tracking.PreviousSubclasses.Clear();
-            Tracking.PreviousBadges.Clear();
-            Tracking.RagdollRoles.Clear();
-            Tracking.AbilityUses.Clear();
-            Tracking.PlayersInvisibleByCommand.Clear();
-            Tracking.PlayersVenting.Clear();
-            Tracking.NumSpawnWaves.Clear();
-            Tracking.SpawnWaveSpawns.Clear();
-            Tracking.ClassesGiven.Clear();
-            Tracking.DontGiveClasses.Clear();
+            TrackingAndMethods.PlayersWithSubclasses.Clear();
+            TrackingAndMethods.Cooldowns.Clear();
+            TrackingAndMethods.FriendlyFired.Clear();
+            TrackingAndMethods.PlayersThatBypassedTeslaGates.Clear();
+            TrackingAndMethods.PreviousRoles.Clear();
+            TrackingAndMethods.PlayersWithZombies.Clear();
+            TrackingAndMethods.PlayersThatHadZombies.Clear();
+            TrackingAndMethods.QueuedCassieMessages.Clear();
+            TrackingAndMethods.NextSpawnWave.Clear();
+            TrackingAndMethods.NextSpawnWaveGetsRole.Clear();
+            TrackingAndMethods.PlayersThatJustGotAClass.Clear();
+            TrackingAndMethods.SubClassesSpawned.Clear();
+            TrackingAndMethods.PreviousSubclasses.Clear();
+            TrackingAndMethods.PreviousBadges.Clear();
+            TrackingAndMethods.RagdollRoles.Clear();
+            TrackingAndMethods.AbilityUses.Clear();
+            TrackingAndMethods.PlayersInvisibleByCommand.Clear();
+            TrackingAndMethods.PlayersVenting.Clear();
+            TrackingAndMethods.NumSpawnWaves.Clear();
+            TrackingAndMethods.SpawnWaveSpawns.Clear();
+            TrackingAndMethods.ClassesGiven.Clear();
+            TrackingAndMethods.DontGiveClasses.Clear();
             API.EnableAllClasses();
         }
 
@@ -70,28 +70,28 @@ namespace Subclass.Handlers
         {
             if (ev.Players.Count == 0 || !ev.IsAllowed) return;
             Team spawnedTeam = ev.NextKnownTeam == SpawnableTeamType.NineTailedFox ? Team.MTF : Team.CHI;
-            if (!Tracking.NumSpawnWaves.ContainsKey(spawnedTeam)) Tracking.NumSpawnWaves.Add(spawnedTeam, 0);
-            Tracking.NumSpawnWaves[spawnedTeam]++;
+            if (!TrackingAndMethods.NumSpawnWaves.ContainsKey(spawnedTeam)) TrackingAndMethods.NumSpawnWaves.Add(spawnedTeam, 0);
+            TrackingAndMethods.NumSpawnWaves[spawnedTeam]++;
             Timing.CallDelayed(5f, () => // Clear them after the wave spawns instead.
             {
-                Tracking.NextSpawnWave.Clear();
-                Tracking.NextSpawnWaveGetsRole.Clear();
-                Tracking.SpawnWaveSpawns.Clear();
+                TrackingAndMethods.NextSpawnWave.Clear();
+                TrackingAndMethods.NextSpawnWaveGetsRole.Clear();
+                TrackingAndMethods.SpawnWaveSpawns.Clear();
             });
             bool ntfSpawning = ev.NextKnownTeam == Respawning.SpawnableTeamType.NineTailedFox;
             if (!Subclass.Instance.Config.AdditiveChance)
             {
                 List<RoleType> hasRole = new List<RoleType>();
                 foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] &&
-                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
+                (!e.IntOptions.ContainsKey("MaxSpawnPerRound") || TrackingAndMethods.ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
                 (ntfSpawning ? (e.AffectsRoles.Contains(RoleType.NtfCadet) || e.AffectsRoles.Contains(RoleType.NtfCommander) || 
                 e.AffectsRoles.Contains(RoleType.NtfLieutenant)) : e.AffectsRoles.Contains(RoleType.ChaosInsurgency)) &&
                 ((e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.BoolOptions["OnlyAffectsSpawnWave"]) ||
                 (e.BoolOptions.ContainsKey("AffectsSpawnWave") && e.BoolOptions["AffectsSpawnWave"])) &&
                 (!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] && 
-                Tracking.GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? 
+                TrackingAndMethods.GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ? 
                 (Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"])) && 
-                Tracking.EvaluateSpawnParameters(e)))
+                TrackingAndMethods.EvaluateSpawnParameters(e)))
                 {
                     if ((ntfSpawning ? (subClass.AffectsRoles.Contains(RoleType.NtfCadet) ||
                     subClass.AffectsRoles.Contains(RoleType.NtfCommander) || subClass.AffectsRoles.Contains(RoleType.NtfLieutenant)) 
@@ -101,19 +101,19 @@ namespace Subclass.Handlers
                         {
                             if (!hasRole.Contains(RoleType.NtfCadet) && subClass.AffectsRoles.Contains(RoleType.NtfCadet))
                             {
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
+                                TrackingAndMethods.NextSpawnWaveGetsRole.Add(RoleType.NtfCadet, subClass);
                                 hasRole.Add(RoleType.NtfCadet);
                             }
 
                             if (!hasRole.Contains(RoleType.NtfLieutenant) && subClass.AffectsRoles.Contains(RoleType.NtfLieutenant))
                             {
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
+                                TrackingAndMethods.NextSpawnWaveGetsRole.Add(RoleType.NtfLieutenant, subClass);
                                 hasRole.Add(RoleType.NtfLieutenant);
                             }
 
                             if (!hasRole.Contains(RoleType.NtfCommander) && subClass.AffectsRoles.Contains(RoleType.NtfCommander))
                             {
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
+                                TrackingAndMethods.NextSpawnWaveGetsRole.Add(RoleType.NtfCommander, subClass);
                                 hasRole.Add(RoleType.NtfCommander);
                             }
 
@@ -123,7 +123,7 @@ namespace Subclass.Handlers
                         {
                             if (subClass.AffectsRoles.Contains(RoleType.ChaosInsurgency))
                             {
-                                Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
+                                TrackingAndMethods.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, subClass);
                                 break;
                             }
                         }
@@ -140,18 +140,18 @@ namespace Subclass.Handlers
                 if (!ntfSpawning)
                 {
                     foreach (var possibity in Subclass.Instance.ClassesAdditive[RoleType.ChaosInsurgency].Where(e => e.Key.BoolOptions["Enabled"] &&
-                    (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
+                    (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || TrackingAndMethods.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                     ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
                     (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"])) &&
                     (!e.Key.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.Key.BoolOptions["WaitForSpawnWaves"] &&
-                    Tracking.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
+                    TrackingAndMethods.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
                     (Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"])) && 
-                    Tracking.EvaluateSpawnParameters(e.Key)))
+                    TrackingAndMethods.EvaluateSpawnParameters(e.Key)))
                     {
                         Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                         if (num < possibity.Value)
                         {
-                            Tracking.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, possibity.Key);
+                            TrackingAndMethods.NextSpawnWaveGetsRole.Add(RoleType.ChaosInsurgency, possibity.Key);
                             break;
                         }
                         else
@@ -165,18 +165,18 @@ namespace Subclass.Handlers
                     foreach (RoleType role in roles)
                     {
                         foreach (var possibity in Subclass.Instance.ClassesAdditive[role].Where(e => e.Key.BoolOptions["Enabled"] &&
-                        (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || Tracking.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
+                        (!e.Key.IntOptions.ContainsKey("MaxSpawnPerRound") || TrackingAndMethods.ClassesSpawned(e.Key) < e.Key.IntOptions["MaxSpawnPerRound"]) &&
                         ((e.Key.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") && e.Key.BoolOptions["OnlyAffectsSpawnWave"]) || 
                         (e.Key.BoolOptions.ContainsKey("AffectsSpawnWave") && e.Key.BoolOptions["AffectsSpawnWave"])) &&
                         (!e.Key.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.Key.BoolOptions["WaitForSpawnWaves"] &&
-                        Tracking.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
+                        TrackingAndMethods.GetNumWavesSpawned(e.Key.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
                         (Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"]))
-                        && Tracking.EvaluateSpawnParameters(e.Key)))
+                        && TrackingAndMethods.EvaluateSpawnParameters(e.Key)))
                         {
                             Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for next spawn wave", Subclass.Instance.Config.Debug);
                             if (num < possibity.Value)
                             {
-                                Tracking.NextSpawnWaveGetsRole.Add(role, possibity.Key);
+                                TrackingAndMethods.NextSpawnWaveGetsRole.Add(role, possibity.Key);
                                 break;
                             }
                             else
@@ -187,17 +187,17 @@ namespace Subclass.Handlers
                     }
                 }
             }
-            Tracking.NextSpawnWave = ev.Players;
+            TrackingAndMethods.NextSpawnWave = ev.Players;
         }
 
         public void AttemptRevive(SendingConsoleCommandEventArgs ev, SubClass subClass, bool necro = false)
         {
             Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} attempt", Subclass.Instance.Config.Debug);
             AbilityType ability = necro ? AbilityType.Necromancy : AbilityType.Revive;
-            if (Tracking.OnCooldown(ev.Player, ability, subClass))
+            if (TrackingAndMethods.OnCooldown(ev.Player, ability, subClass))
             {
                 Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} on cooldown", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(ev.Player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive", Time.time);
+                TrackingAndMethods.DisplayCooldown(ev.Player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive", Time.time);
                 return;
             }
 
@@ -234,16 +234,16 @@ namespace Subclass.Handlers
             if (owner != null && !owner.IsAlive)
             {
                 bool revived = false;
-                if (!necro && Tracking.GetPreviousTeam(owner) != null &&
-                Tracking.GetPreviousTeam(owner) == ev.Player.Team)
+                if (!necro && TrackingAndMethods.GetPreviousTeam(owner) != null &&
+                TrackingAndMethods.GetPreviousTeam(owner) == ev.Player.Team)
                 {
-                    if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
-                    else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
+                    if (TrackingAndMethods.PlayersThatJustGotAClass.ContainsKey(owner)) TrackingAndMethods.PlayersThatJustGotAClass[owner] = Time.time + 3f;
+                    else TrackingAndMethods.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
 
-                    owner.SetRole((RoleType)Tracking.GetPreviousRole(owner), true);
+                    owner.SetRole((RoleType)TrackingAndMethods.GetPreviousRole(owner), true);
 
-                    if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains((RoleType)Tracking.GetPreviousRole(owner)))
-                        Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
+                    if (TrackingAndMethods.PreviousSubclasses.ContainsKey(owner) && TrackingAndMethods.PreviousSubclasses[owner].AffectsRoles.Contains((RoleType)TrackingAndMethods.GetPreviousRole(owner)))
+                        TrackingAndMethods.AddClass(owner, TrackingAndMethods.PreviousSubclasses[owner], false, true);
 
                     owner.Inventory.Clear();
                     revived = true;
@@ -251,7 +251,7 @@ namespace Subclass.Handlers
                 else if (necro)
                 {
                     owner.Role = RoleType.Scp0492;
-                    Tracking.AddZombie(ev.Player, owner);
+                    TrackingAndMethods.AddZombie(ev.Player, owner);
                     owner.IsFriendlyFireEnabled = true;
                     revived = true;
                 }
@@ -262,8 +262,8 @@ namespace Subclass.Handlers
                         owner.ReferenceHub.playerMovementSync.OverridePosition(ev.Player.Position + new Vector3(0.3f, 1f, 0), 0, true);
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
-                    Tracking.AddCooldown(ev.Player, ability);
-                    Tracking.UseAbility(ev.Player, ability, subClass);
+                    TrackingAndMethods.AddCooldown(ev.Player, ability);
+                    TrackingAndMethods.UseAbility(ev.Player, ability, subClass);
                     Log.Debug($"Player {ev.Player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
                 }
                 else

@@ -157,8 +157,8 @@ namespace Subclass.Patches
                     && (__instance._friendlyFlash ||
                     effect.Flashable(ReferenceHub.GetHub(((EffectGrenade)__instance).thrower.gameObject), position, __instance._ignoredLayers))))
                 {
-                    if (!Tracking.PlayersWithSubclasses.ContainsKey(target) ||
-                        !Tracking.PlayersWithSubclasses[target].Abilities.Contains(AbilityType.FlashImmune))
+                    if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(target) ||
+                        !TrackingAndMethods.PlayersWithSubclasses[target].Abilities.Contains(AbilityType.FlashImmune))
                     {
                         float num = __instance.powerOverDistance.Evaluate((float)(Vector3.Distance(obj2.transform.position, position) / ((position.y > 900f) ? __instance.distanceMultiplierSurface : __instance.distanceMultiplierFacility))) * __instance.powerOverDot.Evaluate(Vector3.Dot(hub.PlayerCameraReference.forward, (hub.PlayerCameraReference.position - position).normalized));
                         byte intensity = (byte)Mathf.Clamp(Mathf.RoundToInt((float)((num * 10f) * __instance.maximumDuration)), 1, 0xff);

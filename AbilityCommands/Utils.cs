@@ -17,10 +17,10 @@ namespace Subclass.AbilityCommands
         {
             Log.Debug($"Player {player.Nickname} {(necro ? "necromancy" : "revive")} attempt", Subclass.Instance.Config.Debug);
             AbilityType ability = necro ? AbilityType.Necromancy : AbilityType.Revive;
-            if (Tracking.OnCooldown(player, ability, subClass))
+            if (TrackingAndMethods.OnCooldown(player, ability, subClass))
             {
                 Log.Debug($"Player {player.Nickname} {(necro ? "necromancy" : "revive")} on cooldown", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, necro ? AbilityType.Necromancy : AbilityType.Revive, subClass, necro ? "necromancy" : "revive", Time.time);
                 return;
             }
 
@@ -57,16 +57,16 @@ namespace Subclass.AbilityCommands
             if (owner != null && !owner.IsAlive)
             {
                 bool revived = false;
-                if (!necro && Tracking.GetPreviousTeam(owner) != null &&
-                Tracking.GetPreviousTeam(owner) == player.Team && Tracking.RagdollRole(doll) != null && Tracking.RagdollRole(doll) == Tracking.GetPreviousRole(owner))
+                if (!necro && TrackingAndMethods.GetPreviousTeam(owner) != null &&
+                TrackingAndMethods.GetPreviousTeam(owner) == player.Team && TrackingAndMethods.RagdollRole(doll) != null && TrackingAndMethods.RagdollRole(doll) == TrackingAndMethods.GetPreviousRole(owner))
                 {
-                    if (Tracking.PlayersThatJustGotAClass.ContainsKey(owner)) Tracking.PlayersThatJustGotAClass[owner] = Time.time + 3f;
-                    else Tracking.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
+                    if (TrackingAndMethods.PlayersThatJustGotAClass.ContainsKey(owner)) TrackingAndMethods.PlayersThatJustGotAClass[owner] = Time.time + 3f;
+                    else TrackingAndMethods.PlayersThatJustGotAClass.Add(owner, Time.time + 3f);
 
-                    owner.SetRole((RoleType)Tracking.GetPreviousRole(owner), true);
+                    owner.SetRole((RoleType)TrackingAndMethods.GetPreviousRole(owner), true);
 
-                    if (Tracking.PreviousSubclasses.ContainsKey(owner) && Tracking.PreviousSubclasses[owner].AffectsRoles.Contains((RoleType)Tracking.GetPreviousRole(owner)))
-                        Tracking.AddClass(owner, Tracking.PreviousSubclasses[owner], false, true);
+                    if (TrackingAndMethods.PreviousSubclasses.ContainsKey(owner) && TrackingAndMethods.PreviousSubclasses[owner].AffectsRoles.Contains((RoleType)TrackingAndMethods.GetPreviousRole(owner)))
+                        TrackingAndMethods.AddClass(owner, TrackingAndMethods.PreviousSubclasses[owner], false, true);
 
                     owner.Inventory.Clear();
                     revived = true;
@@ -74,7 +74,7 @@ namespace Subclass.AbilityCommands
                 else if (necro)
                 {
                     owner.Role = RoleType.Scp0492;
-                    Tracking.AddZombie(player, owner);
+                    TrackingAndMethods.AddZombie(player, owner);
                     owner.IsFriendlyFireEnabled = true;
                     revived = true;
                 }
@@ -85,8 +85,8 @@ namespace Subclass.AbilityCommands
                         owner.ReferenceHub.playerMovementSync.OverridePosition(player.Position + new Vector3(0.3f, 1f, 0), 0, true);
                     });
                     UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
-                    Tracking.AddCooldown(player, ability);
-                    Tracking.UseAbility(player, ability, subClass);
+                    TrackingAndMethods.AddCooldown(player, ability);
+                    TrackingAndMethods.UseAbility(player, ability, subClass);
                     Log.Debug($"Player {player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);
                 }
                 else

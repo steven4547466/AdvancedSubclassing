@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace Subclass
 {
-	public class Tracking
+	public class TrackingAndMethods
 	{
 		public static Dictionary<RoleType, int> rolesForClass = new Dictionary<RoleType, int>();
 
@@ -1102,6 +1102,14 @@ namespace Subclass
 		{
 			if (!RagdollRoles.ContainsKey(doll.netId)) return null;
 			return RagdollRoles[doll.netId];
+		}
+
+		public static Team RoleToTeam(RoleType role)
+		{
+			if (role == RoleType.ClassD) return Team.CHI;
+			else if (role == RoleType.Tutorial) return Team.SCP;
+			else if (role == RoleType.Scientist) return Team.MTF;
+			else return role.GetTeam();
 		}
 	}
 }

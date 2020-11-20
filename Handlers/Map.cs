@@ -11,30 +11,30 @@ namespace Subclass.Handlers
     {
         public void OnExplodingGrenade(ExplodingGrenadeEventArgs ev)
         {
-			if (!Tracking.PlayersWithSubclasses.ContainsKey(ev.Thrower) ||
-                (!Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) &&
-                 !Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag)))
+			if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Thrower) ||
+                (!TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) &&
+                 !TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag)))
             {
                 Log.Debug($"Player with name {ev.Thrower.Nickname} has no subclass", Subclass.Instance.Config.Debug);
                 return;
             }
-            if(Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) && !ev.IsFrag)
+            if(TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFlash) && !ev.IsFrag)
             {
-                if (!Tracking.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower])) {
-                    Tracking.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower], "heal flash");
+                if (!TrackingAndMethods.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower])) {
+                    TrackingAndMethods.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower], "heal flash");
                     return;
                 }
-                Tracking.UseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, Tracking.PlayersWithSubclasses[ev.Thrower]);
+                TrackingAndMethods.UseAbility(ev.Thrower, AbilityType.HealGrenadeFlash, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower]);
                 ev.IsAllowed = false;
                 UpdateHealths(ev, "HealGrenadeFlashHealAmount");
-            }else if(Tracking.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag) && ev.IsFrag)
+            }else if(TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].Abilities.Contains(AbilityType.HealGrenadeFrag) && ev.IsFrag)
             {
-                if (!Tracking.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower]))
+                if (!TrackingAndMethods.CanUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower]))
                 {
-                    Tracking.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower], "heal frag");
+                    TrackingAndMethods.DisplayCantUseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower], "heal frag");
                     return;
                 }
-                Tracking.UseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, Tracking.PlayersWithSubclasses[ev.Thrower]);
+                TrackingAndMethods.UseAbility(ev.Thrower, AbilityType.HealGrenadeFrag, TrackingAndMethods.PlayersWithSubclasses[ev.Thrower]);
                 ev.IsAllowed = false;
                 UpdateHealths(ev, "HealGrenadeFragHealAmount");
             }
@@ -74,10 +74,10 @@ namespace Subclass.Handlers
                 EPlayer player = EPlayer.Get(collider.gameObject);
                 if (player != null && player.Team == ev.Thrower.Team)
                 {
-                    if (Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.CantHeal)) return;
-                    if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions.ContainsKey(type)) {
-                        if (Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
-                        else player.Health += Tracking.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];
+                    if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.CantHeal)) return;
+                    if (TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].FloatOptions.ContainsKey(type)) {
+                        if (TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
+                        else player.Health += TrackingAndMethods.PlayersWithSubclasses[ev.Thrower].FloatOptions[type];
                     }
                     else
                     {
@@ -94,10 +94,10 @@ namespace Subclass.Handlers
                 EPlayer player = EPlayer.Get(collider.gameObject);
                 if (player != null && player.Team == thrower.Team)
                 {
-                    if (Tracking.PlayersWithSubclasses[thrower].FloatOptions.ContainsKey(type))
+                    if (TrackingAndMethods.PlayersWithSubclasses[thrower].FloatOptions.ContainsKey(type))
                     {
-                        if (Tracking.PlayersWithSubclasses[thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
-                        else player.Health += Tracking.PlayersWithSubclasses[thrower].FloatOptions[type];
+                        if (TrackingAndMethods.PlayersWithSubclasses[thrower].FloatOptions[type] + player.Health > player.MaxHealth) player.Health = player.MaxHealth;
+                        else player.Health += TrackingAndMethods.PlayersWithSubclasses[thrower].FloatOptions[type];
                     }
                     else
                     {

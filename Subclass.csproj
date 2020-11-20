@@ -136,7 +136,7 @@
     <Compile Include="Patches\Scp173Patches.cs" />
     <Compile Include="Subclass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tracking.cs" />
+    <Compile Include="TrackingAndMethods.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

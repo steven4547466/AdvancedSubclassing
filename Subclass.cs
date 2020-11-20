@@ -70,7 +70,7 @@ namespace Subclass
             HarmonyInstance.UnpatchAll();
             foreach (Exiled.API.Features.Player player in Exiled.API.Features.Player.List)
             {
-                Tracking.RemoveAndAddRoles(player, true);
+                TrackingAndMethods.RemoveAndAddRoles(player, true);
             }
         }
 

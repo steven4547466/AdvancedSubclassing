@@ -48,8 +48,8 @@ namespace Subclass.Commands
                         {
                             SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset + 1))];
                             if (!sc.AffectsRoles.Contains(player1.Role)) player1.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
-                            Tracking.RemoveAndAddRoles(player1, true);
-                            Tracking.AddClass(player1, sc);
+                            TrackingAndMethods.RemoveAndAddRoles(player1, true);
+                            TrackingAndMethods.AddClass(player1, sc);
                             response = "Success.";
                             return true;
                         }
@@ -73,8 +73,8 @@ namespace Subclass.Commands
                         {
                             SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset))];
                             if (!sc.AffectsRoles.Contains(p.Role)) p.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
-                            Tracking.RemoveAndAddRoles(p, true);
-                            Tracking.AddClass(p, sc);
+                            TrackingAndMethods.RemoveAndAddRoles(p, true);
+                            TrackingAndMethods.AddClass(p, sc);
                             response = "Success.";
                             return true;
                         }
@@ -93,8 +93,8 @@ namespace Subclass.Commands
 							{
                                 if (p1.Role == RoleType.Spectator) continue;
                                 if (!sc.AffectsRoles.Contains(p1.Role)) p1.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
-                                Tracking.RemoveAndAddRoles(p1, true);
-                                Tracking.AddClass(p1, sc);
+                                TrackingAndMethods.RemoveAndAddRoles(p1, true);
+                                TrackingAndMethods.AddClass(p1, sc);
                             }
                             response = "Success.";
                             return true;

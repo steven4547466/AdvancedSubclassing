@@ -23,19 +23,19 @@ namespace Subclass.AbilityCommands
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             if (arguments.Count == 0)
             {
-                if (!Tracking.PlayersWithSubclasses.ContainsKey(player))
+                if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player))
                 {
                     response = Subclass.Instance.Config.HelpNoArgumentsProvided;
                     return true;
                 }
 
-                if (!Tracking.PlayersWithSubclasses[player].StringOptions.ContainsKey("HelpMessage"))
+                if (!TrackingAndMethods.PlayersWithSubclasses[player].StringOptions.ContainsKey("HelpMessage"))
                 {
                     response = Subclass.Instance.Config.HelpNoHelpFound;
                     return true;
                 }
 
-                response = Tracking.PlayersWithSubclasses[player].StringOptions["HelpMessage"];
+                response = TrackingAndMethods.PlayersWithSubclasses[player].StringOptions["HelpMessage"];
                 return true;
             }
             string sc = string.Join(" ", arguments).ToLower();

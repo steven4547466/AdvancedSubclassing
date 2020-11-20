@@ -22,12 +22,12 @@ namespace Subclass.AbilityCommands
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             Log.Debug($"Player {player.Nickname} is attempting to necro", Subclass.Instance.Config.Debug);
-            if (Tracking.PlayersWithSubclasses.ContainsKey(player) && Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Necromancy))
+            if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) && TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Necromancy))
             {
-                SubClass subClass = Tracking.PlayersWithSubclasses[player];
-                if (!Tracking.CanUseAbility(player, AbilityType.Necromancy, subClass))
+                SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+                if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Necromancy, subClass))
                 {
-                    Tracking.DisplayCantUseAbility(player, AbilityType.Necromancy, subClass, "necro");
+                    TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.Necromancy, subClass, "necro");
                     response = "";
                     return false;
                 }

@@ -25,32 +25,32 @@ namespace Subclass.AbilityCommands
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             Scp268 scp268 = player.ReferenceHub.playerEffectsController.GetEffect<Scp268>();
-            if (Tracking.PlayersVenting.Contains(player) && scp268 != null && scp268.Enabled)
+            if (TrackingAndMethods.PlayersVenting.Contains(player) && scp268 != null && scp268.Enabled)
             {
-                Tracking.PlayersVenting.Remove(player);
+                TrackingAndMethods.PlayersVenting.Remove(player);
                 scp268.ServerDisable();
                 response = "";
                 return true;
             }
 
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Vent))
+            if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Vent))
             {
                 Log.Debug($"Player {player.Nickname} could not vent", Subclass.Instance.Config.Debug);
                 response = "";
                 return true;
             }
-            SubClass subClass = Tracking.PlayersWithSubclasses[player];
-            if (Tracking.OnCooldown(player, AbilityType.Vent, subClass))
+            SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+            if (TrackingAndMethods.OnCooldown(player, AbilityType.Vent, subClass))
             {
                 Log.Debug($"Player {player.Nickname} failed to vent", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, AbilityType.Vent, subClass, "vent", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, AbilityType.Vent, subClass, "vent", Time.time);
                 response = "";
                 return true;
             }
 
-            if (!Tracking.CanUseAbility(player, AbilityType.Vent, subClass))
+            if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Vent, subClass))
             {
-                Tracking.DisplayCantUseAbility(player, AbilityType.Vent, subClass, "vent");
+                TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.Vent, subClass, "vent");
                 response = "";
                 return true;
             }
@@ -71,18 +71,18 @@ namespace Subclass.AbilityCommands
                 //player.ReferenceHub.playerEffectsController.EnableEffect(scp268);
 
                 player.ReferenceHub.playerEffectsController.EnableEffect<Scp268>();
-                Tracking.PlayersInvisibleByCommand.Add(player);
-                Tracking.PlayersVenting.Add(player);
+                TrackingAndMethods.PlayersInvisibleByCommand.Add(player);
+                TrackingAndMethods.PlayersVenting.Add(player);
                 Timing.CallDelayed(subClass.FloatOptions.ContainsKey("VentDuration") ?
                     subClass.FloatOptions["VentDuration"] : 15f, () =>
                     {
-                        if (Tracking.PlayersVenting.Contains(player)) Tracking.PlayersVenting.Remove(player);
-                        if (Tracking.PlayersInvisibleByCommand.Contains(player)) Tracking.PlayersInvisibleByCommand.Remove(player);
+                        if (TrackingAndMethods.PlayersVenting.Contains(player)) TrackingAndMethods.PlayersVenting.Remove(player);
+                        if (TrackingAndMethods.PlayersInvisibleByCommand.Contains(player)) TrackingAndMethods.PlayersInvisibleByCommand.Remove(player);
                         if (scp268.Enabled) player.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
                     });
 
-                Tracking.AddCooldown(player, AbilityType.Vent);
-                Tracking.UseAbility(player, AbilityType.Vent, subClass);
+                TrackingAndMethods.AddCooldown(player, AbilityType.Vent);
+                TrackingAndMethods.UseAbility(player, AbilityType.Vent, subClass);
 
             }
             response = "";

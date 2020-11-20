@@ -23,24 +23,24 @@ namespace Subclass.AbilityCommands
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
-            if (!Tracking.PlayersWithSubclasses.ContainsKey(player) || !Tracking.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disguise))
+            if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disguise))
             {
                 Log.Debug($"Player {player.Nickname} could not disguise", Subclass.Instance.Config.Debug);
                 response = "";
                 return true;
             }
-            SubClass subClass = Tracking.PlayersWithSubclasses[player];
-            if (Tracking.OnCooldown(player, AbilityType.Disguise, subClass))
+            SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
+            if (TrackingAndMethods.OnCooldown(player, AbilityType.Disguise, subClass))
             {
                 Log.Debug($"Player {player.Nickname} failed to disguise", Subclass.Instance.Config.Debug);
-                Tracking.DisplayCooldown(player, AbilityType.Disguise, subClass, "disguise", Time.time);
+                TrackingAndMethods.DisplayCooldown(player, AbilityType.Disguise, subClass, "disguise", Time.time);
                 response = "";
                 return true;
             }
 
-            if (!Tracking.CanUseAbility(player, AbilityType.Disguise, subClass))
+            if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Disguise, subClass))
             {
-                Tracking.DisplayCantUseAbility(player, AbilityType.Disguise, subClass, "disguise");
+                TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.Disguise, subClass, "disguise");
                 response = "";
                 return true;
             }
@@ -92,7 +92,7 @@ namespace Subclass.AbilityCommands
 
             Round.IsLocked = true;
 
-            Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+            TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 3f;
 
             float health = player.Health;
             float armor = player.AdrenalineHealth;
@@ -110,12 +110,12 @@ namespace Subclass.AbilityCommands
             if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == subClass.StringOptions["BadgeColor"])
                 player.RankColor = null;
 
-            Tracking.AddCooldown(player, AbilityType.Disguise);
-            Tracking.UseAbility(player, AbilityType.Disguise, subClass);
+            TrackingAndMethods.AddCooldown(player, AbilityType.Disguise);
+            TrackingAndMethods.UseAbility(player, AbilityType.Disguise, subClass);
 
-            Timing.CallDelayed(Tracking.PlayersWithSubclasses[player].FloatOptions["DisguiseDuration"], () =>
+            Timing.CallDelayed(TrackingAndMethods.PlayersWithSubclasses[player].FloatOptions["DisguiseDuration"], () =>
             {
-                Tracking.PlayersThatJustGotAClass[player] = Time.time + 3f;
+                TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 3f;
 
                 float curHealth = player.Health;
                 float curArmor = player.AdrenalineHealth;
