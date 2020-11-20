@@ -265,6 +265,17 @@ namespace Subclass
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 
 			int spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
+			int tries = 0;
+			while(!Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+			{
+				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
+				tries++;
+				if (tries > subClass.SpawnLocations.Count)
+				{
+					spawnIndex = -1;
+					break;
+				}
+			}
 
 			try
 			{
@@ -459,7 +470,7 @@ namespace Subclass
 				Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
 			}
 
-			if ((!lite || escaped) && subClass.SpawnLocations[spawnIndex] != "Unknown")
+			if (spawnIndex != -1 && (!lite || escaped) && subClass.SpawnLocations[spawnIndex] != "Unknown")
 			{
 				List<Vector3> spawnLocations = new List<Vector3>();
 				if (subClass.SpawnLocations[spawnIndex] == "Lcz173Armory")
@@ -480,18 +491,19 @@ namespace Subclass
 				else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).Select(r => r.Transform.position).ToList();
 				if (spawnLocations.Count != 0)
 				{
-					Timing.CallDelayed(0.3f, () =>
-					{
-						Vector3 offset = new Vector3(0, 1f, 0);
-						if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-						if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
-						if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-						Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)];
-						PlayerMovementSync.FindSafePosition(pos + offset, out pos, true);
-						player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
-					});
+						Timing.CallDelayed(0.3f, () =>
+						{
+							Vector3 offset = new Vector3(0, 1f, 0);
+							if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+							if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
+							if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
+							Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
+							player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
+						});
 				}
 			}
+			else if (spawnIndex == -1)
+				Log.Debug($"Unable to set spawn for class {subClass.Name} for player {player.Nickname}. No rooms found on map.", Subclass.Instance.Config.Debug);
 
 			if (subClass.IntOptions.ContainsKey("MaxPerSpawnWave"))
 			{
