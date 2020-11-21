@@ -1,10 +1,12 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Loader;
 using MEC;
 using RemoteAdmin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -92,7 +94,8 @@ namespace Subclass.AbilityCommands
 
             Round.IsLocked = true;
 
-            TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 3f;
+            TrackingAndMethods.RemoveAndAddRoles(player, true);
+            TrackingAndMethods.PlayersThatJustGotAClass[player] += 3;
 
             float health = player.Health;
             float armor = player.AdrenalineHealth;
@@ -101,9 +104,22 @@ namespace Subclass.AbilityCommands
 
             RoleType trueRole = player.Role;
 
+            SubClass cloneClass = new SubClass(subClass);
+            cloneClass.BoolOptions["TakesFriendlyFire"] = true;
+
             player.SetRole(role, true);
             player.Health = health;
             player.AdrenalineHealth = armor;
+            player.IsFriendlyFireEnabled = true;
+
+            Timing.CallDelayed(0.1f, () =>
+            {
+                Player scp035 = null;
+                if (Subclass.Instance.Scp035Enabled) 
+                    scp035 = (Player)Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data")
+                    .GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+                TrackingAndMethods.AddClass(player, cloneClass, scp035?.Id == player.Id, true);
+            });
 
             if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == subClass.StringOptions["Badge"])
                 player.RankName = null;
@@ -115,16 +131,29 @@ namespace Subclass.AbilityCommands
 
             Timing.CallDelayed(TrackingAndMethods.PlayersWithSubclasses[player].FloatOptions["DisguiseDuration"], () =>
             {
-                TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 3f;
+                TrackingAndMethods.RemoveAndAddRoles(player, true);
+                TrackingAndMethods.PlayersThatJustGotAClass[player] += 3;
 
                 float curHealth = player.Health;
                 float curArmor = player.AdrenalineHealth;
 
                 player.SetRole(trueRole, true);
-                player.MaxHealth = maxHealth;
-                player.MaxAdrenalineHealth = maxArmor;
-                player.Health = curHealth;
-                player.AdrenalineHealth = curArmor;
+
+                Timing.CallDelayed(0.1f, () =>
+                {
+                    Player scp035 = null;
+                    if (Subclass.Instance.Scp035Enabled) 
+                        scp035 = (Player)Loader.Plugins.First(pl => pl.Name == "scp035").Assembly.GetType("scp035.API.Scp035Data")
+                        .GetMethod("GetScp035", BindingFlags.Public | BindingFlags.Static).Invoke(null, null);
+
+                    TrackingAndMethods.AddClass(player, subClass, scp035?.Id == player.Id, true);
+
+                    player.MaxHealth = maxHealth;
+                    player.MaxAdrenalineHealth = maxArmor;
+                    player.Health = curHealth;
+                    player.AdrenalineHealth = curArmor;
+                    player.IsFriendlyFireEnabled = !subClass.BoolOptions["DisregardHasFF"] && subClass.BoolOptions["HasFriendlyFire"];
+                });
 
                 if (subClass.StringOptions.ContainsKey("Badge") && player.RankName == null)
                     player.RankName = subClass.StringOptions["Badge"];

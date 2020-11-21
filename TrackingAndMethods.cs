@@ -266,7 +266,7 @@ namespace Subclass
 
 			int spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 			int tries = 0;
-			while(!Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+			while (!Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 				tries++;
