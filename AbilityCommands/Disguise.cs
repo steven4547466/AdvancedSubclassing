@@ -92,6 +92,7 @@ namespace Subclass.AbilityCommands
                     break;
             }
 
+            bool wasLockedBefore = Round.IsLocked;
             Round.IsLocked = true;
 
             TrackingAndMethods.RemoveAndAddRoles(player, true);
@@ -160,7 +161,7 @@ namespace Subclass.AbilityCommands
                 if (subClass.StringOptions.ContainsKey("BadgeColor") && player.RankColor == null)
                     player.RankColor = subClass.StringOptions["BadgeColor"];
 
-                Round.IsLocked = false;
+                Round.IsLocked = wasLockedBefore;
             });
             response = "";
             return true;

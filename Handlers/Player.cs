@@ -26,7 +26,6 @@ namespace Subclass.Handlers
 
         public void OnSpawning(SpawningEventArgs ev)
         {
-            Round.IsLocked = true;
             Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
             {
                 ev.Player.Scale = new Vector3(1, 1, 1);
@@ -61,7 +60,6 @@ namespace Subclass.Handlers
                 {
                     Log.Error(e);
                 }
-                Round.IsLocked = false;
             });
         }
 
@@ -290,7 +288,6 @@ namespace Subclass.Handlers
 
         public void OnEscaping(EscapingEventArgs ev)
         {
-            Round.IsLocked = true;
             ev.Player.Scale = new Vector3(1, 1, 1);
             bool cuffed = ev.Player.IsCuffed;
             if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
@@ -309,7 +306,6 @@ namespace Subclass.Handlers
                     else if (cuffed && TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[1] != RoleType.None) ev.Player.SetRole(TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[1], false, true);
                 }
                 TrackingAndMethods.RemoveAndAddRoles(ev.Player, false, false, true);
-                Round.IsLocked = false;
             });
         }
 
