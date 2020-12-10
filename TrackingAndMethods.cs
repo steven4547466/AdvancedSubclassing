@@ -2,6 +2,7 @@
 using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Exiled.Loader;
 using Exiled.Permissions.Extensions;
 using MEC;
 using Mono.Unix.Native;
@@ -10,6 +11,7 @@ using Subclass.MonoBehaviours;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -62,6 +64,7 @@ namespace Subclass
 
 		public static void MaybeAddRoles(Player player, bool is035 = false, bool escaped = false)
 		{
+			if (IsGhost(player)) return;
 			if (!rolesForClass.ContainsKey(player.Role))
 				rolesForClass.Add(player.Role, Subclass.Instance.Classes.Values.Count(e => e.BoolOptions["Enabled"] &&
 					e.AffectsRoles.Contains(player.Role)));
@@ -1122,6 +1125,13 @@ namespace Subclass
 			else if (role == RoleType.Tutorial) return Team.SCP;
 			else if (role == RoleType.Scientist) return Team.MTF;
 			else return role.GetTeam();
+		}
+
+		public static bool IsGhost(Player player)
+		{
+			Assembly assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "GhostSpectator")?.Assembly;
+			if (assembly == null) return false;
+			return ((bool)assembly.GetType("GhostSpectator.API")?.GetMethod("IsGhost")?.Invoke(null, new object[] { player })) == true;
 		}
 	}
 }
