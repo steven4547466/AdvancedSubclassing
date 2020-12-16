@@ -219,8 +219,9 @@ namespace Subclass
 			return false;
 		}
 
-		public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false, bool escaped = false)
+		public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false, bool escaped = false, bool disguised = false)
 		{
+			if (player == null) return;
 			if (is035)
 			{
 				SubClass copy = new SubClass(subClass);
@@ -263,7 +264,7 @@ namespace Subclass
 				if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
 				else SubClassesSpawned.Add(subClass, 1);
 			}
-			PlayersWithSubclasses.Add(player, subClass);
+			if (!disguised) PlayersWithSubclasses.Add(player, subClass);
 			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 
@@ -540,19 +541,23 @@ namespace Subclass
 			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
 		}
 
-		public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false)
+		public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false, bool disguised = false)
 		{
 			if (PlayersThatJustGotAClass.ContainsKey(p) && PlayersThatJustGotAClass[p] > Time.time) return;
 			if (RoundJustStarted()) return;
-			if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
-			if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
-			if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
-			if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop)
-				&& Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
-			if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
-				p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
-			if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
-			if (PlayersVenting.Contains(p)) PlayersVenting.Remove(p);
+			if (!disguised)
+			{
+				if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
+				if (Cooldowns.ContainsKey(p)) Cooldowns.Remove(p);
+				if (FriendlyFired.Contains(p)) FriendlyFired.RemoveAll(e => e == p);
+				if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable173Stop)
+					&& Scp173.TurnedPlayers.Contains(p)) Scp173.TurnedPlayers.Remove(p);
+				if (PlayersWithSubclasses.ContainsKey(p) && PlayersWithSubclasses[p].Abilities.Contains(AbilityType.NoArmorDecay))
+					p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
+				if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
+				if (PlayersVenting.Contains(p)) PlayersVenting.Remove(p);
+			}
+
 			//if (PlayersWithZombies.ContainsKey(p) && escaped)
 			//{
 			//    PlayersThatHadZombies.Add(p, PlayersWithZombies[p]);
@@ -624,7 +629,7 @@ namespace Subclass
 				p.GameObject.GetComponent<EscapeBehaviour>()?.Destroy();
 			}
 
-			if (PlayersWithSubclasses.ContainsKey(p)) PlayersWithSubclasses.Remove(p);
+			if (PlayersWithSubclasses.ContainsKey(p) && !disguised) PlayersWithSubclasses.Remove(p);
 
 			//foreach (var effect in p.ReferenceHub.playerEffectsController.AllEffects)
 			//{
