@@ -21,15 +21,12 @@ namespace Subclass
     public class Subclass : Plugin<Config>
     {
 
-        private static readonly Lazy<Subclass> LazyInstance = new Lazy<Subclass>(() => new Subclass());
-        public static Subclass Instance => LazyInstance.Value;
-
-        private Subclass() { }
+        public static Subclass Instance;
 
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Name { get; } = "Subclass";
         public override string Author { get; } = "Steven4547466";
-        public override Version Version { get; } = new Version(1, 2, 5);
+        public override Version Version { get; } = new Version(1, 3, 0);
         public override Version RequiredExiledVersion { get; } = new Version(2, 1, 19);
         public override string Prefix { get; } = "Subclass";
 
@@ -39,20 +36,24 @@ namespace Subclass
 
         public Dictionary<string, SubClass> Classes { get; set; }
         public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesAdditive = null;
+        public Dictionary<RoleType, Dictionary<SubClass, float>> ClassesWeighted = null;
 
         public bool Scp035Enabled = Loader.Plugins.Any(p => p.Name == "scp035" && p.Config.IsEnabled);
         public bool CommonUtilsEnabled = Loader.Plugins.Any(p => p.Name == "Common Utilities" && p.Config.IsEnabled);
+        public bool RealisticSizesEnabled = Loader.Plugins.Any(p => p.Name == "RealisticSizes" && p.Config.IsEnabled);
+        public bool Scp008XEnabled = Loader.Plugins.Any(p => p.Name == "Scp008X" && p.Config.IsEnabled);
 
         int harmonyPatches = 0;
         private Harmony HarmonyInstance { get; set; }
 
         public override void OnEnabled()
         {
-            if (Subclass.Instance.Config.IsEnabled == false)
+            if (Config.IsEnabled == false)
             {
                 Log.Info("Subclass was disabled, why did this run?");
                 return;
             }
+            Instance = this;
             base.OnEnabled();
             Log.Info("Subclass enabled.");
             RegisterEvents();
@@ -72,12 +73,13 @@ namespace Subclass
             {
                 TrackingAndMethods.RemoveAndAddRoles(player, true);
             }
+            Instance = null;
         }
 
         public override void OnReloaded()
         {
             base.OnReloaded();
-            Log.Info("Subclass reloading.");
+            //Log.Info("Subclass reloading.");
         }
 
         public void RegisterEvents()
@@ -144,9 +146,8 @@ namespace Subclass
 
         public Dictionary<string, SubClass> GetClasses()
         {
-            Dictionary<string, SubClass> classes = new Dictionary<string, SubClass>();
+            Dictionary<string, SubClass> classes = SubclassManager.LoadClasses();
             Config config = Instance.Config;
-            classes = SubclassManager.LoadClasses();
             if (config.AdditiveChance)
             {
                 ClassesAdditive = new Dictionary<RoleType, Dictionary<SubClass, float>>();
@@ -181,8 +182,70 @@ namespace Subclass
                     }
                 }
             }
+            else if (config.WeightedChance)
+            {
+                ClassesWeighted = new Dictionary<RoleType, Dictionary<SubClass, float>>();
+                foreach (var item in classes)
+                {
+                    foreach (RoleType role in item.Value.AffectsRoles)
+                    {
+                        if (!ClassesWeighted.ContainsKey(role)) ClassesWeighted.Add(role, new Dictionary<SubClass, float> { { item.Value, item.Value.FloatOptions["ChanceToGet"] } });
+                        else ClassesWeighted[role].Add(item.Value, item.Value.FloatOptions["ChanceToGet"]);
+                    }
+                }
+
+                Dictionary<RoleType, Dictionary<SubClass, float>> classesWeightedCopy = new Dictionary<RoleType, Dictionary<SubClass, float>>();
+                foreach (RoleType role in ClassesWeighted.Keys)
+                {
+                    var weightedClasses = ClassesWeighted[role].ToList();
+                    weightedClasses.Sort((x, y) => y.Value.CompareTo(x.Value));
+                    if (!classesWeightedCopy.ContainsKey(role)) classesWeightedCopy.Add(role, new Dictionary<SubClass, float>());
+                    classesWeightedCopy[role] = weightedClasses.ToDictionary(x => x.Key, x => x.Value);
+                }
+                ClassesWeighted.Clear();
+                Dictionary<RoleType, float> totals = new Dictionary<RoleType, float>();
+                foreach (var weight in config.BaseWeights)
+                {
+                    if (!totals.ContainsKey(weight.Key)) totals.Add(weight.Key, 0f);
+                    totals[weight.Key] += weight.Value;
+                }
+
+                foreach (var item in classesWeightedCopy)
+                {
+                    foreach (SubClass subClass in classesWeightedCopy[item.Key].Keys)
+                    {
+                        if (!totals.ContainsKey(item.Key)) totals.Add(item.Key, 0f);
+                        totals[item.Key] += subClass.FloatOptions["ChanceToGet"];
+                    }
+                }
+
+                Dictionary<RoleType, float> sums = new Dictionary<RoleType, float>();
+                foreach(var item in classesWeightedCopy)
+				{
+                    foreach(SubClass sclass in classesWeightedCopy[item.Key].Keys)
+					{
+                        if (!sums.ContainsKey(item.Key)) sums.Add(item.Key, 0f);
+                        sums[item.Key] += sclass.FloatOptions["ChanceToGet"];
+                        if(!ClassesWeighted.ContainsKey(item.Key))
+						{
+                            ClassesWeighted.Add(item.Key, new Dictionary<SubClass, float>
+                            {
+                                { sclass, 100 * (sclass.FloatOptions["ChanceToGet"] / totals[item.Key]) }
+                            });
+						}
+                        else
+						{
+                            ClassesWeighted[item.Key].Add(sclass, 100 * (sums[item.Key] / totals[item.Key]));
+						}
+					}
+				}
+            }
             else
+            {
                 ClassesAdditive = null;
+                ClassesWeighted = null;
+            }
+
             return classes;
         }
     }
@@ -207,7 +270,7 @@ namespace Subclass
 
         public List<string> SpawnLocations = new List<string>();
 
-        public Dictionary<int, Dictionary<ItemType, float>> SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>();
+        public Dictionary<int, Dictionary<string, float>> SpawnItems = new Dictionary<int, Dictionary<string, float>>();
 
         public Dictionary<AmmoType, int> SpawnAmmo = new Dictionary<AmmoType, int>();
 
@@ -235,7 +298,7 @@ namespace Subclass
         public RoleType[] EscapesAs = { RoleType.None, RoleType.None };
 
         public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
-            Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<ItemType, float>> items,
+            Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<string, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
             string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
@@ -277,7 +340,7 @@ namespace Subclass
             IntOptions = new Dictionary<string, int>(subClass.IntOptions);
             FloatOptions = new Dictionary<string, float>(subClass.FloatOptions);
             SpawnLocations = new List<string>(subClass.SpawnLocations);
-            SpawnItems = new Dictionary<int, Dictionary<ItemType, float>>(subClass.SpawnItems);
+            SpawnItems = new Dictionary<int, Dictionary<string, float>>(subClass.SpawnItems);
             SpawnAmmo = new Dictionary<AmmoType, int>(subClass.SpawnAmmo);
             Abilities = new List<AbilityType>(subClass.Abilities);
             AbilityCooldowns = new Dictionary<AbilityType, float>(subClass.AbilityCooldowns);
@@ -338,6 +401,7 @@ namespace Subclass
         BackupCommand,
         Vent,
         PowerSurge,
-        Summon
+        Summon,
+        CantBeInfected
     }
 }
