@@ -131,6 +131,7 @@ namespace Subclass.AbilityCommands
                 player.RankColor = null;
             Timing.CallDelayed(subClass.FloatOptions["DisguiseDuration"], () =>
             {
+                if (!player.IsAlive) return;
                 TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 5f;
                 TrackingAndMethods.RemoveAndAddRoles(player, true, false, false, true);
 
@@ -139,7 +140,7 @@ namespace Subclass.AbilityCommands
 
                 player.SetRole(trueRole, true);
 
-                Timing.CallDelayed(0.1f, () =>
+                Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
                 {
                     Player scp035 = null;
                     if (Subclass.Instance.Scp035Enabled)
