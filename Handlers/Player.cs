@@ -97,11 +97,9 @@ namespace Subclass.Handlers
             if (TrackingAndMethods.PlayersVenting.Contains(ev.Player))
 			{
                 ev.IsAllowed = false;
-                Vector3 forward = ev.Door.transform.forward * 3.5f;
-                Vector3 doorPos = ev.Door.transform.position;
-                Vector3 newPos = doorPos + ((Vector3.Distance(ev.Player.Position, doorPos + forward) > Vector3.Distance(ev.Player.Position, doorPos - forward)) ? ev.Door.transform.forward : -ev.Door.transform.forward) * 1.5f;
+                Vector3 newPos = ev.Player.Position + (ev.Player.GameObject.transform.forward * 3.5f);
                 newPos.y = ev.Player.Position.y;
-                ev.Player.Position += newPos;
+                ev.Player.Position = newPos;
                 return;
 			}
 

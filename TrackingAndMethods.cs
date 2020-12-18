@@ -324,6 +324,7 @@ namespace Subclass
 								} 
 								else
 								{
+									Log.Error($"Subclass with name: {subClass.Name} has an improper spawn item value: {item2.Key}");
 									//Inventory.SyncItemInfo syncItem = getCustomItemStuff
 								}
 								break;
