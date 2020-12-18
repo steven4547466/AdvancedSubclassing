@@ -131,6 +131,7 @@ namespace Subclass.AbilityCommands
                 player.RankColor = null;
             Timing.CallDelayed(subClass.FloatOptions["DisguiseDuration"], () =>
             {
+                if (!player.IsAlive) return;
                 TrackingAndMethods.PlayersThatJustGotAClass[player] = Time.time + 5f;
                 TrackingAndMethods.RemoveAndAddRoles(player, true, false, false, true);
 
