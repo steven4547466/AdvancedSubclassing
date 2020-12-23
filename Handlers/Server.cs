@@ -63,6 +63,7 @@ namespace Subclass.Handlers
             TrackingAndMethods.SpawnWaveSpawns.Clear();
             TrackingAndMethods.ClassesGiven.Clear();
             TrackingAndMethods.DontGiveClasses.Clear();
+            TrackingAndMethods.PlayersBloodLusting.Clear();
             API.EnableAllClasses();
         }
 

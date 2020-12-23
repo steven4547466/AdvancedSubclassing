@@ -120,5 +120,9 @@ namespace Subclass
 
         [Description("The message shown to players when they use the an ability that requires spectators and there are none.")]
         public string NoAvailableSpectators { get; set; } = "There are no available spectators.";
-    }
+
+		[Description("The message shown to players when they don't have enough stamina to do an action.")]
+		public string OutOfStaminaMessage { get; set; } = "You do not have enough stamina.";
+
+	}
 }

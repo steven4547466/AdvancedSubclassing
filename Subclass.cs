@@ -297,7 +297,7 @@ namespace Subclass
 
         public RoleType[] EscapesAs = { RoleType.None, RoleType.None };
 
-        public SubClass(string name, List<RoleType> role, Dictionary<string, string> strings, Dictionary<string, bool> bools,
+        public SubClass(string name, List<RoleType> roles, Dictionary<string, string> strings, Dictionary<string, bool> bools,
             Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<string, float>> items,
             Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
             List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
@@ -306,7 +306,7 @@ namespace Subclass
             Dictionary<string, int> spawnParameters = null)
         {
             Name = name;
-            AffectsRoles = role;
+            AffectsRoles = roles;
             StringOptions = strings;
             BoolOptions = bools;
             IntOptions = ints;
@@ -402,6 +402,12 @@ namespace Subclass
         Vent,
         PowerSurge,
         Summon,
-        CantBeInfected
+        CantBeInfected,
+        Punch,
+        Stun,
+        Bloodlust,
+        Disarm,
+        Fake,
+        Corrupt
     }
 }

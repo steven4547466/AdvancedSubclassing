@@ -46,6 +46,8 @@ namespace Subclass
 		public static List<Player> PlayersInvisibleByCommand = new List<Player>();
 		public static List<Player> PlayersVenting = new List<Player>();
 
+		public static List<Player> PlayersBloodLusting = new List<Player>();
+
 		public static List<string> QueuedCassieMessages = new List<string>();
 
 		public static float RoundStartedAt = 0f;
@@ -58,6 +60,8 @@ namespace Subclass
 		public static List<SubClass> DontGiveClasses = new List<SubClass>();
 
 		public static Dictionary<Player, string> PreviousBadges = new Dictionary<Player, string>();
+
+		public static List<Tuple<MethodInfo, MethodInfo>> CustomWeaponGetters = new List<Tuple<MethodInfo, MethodInfo>>();
 
 		static System.Random rnd = new System.Random();
 
@@ -317,15 +321,32 @@ namespace Subclass
 							if ((rnd.NextDouble() * 100) < subClass.SpawnItems[item.Key][item2.Key])
 							{
 								if (item2.Key == "None") break;
-								ItemType theItem;
-								if (Enum.TryParse(item2.Key, out theItem))
+								if (Enum.TryParse(item2.Key, out ItemType theItem))
 								{
-									player.AddItem(theItem);
+										player.AddItem(theItem);
 								} 
 								else
 								{
-									Log.Error($"Subclass with name: {subClass.Name} has an improper spawn item value: {item2.Key}");
-									//Inventory.SyncItemInfo syncItem = getCustomItemStuff
+									Inventory.SyncItemInfo syncItem = new Inventory.SyncItemInfo { id = ItemType.None };
+									int counter = 0;
+									foreach(var methods in CustomWeaponGetters)
+									{
+										Inventory.SyncItemInfo gotItem = (Inventory.SyncItemInfo)(methods.Item1.Invoke(null, new[] { item2.Key }));
+										if (gotItem.id != ItemType.None)
+										{
+											syncItem = gotItem;
+											break;
+										}
+										counter++;
+									}
+
+									if (syncItem.id == ItemType.None)
+										Log.Error($"Subclass with name: {subClass.Name} has an improper spawn item value: {item2.Key}");
+									else
+									{
+										player.AddItem(syncItem);
+										CustomWeaponGetters[counter].Item2.Invoke(null, new object[] { player, item2.Key, player.Inventory.items.Last() });
+									}
 								}
 								break;
 							}

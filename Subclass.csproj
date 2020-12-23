@@ -106,7 +106,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbilityCommands\Backup.cs" />
+    <Compile Include="AbilityCommands\Bloodlust.cs" />
+    <Compile Include="AbilityCommands\Corrupt.cs" />
+    <Compile Include="AbilityCommands\Disarm.cs" />
     <Compile Include="AbilityCommands\Disguise.cs" />
+    <Compile Include="AbilityCommands\Fake.cs" />
     <Compile Include="AbilityCommands\Flash.cs" />
     <Compile Include="AbilityCommands\Grenade.cs" />
     <Compile Include="AbilityCommands\Help.cs" />
@@ -114,7 +118,9 @@
     <Compile Include="AbilityCommands\Locate.cs" />
     <Compile Include="AbilityCommands\Necro.cs" />
     <Compile Include="AbilityCommands\Noclip.cs" />
+    <Compile Include="AbilityCommands\Punch.cs" />
     <Compile Include="AbilityCommands\Revive.cs" />
+    <Compile Include="AbilityCommands\Stun.cs" />
     <Compile Include="AbilityCommands\Summon.cs" />
     <Compile Include="AbilityCommands\Surge.cs" />
     <Compile Include="AbilityCommands\Utils.cs" />

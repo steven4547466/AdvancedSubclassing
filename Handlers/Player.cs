@@ -314,6 +314,11 @@ namespace Subclass.Handlers
 
         public void OnHurting(HurtingEventArgs ev)
         {
+            if (ev.DamageType == DamageTypes.Scp207 && TrackingAndMethods.PlayersBloodLusting.Contains(ev.Target))
+			{
+                ev.IsAllowed = false;
+                return;
+			}
             SubClass attackerClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Attacker) ? TrackingAndMethods.PlayersWithSubclasses[ev.Attacker] : null;
             SubClass targetClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) ? TrackingAndMethods.PlayersWithSubclasses[ev.Target] : null;
             if (targetClass != null && targetClass.Abilities.Contains(AbilityType.CantBeInfected) && Subclass.Instance.Scp008XEnabled && ev.Attacker.Role == RoleType.Scp0492)
