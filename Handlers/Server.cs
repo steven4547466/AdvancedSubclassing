@@ -66,6 +66,7 @@ namespace Subclass.Handlers
             TrackingAndMethods.ClassesGiven.Clear();
             TrackingAndMethods.DontGiveClasses.Clear();
             TrackingAndMethods.PlayersBloodLusting.Clear();
+            TrackingAndMethods.Zombie106Kills.Clear();
             API.EnableAllClasses();
         }
 

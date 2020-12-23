@@ -35,6 +35,8 @@ namespace Subclass
 
 		public static Dictionary<Player, float> PlayersThatJustGotAClass = new Dictionary<Player, float>();
 
+		public static Dictionary<Player, int> Zombie106Kills = new Dictionary<Player, int>();
+
 		public static Dictionary<Player, List<Player>> PlayersWithZombies = new Dictionary<Player, List<Player>>();
 		public static Dictionary<Player, List<Player>> PlayersThatHadZombies = new Dictionary<Player, List<Player>>();
 

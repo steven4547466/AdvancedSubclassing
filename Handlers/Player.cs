@@ -496,7 +496,13 @@ namespace Subclass.Handlers
             if (EPlayer.List.Any(p => p.Role == RoleType.Scp106))
             {
                 EPlayer scp106 = EPlayer.List.First(p => p.Role == RoleType.Scp106);
-                if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(scp106) && TrackingAndMethods.PlayersWithSubclasses[scp106].Abilities.Contains(AbilityType.Zombie106))
+                if (!TrackingAndMethods.Zombie106Kills.ContainsKey(scp106))
+                    TrackingAndMethods.Zombie106Kills.Add(scp106, 0);
+                if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(scp106) 
+                    && TrackingAndMethods.PlayersWithSubclasses[scp106].Abilities.Contains(AbilityType.Zombie106) 
+                    && (!TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions.ContainsKey("Zombie106NeededKills") 
+                    || TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions["Zombie106NeededKills"] <= 0
+                    || (TrackingAndMethods.Zombie106Kills[scp106] % TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions["Zombie106NeededKills"]) == 0))
                 {
                     ev.IsAllowed = false;
                     ev.Player.SetRole(RoleType.Scp0492, true);
@@ -507,6 +513,7 @@ namespace Subclass.Handlers
                     List<Room> rooms = EMap.Rooms.Where(r => r.Zone == Exiled.API.Enums.ZoneType.HeavyContainment).ToList();
                     ev.Player.Position = rooms[rnd.Next(rooms.Count)].Position + new Vector3(0, 1, 0);
                 }
+                TrackingAndMethods.Zombie106Kills[scp106]++;
             }
         }
 

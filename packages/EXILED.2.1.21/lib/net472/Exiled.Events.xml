@@ -632,7 +632,7 @@
         </member>
         <member name="T:Exiled.Events.EventArgs.ChangingCameraEventArgs">
             <summary>
-            Contains all informations before a player's intercom mute status is changed.
+            Contains all informations before a SCP-079 changes the current camera.
             </summary>
         </member>
         <member name="M:Exiled.Events.EventArgs.ChangingCameraEventArgs.#ctor(Exiled.API.Features.Player,Camera079,System.Single,System.Boolean)">
@@ -646,7 +646,7 @@
         </member>
         <member name="P:Exiled.Events.EventArgs.ChangingCameraEventArgs.Player">
             <summary>
-            Gets the player who's being intercom muted/unmuted.
+            Gets the player who is SCP-079.
             </summary>
         </member>
         <member name="P:Exiled.Events.EventArgs.ChangingCameraEventArgs.Camera">
@@ -661,7 +661,9 @@
         </member>
         <member name="P:Exiled.Events.EventArgs.ChangingCameraEventArgs.IsAllowed">
             <summary>
-            Gets or sets a value indicating whether or not SCP-079 can switch cameras. Will default to false if SCP-079 does not have enough mana to switch.
+            Gets or sets a value indicating whether or not SCP-079 can switch cameras.
+            Defaults to a value describing whether or not SCP-079 has enough AP to switch.
+            Can be set to true to allow a switch regardless of SCP-079's AP amount.
             </summary>
         </member>
         <member name="T:Exiled.Events.EventArgs.ChangingDurabilityEventArgs">
@@ -1102,6 +1104,41 @@
             <param name="generator">The <see cref="T:Generator079"/> instance.</param>
             <param name="isAllowed">Indicates whether or not the tablet can be ejected.</param>
         </member>
+        <member name="T:Exiled.Events.EventArgs.ElevatorTeleportEventArgs">
+            <summary>
+            Contains all informations before SCP-079 changes rooms via elevator.
+            </summary>
+        </member>
+        <member name="M:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.#ctor(Exiled.API.Features.Player,Camera079,System.Single,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Exiled.Events.EventArgs.ElevatorTeleportEventArgs"/> class.
+            </summary>
+            <param name="player"><inheritdoc cref="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.Player"/></param>
+            <param name="camera"><inheritdoc cref="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.Camera"/></param>
+            <param name="apCost"><inheritdoc cref="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.APCost"/></param>
+            <param name="isAllowed"><inheritdoc cref="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.IsAllowed"/></param>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.Player">
+            <summary>
+            Gets the player who is controlling SCP-079.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.Camera">
+            <summary>
+            Gets or sets the <see cref="T:Camera079"/> that SCP-079 will be moved to.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.APCost">
+            <summary>
+            Gets or sets the amount of AP will be consumed during the level change.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.ElevatorTeleportEventArgs.IsAllowed">
+            <summary>
+            Gets or sets a value indicating whether or not SCP-079 can teleport.
+            Defaults to a <see cref="T:System.Boolean"/> describing whether or not SCP-079 has enough AP to teleport.
+            </summary>
+        </member>
         <member name="T:Exiled.Events.EventArgs.EndingRoundEventArgs">
             <summary>
             Contains all informations before ending a round.
@@ -1191,17 +1228,23 @@
             Contains all informations before a player enters the pocket dimension.
             </summary>
         </member>
-        <member name="M:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.#ctor(Exiled.API.Features.Player,UnityEngine.Vector3,System.Boolean)">
+        <member name="M:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.#ctor(Exiled.API.Features.Player,UnityEngine.Vector3,Exiled.API.Features.Player,System.Boolean)">
             <summary>
             Initializes a new instance of the <see cref="T:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs"/> class.
             </summary>
             <param name="player"><inheritdoc cref="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Player"/></param>
             <param name="position"><inheritdoc cref="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Position"/></param>
+            <param name="scp106"><inheritdoc cref="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Scp106"/></param>
             <param name="isAllowed"><inheritdoc cref="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.IsAllowed"/></param>
         </member>
         <member name="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Player">
             <summary>
             Gets the player who's entering the pocket dimension.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Scp106">
+            <summary>
+            Gets the SCP-106 who sent the player to the pocket dimension.
             </summary>
         </member>
         <member name="P:Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs.Position">
@@ -2769,7 +2812,7 @@
         </member>
         <member name="P:Exiled.Events.EventArgs.StartingEventArgs.IsAuto">
             <summary>
-            Gets a value indicating whether determines whether or not the nuke was set off automatically.
+            Gets a value indicating whether or not the nuke was set off automatically.
             </summary>
         </member>
         <member name="T:Exiled.Events.EventArgs.StartingRecallEventArgs">
@@ -4048,6 +4091,11 @@
             Invoked before triggering a door with SCP-079.
             </summary>
         </member>
+        <member name="E:Exiled.Events.Handlers.Scp079.ElevatorTeleport">
+            <summary>
+            Invoked before SCP-079 teleports using an elevator.
+            </summary>
+        </member>
         <member name="E:Exiled.Events.Handlers.Scp079.StartingSpeaker">
             <summary>
             Invoked before SCP-079 uses a speaker.
@@ -4092,6 +4140,12 @@
             Called before interacting with a door with SCP-079.
             </summary>
             <param name="ev">The <see cref="T:Exiled.Events.EventArgs.InteractingDoorEventArgs"/> instance.</param>
+        </member>
+        <member name="M:Exiled.Events.Handlers.Scp079.OnElevatorTeleport(Exiled.Events.EventArgs.ElevatorTeleportEventArgs)">
+            <summary>
+            Called before SCP-079 teleports using an elevator.
+            </summary>
+            <param name="ev">The <see cref="T:Exiled.Events.EventArgs.ElevatorTeleportEventArgs"/> instance.</param>
         </member>
         <member name="M:Exiled.Events.Handlers.Scp079.OnStartingSpeaker(Exiled.Events.EventArgs.StartingSpeakerEventArgs)">
             <summary>
@@ -4599,7 +4653,7 @@
         </member>
         <member name="T:Exiled.Events.Patches.Events.Player.Died">
             <summary>
-            Patches <see cref="M:PlayerStats.HurtPlayer(PlayerStats.HitInfo,UnityEngine.GameObject,System.Boolean)"/>.
+            Patches <see cref="M:PlayerStats.HurtPlayer(PlayerStats.HitInfo,UnityEngine.GameObject,System.Boolean,System.Boolean)"/>.
             Adds the <see cref="E:Exiled.Events.Handlers.Player.Died"/> event.
             </summary>
         </member>
@@ -4629,7 +4683,7 @@
         </member>
         <member name="T:Exiled.Events.Patches.Events.Player.Hurting">
             <summary>
-            Patches <see cref="M:PlayerStats.HurtPlayer(PlayerStats.HitInfo,UnityEngine.GameObject,System.Boolean)"/>.
+            Patches <see cref="M:PlayerStats.HurtPlayer(PlayerStats.HitInfo,UnityEngine.GameObject,System.Boolean,System.Boolean)"/>.
             Adds the <see cref="E:Exiled.Events.Handlers.Player.Hurting"/> event.
             </summary>
         </member>

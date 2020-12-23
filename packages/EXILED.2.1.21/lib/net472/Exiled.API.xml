@@ -92,6 +92,326 @@
             Muzzle Booster.
             </summary>
         </member>
+        <member name="T:Exiled.API.Enums.CameraType">
+            <summary>
+            Unique identifier for the different types of SCP-079 cameras.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Unknown">
+            <summary>
+            Represents an unknown camera.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczClassDSpawn">
+            <summary>
+            Represents the camera inside the Class-D spawns.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczGlassBox">
+            <summary>
+            Represents the camera inside SCP-372's containment room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz173Hallway">
+            <summary>
+            Represents the camera outside of SCP-173's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz173Armory">
+            <summary>
+            Represents the camera outside the 173_ARMORY door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz173Containment">
+            <summary>
+            Represents the camera inside of SCP-173's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz173Bottom">
+            <summary>
+            Represents the camera above the 173_BOTTOM door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz012">
+            <summary>
+            Represents the camera outside of SCP-012's room
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz012Bottom">
+            <summary>
+            Represents the camera at the bottom of SCP-012's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczCafe">
+            <summary>
+            Represents the LCZ cafe.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczArmory">
+            <summary>
+            Represents the camera inside the LCZ armory.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczPlants">
+            <summary>
+            Represents the plant room in LCZ.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.WC">
+            <summary>
+            Represents the camera inside the WC hallway.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz914">
+            <summary>
+            Represents the camera inside SCP-914.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Lcz914Hallway">
+            <summary>
+            Represents the camera outside SCP-914.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczALight">
+            <summary>
+            Represents the camera in the LCZ A <see cref="T:Lift"/> in LCZ.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczBLight">
+            <summary>
+            Represents the camera in the LCZ B <see cref="T:Lift"/> in LCZ.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczAChkp">
+            <summary>
+            Represents the camera facing the LCZ/HCZ A checkpoint, on the Light Containment side.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczBChkp">
+            <summary>
+            Represents the camera facing the LCZ/HCZ B checkpoint, on the Light Containment side.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczAChkp">
+            <summary>
+            Represents the camera facing the LCZ/HCZ A checkpoint, on the Heavy Containment side.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczBChkp">
+            <summary>
+            Represents the camera facing the LCZ/HCZ B checkpoint, on the Heavy Containment side.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczAHeavy">
+            <summary>
+            Represents the camera in the LCZ A <see cref="T:Lift"/> in HCZ.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.LczBHeavy">
+            <summary>
+            Represents the camera in the LCZ B <see cref="T:Lift"/> in heavy.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz079PreHallway">
+            <summary>
+            Represents the camera in the pre-hallway in front of 079_FIRST door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz079Hallway">
+            <summary>
+            Represents the camera in the hallway between the 079_FIRST and 079_SECOND doors.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz079Interior">
+            <summary>
+            Represents the camera inside SCP-079's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz096">
+            <summary>
+            Represents the camera outside of SCP-096's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz049Elevator">
+            <summary>
+            Represents the camera in the SCP-049 <see cref="T:Lift"/> hallway that is in front of the elevator.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz049Hall">
+            <summary>
+            Represents the camera in the SCP-049 <see cref="T:Lift"/> hallway that is not in front of the elevator.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz049Armory">
+            <summary>
+            Represents the camera that faces toward the 049_ARMORY door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczServerHall">
+            <summary>
+            Represents the hallway camera in the server room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczServerBottom">
+            <summary>
+            Represents the camera on the bottom level of the server room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczServerTop">
+            <summary>
+            Represents the camera on the top level of the server room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczHidHall">
+            <summary>
+            Represents the camera in the HID hallway.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczHidInterior">
+            <summary>
+            Represents the camera inside the Micro-HID room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczWarheadHall">
+            <summary>
+            Represents the camera outside of the alpha warhead <see cref="T:Lift"/> in HCZ.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczWarheadRoom">
+            <summary>
+            Represents the camera inside of the alpha warhead room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczWarheadSwitch">
+            <summary>
+            Represents the camera above the alpha warhead switch.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczWarheadArmory">
+            <summary>
+            Represents the camera inside the alpha warhead armory.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz939">
+            <summary>
+            Represents the camera inside SCP-939's containment room.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczArmory">
+            <summary>
+            Represents the camera above the HCZ_ARMORY door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106First">
+            <summary>
+            Represents the SCP-106 MAIN CAM camera (above the door leading to SCP-106's room).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106Second">
+            <summary>
+            Represents the SCP-106 SECOND camera (outside the 106_PRIMARY door).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106Primary">
+            <summary>
+            Represents the 106 ENT A camera (above the 106_PRIMARY door inside the containment room).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106Secondary">
+            <summary>
+            Represents the 106 ENT B camera (above the 106_SECONDARY door inside the containment room).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106Recontainer">
+            <summary>
+            Represents the camera above the femur breaker.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Hcz106Stairs">
+            <summary>
+            Represents the camera facing toward the stairs in SCP-106's containment chamber.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.HczChkpEz">
+            <summary>
+            Represents the camera facing toward the entrance zone checkpoint (in HCZ).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzChkpHcz">
+            <summary>
+            Represents the camera facing toward the heavy containment zone checkpoint (in EZ).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzIntercomHall">
+            <summary>
+            Represents the camera outside the INTERCOM door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzIntercomStairs">
+            <summary>
+            Represents the camera inside the INTERCOM door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzIntercomInterior">
+            <summary>
+            Represents the camera facing the intercom.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzGateA">
+            <summary>
+            Represents the camera inside of Gate A (entrance zone).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EzGateB">
+            <summary>
+            Represents the camera inside of Gate B (entrance zone).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.GateA">
+            <summary>
+            Represents the camera outside of the Gate A elevator (surface).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Bridge">
+            <summary>
+            Represents the camera above the Gate A balcony.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Tower">
+            <summary>
+            Represents the camera on the tower at Gate A.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Backstreet">
+            <summary>
+            Represents the camera facing the NUKE_SURFACE door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.SurfaceGate">
+            <summary>
+            Represents the camera facing the SURFACE_GATE door (Gate B side)
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Streetcam">
+            <summary>
+            Represents the camera on the Gate B walkway.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Helipad">
+            <summary>
+            Represents the HELIPAD camera.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.EscapeZone">
+            <summary>
+            Represents the ESCAPE ZONE camera (facing toward the ESCAPE door).
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.CameraType.Exit">
+            <summary>
+            Represents the EXIT camera (above the Class-D and Scientist extraction point).
+            </summary>
+        </member>
         <member name="T:Exiled.API.Enums.DoorType">
             <summary>
             Unique identifier for the different types of doors.
@@ -295,6 +615,116 @@
         <member name="F:Exiled.API.Enums.DoorType.UnknownDoor">
             <summary>
             Represents an unknown door.
+            </summary>
+        </member>
+        <member name="T:Exiled.API.Enums.EffectType">
+            <summary>
+            Status effects as enum.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Amnesia">
+            <summary>
+            The player isn't able to open their inventory or reload a weapon.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Asphyxiated">
+            <summary>
+            Drains the player's stamina and then health.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Bleeding">
+            <summary>
+            Damages the player over time.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Blinded">
+            <summary>
+            Blurs the player's screen.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Burned">
+            <summary>
+            Increases damage the player gets.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Concussed">
+            <summary>
+            Blurs the player's screen when rotating.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Corroding">
+            <summary>
+            Teleports the player to the pocket dimension and drains health.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Deafened">
+            <summary>
+            Deafens the player.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Decontaminating">
+            <summary>
+            Removes 10% of the player's health per second.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Disabled">
+            <summary>
+            Slows down the player's movement.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Ensnared">
+            <summary>
+            Stops the player's movement.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Exhausted">
+            <summary>
+            Halves the player's maximum stamina and stamina regeneration rate.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Flashed">
+            <summary>
+            Flashes the player.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Hemorrhage">
+            <summary>
+            Drains the player's health while sprinting.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Invigorated">
+            <summary>
+            Reduces the player's FOV, gives infinite stamina and gives the effect of underwater sound.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Panic">
+            <summary>
+            Increases the player's stamina consumption.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Poisoned">
+            <summary>
+            Damages the player every 5 seconds, starting low and ramping hight.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Scp207">
+            <summary>
+            Makes the player faster but also drains health.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Scp268">
+            <summary>
+            Makes the player invisibility.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.SinkHole">
+            <summary>
+            Slows down the player's movement with SCP-106 effect.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.EffectType.Visuals939">
+            <summary>
+            Gives the player the sound vision of SCP-939.
             </summary>
         </member>
         <member name="T:Exiled.API.Enums.ElevatorType">
@@ -862,6 +1292,38 @@
             An unknown zone.
             </summary>
         </member>
+        <member name="T:Exiled.API.Extensions.CameraExtensions">
+            <summary>
+            Contains an extension method to get <see cref="T:Exiled.API.Enums.CameraType"/> from <see cref="T:Camera079"/>, as well as additional methods to get the <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/> and <see cref="T:Exiled.API.Enums.ZoneType"/> of a camera.
+            Internal class <see cref="M:Exiled.API.Extensions.CameraExtensions.RegisterCameraInfoOnLevelLoad"/> to cache the <see cref="T:Exiled.API.Enums.CameraType"/> and <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/> on level load.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)">
+            <summary>
+            Returns the <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/> the camera is in, or null if not found.
+            </summary>
+            <param name="camera">The <see cref="T:Camera079"/> to check.</param>
+            <returns>A <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/>, or null if not found.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.CameraExtensions.Type(Camera079)">
+            <summary>
+            Gets the <see cref="T:Exiled.API.Enums.CameraType"/>.
+            </summary>
+            <param name="camera">The <see cref="T:Camera079"/> to check.</param>
+            <returns>The <see cref="T:Exiled.API.Enums.CameraType"/>.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.CameraExtensions.Zone(Camera079)">
+            <summary>
+            Returns the <see cref="T:Exiled.API.Enums.ZoneType"/> the camera is in.
+            </summary>
+            <param name="camera">The <see cref="T:Camera079"/> to check.</param>
+            <returns>The <see cref="T:Exiled.API.Enums.ZoneType"/> of the zone the camera is in.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.CameraExtensions.RegisterCameraInfoOnLevelLoad">
+            <summary>
+            Gets all the <see cref="T:Exiled.API.Enums.CameraType"/> and <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/> values for for the <see cref="T:Camera079"/> instances using <see cref="F:Camera079.cameraId"/> and <see cref="T:UnityEngine.GameObject"/> name.
+            </summary>
+        </member>
         <member name="T:Exiled.API.Extensions.DoorTypeExtension">
             <summary>
             Contains an extension method to get <see cref="T:Exiled.API.Enums.DoorType"/> from <see cref="T:Door"/>.
@@ -879,6 +1341,18 @@
             <summary>
             Gets all the <see cref="T:Exiled.API.Enums.DoorType"/> values for for the <see cref="T:Door"/> instances using <see cref="F:Door.DoorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
             </summary>
+        </member>
+        <member name="T:Exiled.API.Extensions.EffectTypeExtension">
+            <summary>
+            Contains an extension method to get <see cref="T:System.Type"/> from <see cref="T:Exiled.API.Enums.EffectType"/>.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Extensions.EffectTypeExtension.Type(Exiled.API.Enums.EffectType)">
+            <summary>
+            Gets an instance of <see cref="T:System.Type"/> points to an effect.
+            </summary>
+            <param name="effect">The <see cref="T:Exiled.API.Enums.EffectType"/> enum.</param>
+            <returns>The <see cref="T:System.Type"/>.</returns>
         </member>
         <member name="T:Exiled.API.Extensions.Item">
             <summary>
@@ -1059,6 +1533,39 @@
             <summary>
             Gets all the <see cref="T:Exiled.API.Enums.ElevatorType"/> values for for the <see cref="T:Lift"/> instances using <see cref="F:Lift.elevatorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
             </summary>
+        </member>
+        <member name="T:Exiled.API.Extensions.RagdollExtensions">
+            <summary>
+            A set of extensions for <see cref="T:Ragdoll"/>.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Extensions.RagdollExtensions.GetRoom(Ragdoll)">
+            <summary>
+            Finds and returns the <see cref="T:Exiled.API.Features.Room"/> the ragdoll is located in.
+            </summary>
+            <param name="ragdoll">The <see cref="T:Ragdoll"/> to check the room of.</param>
+            <returns>The <see cref="T:Exiled.API.Features.Room"/> the ragdoll is located in.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.RagdollExtensions.GetRole(Ragdoll)">
+            <summary>
+            Returns the <see cref="T:RoleType"/> of the ragdoll.
+            </summary>
+            <param name="ragdoll">The <see cref="T:Ragdoll"/> to check the role of.</param>
+            <returns>The <see cref="T:RoleType"/> of the ragdoll.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.RagdollExtensions.GetOwner(Ragdoll)">
+            <summary>
+            Returns the owner <see cref="T:Exiled.API.Features.Player"/>, or null if the ragdoll does not have an owner.
+            </summary>
+            <param name="ragdoll">The <see cref="T:Ragdoll"/> to get the owner of.</param>
+            <returns>The owner of the ragdoll, or null if the ragdoll does not have an owner.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.RagdollExtensions.GetKiller(Ragdoll)">
+            <summary>
+            Returns the killing <see cref="T:Exiled.API.Features.Player"/>, or null if the killer is not a player.
+            </summary>
+            <param name="ragdoll">The <see cref="T:Ragdoll"/> to get the killer of.</param>
+            <returns>The killing <see cref="T:Exiled.API.Features.Player"/>, or null if the killer is not a player.</returns>
         </member>
         <member name="T:Exiled.API.Extensions.Reflection">
             <summary>
@@ -1359,11 +1866,6 @@
             Gets the number of activated generators.
             </summary>
         </member>
-        <member name="P:Exiled.API.Features.Map.Cameras">
-            <summary>
-            Gets all <see cref="T:Camera079"/> objects.
-            </summary>
-        </member>
         <member name="P:Exiled.API.Features.Map.Rooms">
             <summary>
             Gets all <see cref="T:Exiled.API.Features.Room"/> objects.
@@ -1372,6 +1874,11 @@
         <member name="P:Exiled.API.Features.Map.Doors">
             <summary>
             Gets all <see cref="T:Door"/> objects.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Map.Cameras">
+            <summary>
+            Gets all <see cref="T:Camera079"/> objects.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Map.Lifts">
@@ -1458,6 +1965,13 @@
             </summary>
             <param name="cameraId">The camera id to be searched for.</param>
             <returns>The <see cref="T:Camera079"/> with the given ID.</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Map.GetCameraByType(UnityEngine.CameraType)">
+            <summary>
+            Gets the camera with the given camera type.
+            </summary>
+            <param name="cameraType">The <see cref="T:UnityEngine.CameraType"/> to search for.</param>
+            <returns>The <see cref="T:Camera079"/> with the given camera type.</returns>
         </member>
         <member name="M:Exiled.API.Features.Map.ClearCache">
             <summary>
@@ -1645,6 +2159,11 @@
         <member name="P:Exiled.API.Features.Player.CustomPlayerInfo">
             <summary>
             Gets or sets the player's custom player info string.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Player.SessionVariables">
+            <summary>
+            Gets the dictionary of player's session variables. It is not being saved on player disconnect.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Player.IsInvisible">
@@ -2231,20 +2750,33 @@
             <param name="message">The message to be shown.</param>
             <param name="duration">The duration the text will be on screen.</param>
         </member>
+        <member name="M:Exiled.API.Features.Player.GetEffectActive``1">
+            <summary>
+            Gets a <see cref="T:System.Boolean"/> describing whether or not the given <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see> is currently enabled.
+            </summary>
+            <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to check.</typeparam>
+            <returns>A <see cref="T:System.Boolean"/> determining whether or not the player effect is active.</returns>
+        </member>
         <member name="M:Exiled.API.Features.Player.DisableAllEffects">
             <summary>
-             Disables all status affects on the player.
+             Disables all currently active <see cref="T:CustomPlayerEffects.PlayerEffect">status effects</see>.
             </summary>
         </member>
         <member name="M:Exiled.API.Features.Player.DisableEffect``1">
             <summary>
-            Disables a status effect on this player.
+            Disables a specific <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see> on the player.
             </summary>
-            <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to disale.</typeparam>
+            <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to disable.</typeparam>
+        </member>
+        <member name="M:Exiled.API.Features.Player.DisableEffect(Exiled.API.Enums.EffectType)">
+            <summary>
+            Disables a specific <see cref="T:Exiled.API.Enums.EffectType">status effect</see> on the player.
+            </summary>
+            <param name="effect">The <see cref="T:Exiled.API.Enums.EffectType"/> to disable.</param>
         </member>
         <member name="M:Exiled.API.Features.Player.EnableEffect``1(System.Single,System.Boolean)">
             <summary>
-            Enables a status effect on this player.
+            Enables a <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see> on the player.
             </summary>
             <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to enable.</typeparam>
             <param name="duration">The amount of time the effect will be active for.</param>
@@ -2252,12 +2784,58 @@
         </member>
         <member name="M:Exiled.API.Features.Player.EnableEffect(System.String,System.Single,System.Boolean)">
             <summary>
-            Enables a status effect on this player.
+            Enables a <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see> on the player.
             </summary>
             <param name="effect">The name of the <see cref="T:CustomPlayerEffects.PlayerEffect"/> to enable.</param>
             <param name="duration">The amount of time the effect will be active for.</param>
             <param name="addDurationIfActive">If the effect is already active, setting to true will add this duration onto the effect.</param>
             <returns>A bool indicating whether or not the effect was valid and successfully enabled.</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Player.EnableEffect(Exiled.API.Enums.EffectType,System.Single,System.Boolean)">
+            <summary>
+            Enables a <see cref="T:Exiled.API.Enums.EffectType">status effect</see> on the player.
+            </summary>
+            <param name="effect">The <see cref="T:Exiled.API.Enums.EffectType"/> to enable.</param>
+            <param name="duration">The amount of time the effect will be active for.</param>
+            <param name="addDurationIfActive">If the effect is already active, setting to true will add this duration onto the effect.</param>
+        </member>
+        <member name="M:Exiled.API.Features.Player.GetEffect(Exiled.API.Enums.EffectType)">
+            <summary>
+            Gets an instance of <see cref="T:CustomPlayerEffects.PlayerEffect"/> by <see cref="T:Exiled.API.Enums.EffectType"/>.
+            </summary>
+            <param name="effect">The <see cref="T:Exiled.API.Enums.EffectType"/>.</param>
+            <returns>The <see cref="T:CustomPlayerEffects.PlayerEffect"/>.</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Player.TryGetEffect(Exiled.API.Enums.EffectType,CustomPlayerEffects.PlayerEffect@)">
+            <summary>
+            Tries to get an instance of <see cref="T:CustomPlayerEffects.PlayerEffect"/> by <see cref="T:Exiled.API.Enums.EffectType"/>.
+            </summary>
+            <param name="effect">The <see cref="T:Exiled.API.Enums.EffectType"/>.</param>
+            <param name="playerEffect">The <see cref="T:CustomPlayerEffects.PlayerEffect"/>.</param>
+            <returns>A bool indicating whether or not the <paramref name="playerEffect"/> was successfully gotten.</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Player.GetEffectIntensity``1">
+            <summary>
+            Gets a <see cref="T:System.Byte"/> indicating the intensity of the given <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see>.
+            </summary>
+            <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to check.</typeparam>
+            <exception cref="T:System.ArgumentException">Thrown if the given type is not a valid <see cref="T:CustomPlayerEffects.PlayerEffect"/>.</exception>
+            <returns>The intensity of the effect.</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Player.ChangeEffectIntensity``1(System.Byte)">
+            <summary>
+            Changes the intensity of a <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see>.
+            </summary>
+            <typeparam name="T">The <see cref="T:CustomPlayerEffects.PlayerEffect"/> to change the intensity of.</typeparam>
+            <param name="intensity">The intensity of the effect.</param>
+        </member>
+        <member name="M:Exiled.API.Features.Player.ChangeEffectIntensity(System.String,System.Byte,System.Single)">
+            <summary>
+            Changes the intensity of a <see cref="T:CustomPlayerEffects.PlayerEffect">status effect</see>.
+            </summary>
+            <param name="effect">The name of the <see cref="T:CustomPlayerEffects.PlayerEffect"/> to enable.</param>
+            <param name="intensity">The intensity of the effect.</param>
+            <param name="duration">The new length of the effect. Defaults to infinite length.</param>
         </member>
         <member name="M:Exiled.API.Features.Player.RemoveHands">
             <summary>
@@ -2331,6 +2909,16 @@
         <member name="P:Exiled.API.Features.Respawn.NextKnownTeam">
             <summary>
             Gets the next known <see cref="T:Respawning.SpawnableTeamType"/> that will spawn.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Respawn.TimeUntilRespawn">
+            <summary>
+            Gets the amount of seconds before the next respawn will occur.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Respawn.IsSpawning">
+            <summary>
+            Gets a value indicating whether or not a team is currently being spawned or the animations are playing for a team.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Respawn.NtfTickets">
@@ -2603,6 +3191,11 @@
         <member name="P:Exiled.API.Features.Server.Name">
             <summary>
             Gets or sets the name of the server.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Server.IpAddress">
+            <summary>
+            Gets the Ip address of the server.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Server.Port">
