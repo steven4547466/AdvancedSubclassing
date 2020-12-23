@@ -342,7 +342,7 @@ namespace Subclass.Handlers
 
             if (ev.Attacker.Id != ev.Target.Id) ev.Attacker.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
 
-            if (ev.DamageType != DamageTypes.Falldown && attackerClass != null && 
+            if (ev.Attacker.Id != ev.Target.Id && ev.DamageType != DamageTypes.Falldown && attackerClass != null && 
                 (attackerClass.OnHitEffects.Count > 0))
             {
                 foreach (string effect in attackerClass.OnHitEffects)

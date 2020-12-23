@@ -41,6 +41,8 @@ namespace Subclass.Handlers
         public void OnRoundEnded(RoundEndedEventArgs ev)
         {
             // I may just consider using reflection and just loop over all members and clear them if I can.
+            TrackingAndMethods.KillAllCoroutines();
+            TrackingAndMethods.Coroutines.Clear();
             TrackingAndMethods.PlayersWithSubclasses.Clear();
             TrackingAndMethods.Cooldowns.Clear();
             TrackingAndMethods.FriendlyFired.Clear();

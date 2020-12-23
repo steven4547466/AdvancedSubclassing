@@ -408,6 +408,7 @@ namespace Subclass
         Bloodlust,
         Disarm,
         Fake,
-        Corrupt
+        Corrupt,
+        Multiply
     }
 }

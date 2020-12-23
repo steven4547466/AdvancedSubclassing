@@ -20,6 +20,8 @@ namespace Subclass
 {
 	public class TrackingAndMethods
 	{
+		public static List<CoroutineHandle> Coroutines= new List<CoroutineHandle>();
+
 		public static Dictionary<RoleType, int> rolesForClass = new Dictionary<RoleType, int>();
 
 		public static Dictionary<SubClass, int> SubClassesSpawned = new Dictionary<SubClass, int>();
@@ -460,6 +462,11 @@ namespace Subclass
 				{
 					player.ReferenceHub.playerEffectsController.EnableEffect<Regeneration>(float.MaxValue);
 				});
+			}
+
+			if (subClass.Abilities.Contains(AbilityType.Multiply))
+			{
+				TheyMultiply(player, subClass);
 			}
 
 			if ((!lite || escaped))
@@ -1185,6 +1192,57 @@ namespace Subclass
 			Assembly assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "GhostSpectator")?.Assembly;
 			if (assembly == null) return false;
 			return ((bool)assembly.GetType("GhostSpectator.API")?.GetMethod("IsGhost")?.Invoke(null, new[] { player })) == true;
+		}
+
+		public static void TheyMultiply(Player player, SubClass subClass)
+		{
+			int coroutineIndex = Coroutines.Count;
+			RoleType savedRole = player.Role;
+			Coroutines.Add(Timing.CallDelayed(subClass.AbilityCooldowns[AbilityType.Multiply], () =>
+			{
+				if (player.Role == RoleType.Spectator ||!PlayersWithSubclasses.ContainsKey(player) || PlayersWithSubclasses[player].Name != subClass.Name 
+					|| savedRole != player.Role)
+				{
+					Timing.KillCoroutines(Coroutines[coroutineIndex]);
+					Coroutines.RemoveAt(coroutineIndex);
+					return;
+				}
+
+				if (!CanUseAbility(player, AbilityType.Multiply, subClass))
+				{
+					DisplayCantUseAbility(player, AbilityType.Multiply, subClass, "multiply");
+					Timing.KillCoroutines(Coroutines[coroutineIndex]);
+					Coroutines.RemoveAt(coroutineIndex);
+					return;
+				}
+
+				IEnumerable<Player> spectators = Player.Get(RoleType.Spectator);
+				if (spectators.Count() <= 0)
+				{
+					Timing.KillCoroutines(Coroutines[coroutineIndex]);
+					Coroutines.RemoveAt(coroutineIndex);
+					TheyMultiply(player, subClass);
+					return;
+				}
+
+				UseAbility(player, AbilityType.Multiply, subClass);
+				Player p = spectators.ElementAt(rnd.Next(spectators.Count()));
+				p.SetRole(savedRole);
+
+				Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2.5f : 0.5f, () =>
+				{
+					p.Health *= subClass.FloatOptions.ContainsKey("MultiplyHealthPercent") ? subClass.FloatOptions["MultiplyHealthPercent"] / 100 : .25f;
+					Timing.KillCoroutines(Coroutines[coroutineIndex]);
+					Coroutines.RemoveAt(coroutineIndex);
+					TheyMultiply(player, subClass);
+				});
+			}));
+		}
+
+		public static void KillAllCoroutines()
+		{
+			foreach (CoroutineHandle coroutine in Coroutines)
+				Timing.KillCoroutines(coroutine);
 		}
 	}
 }
