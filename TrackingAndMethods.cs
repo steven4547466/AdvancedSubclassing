@@ -20,7 +20,7 @@ namespace Subclass
 {
 	public class TrackingAndMethods
 	{
-		public static List<CoroutineHandle> Coroutines= new List<CoroutineHandle>();
+		public static List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
 
 		public static Dictionary<RoleType, int> rolesForClass = new Dictionary<RoleType, int>();
 
