@@ -335,11 +335,18 @@ namespace Subclass
 									int counter = 0;
 									foreach(var methods in CustomWeaponGetters)
 									{
-										Inventory.SyncItemInfo gotItem = (Inventory.SyncItemInfo)(methods.Item1.Invoke(null, new[] { item2.Key }));
-										if (gotItem == null || gotItem.id != ItemType.None)
+										try
 										{
-											syncItem = gotItem;
-											break;
+											Inventory.SyncItemInfo gotItem = (Inventory.SyncItemInfo)(methods.Item1.Invoke(null, new[] { item2.Key }));
+											if (gotItem == null || gotItem.id != ItemType.None)
+											{
+												syncItem = gotItem;
+												break;
+											}
+										}
+										catch(Exception e)
+										{
+											Log.Error($"Error getting custom weapon: {e}");
 										}
 										counter++;
 									}
@@ -610,6 +617,7 @@ namespace Subclass
 					p.ReferenceHub.playerStats.artificialHpDecay = 0.75f;
 				if (PlayersInvisibleByCommand.Contains(p)) PlayersInvisibleByCommand.Remove(p);
 				if (PlayersVenting.Contains(p)) PlayersVenting.Remove(p);
+				if (PlayersBloodLusting.Contains(p)) PlayersBloodLusting.Remove(p);
 			}
 
 			//if (PlayersWithZombies.ContainsKey(p) && escaped)
