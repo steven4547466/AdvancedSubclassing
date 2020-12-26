@@ -24,7 +24,8 @@ namespace Subclass.AbilityCommands
             response = "";
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) || 
-                !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Punch))
+                !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Punch) ||
+                player.IsCuffed)
             {
                 Log.Debug($"Player {player.Nickname} could not use the punch command", Subclass.Instance.Config.Debug);
                 response = "";

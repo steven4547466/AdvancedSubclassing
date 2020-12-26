@@ -24,7 +24,8 @@ namespace Subclass.AbilityCommands
             response = "";
             Player player = Player.Get(((PlayerCommandSender)sender).SenderId);
             if (!TrackingAndMethods.PlayersWithSubclasses.ContainsKey(player) ||
-                !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disarm))
+                !TrackingAndMethods.PlayersWithSubclasses[player].Abilities.Contains(AbilityType.Disarm) ||
+                player.IsCuffed)
             {
                 Log.Debug($"Player {player.Nickname} could not use the disarm command", Subclass.Instance.Config.Debug);
                 response = "";
