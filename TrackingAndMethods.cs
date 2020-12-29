@@ -887,6 +887,7 @@ namespace Subclass
 
 		public static void CheckRoundEnd()
 		{
+			if (Round.IsLocked) return;
 			Log.Debug("Checking round end", Subclass.Instance.Config.Debug);
 			List<string> teamsAlive = GetTeamsAlive();
 
