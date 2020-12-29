@@ -128,7 +128,7 @@ namespace Subclass
 				if (rng < subClass.FloatOptions["ChanceToGet"] &&
 					(!subClass.IntOptions.ContainsKey("MaxAlive") ||
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
-					(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
@@ -162,7 +162,7 @@ namespace Subclass
 				Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
 				if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") ||
 					PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
-					(possibity.Key.EndsRoundWith == "RIP" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
+					(possibity.Key.EndsRoundWith == "RIP" || possibity.Key.EndsRoundWith == "ALL" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
 					AddClass(player, possibity.Key, is035, is035 || escaped, escaped);
@@ -198,7 +198,7 @@ namespace Subclass
 
 				if (rng < subClass.AffectsUsers[player.UserId] && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
-					(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
@@ -232,7 +232,7 @@ namespace Subclass
 
 				if (rng < needed && (!subClass.IntOptions.ContainsKey("MaxAlive") ||
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
-					(subClass.EndsRoundWith == "RIP" || teamsAlive.Contains(subClass.EndsRoundWith)))
+					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
 					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
