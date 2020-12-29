@@ -1920,6 +1920,18 @@
             <param name="position">Hands position.</param>
             <param name="rotation">Hands rotation.</param>
         </member>
+        <member name="M:Exiled.API.Features.Map.ForceSpawn2536">
+            <summary>
+            Force spawns SCP-2536 at a random player.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Features.Map.ForceSpawn2536(Exiled.API.Features.Player,System.Boolean)">
+            <summary>
+            Force spawns SCP-2536 at a specified player.
+            </summary>
+            <param name="player">The <see cref="T:Exiled.API.Features.Player"/> to spawn SCP-2536 at.</param>
+            <param name="addToChosenList">If set to true, the player will be added to the chosen list and cannot be automatically selected for the remainder of the round.</param>
+        </member>
         <member name="M:Exiled.API.Features.Map.Broadcast(System.UInt16,System.String,Broadcast.BroadcastFlags)">
             <summary>
             Broadcasts a message to all players.

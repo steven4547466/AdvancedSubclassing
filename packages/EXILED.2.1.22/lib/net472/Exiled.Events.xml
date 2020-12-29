@@ -156,46 +156,46 @@
         <member name="M:Exiled.Events.Commands.Reload.RemoteAdmin.Execute(System.ArraySegment{System.String},CommandSystem.ICommandSender,System.String@)">
             <inheritdoc/>
         </member>
-        <member name="T:Exiled.Events.Commands.Plugins">
+        <member name="T:Exiled.Events.Commands.Show.Plugins">
             <summary>
             The command to show all plugins.
             </summary>
         </member>
-        <member name="P:Exiled.Events.Commands.Plugins.Command">
+        <member name="P:Exiled.Events.Commands.Show.Plugins.Command">
             <inheritdoc/>
         </member>
-        <member name="P:Exiled.Events.Commands.Plugins.Aliases">
+        <member name="P:Exiled.Events.Commands.Show.Plugins.Aliases">
             <inheritdoc/>
         </member>
-        <member name="P:Exiled.Events.Commands.Plugins.Description">
+        <member name="P:Exiled.Events.Commands.Show.Plugins.Description">
             <inheritdoc/>
         </member>
-        <member name="M:Exiled.Events.Commands.Plugins.Execute(System.ArraySegment{System.String},CommandSystem.ICommandSender,System.String@)">
+        <member name="M:Exiled.Events.Commands.Show.Plugins.Execute(System.ArraySegment{System.String},CommandSystem.ICommandSender,System.String@)">
             <inheritdoc/>
         </member>
-        <member name="T:Exiled.Events.Commands.Show">
+        <member name="T:Exiled.Events.Commands.Show.Show">
             <summary>
             The command to show all plugins.
             </summary>
         </member>
-        <member name="M:Exiled.Events.Commands.Show.#ctor">
+        <member name="M:Exiled.Events.Commands.Show.Show.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:Exiled.Events.Commands.Show"/> class.
+            Initializes a new instance of the <see cref="T:Exiled.Events.Commands.Show.Show"/> class.
             </summary>
         </member>
-        <member name="P:Exiled.Events.Commands.Show.Command">
+        <member name="P:Exiled.Events.Commands.Show.Show.Command">
             <inheritdoc/>
         </member>
-        <member name="P:Exiled.Events.Commands.Show.Aliases">
+        <member name="P:Exiled.Events.Commands.Show.Show.Aliases">
             <inheritdoc/>
         </member>
-        <member name="P:Exiled.Events.Commands.Show.Description">
+        <member name="P:Exiled.Events.Commands.Show.Show.Description">
             <inheritdoc/>
         </member>
-        <member name="M:Exiled.Events.Commands.Show.LoadGeneratedCommands">
+        <member name="M:Exiled.Events.Commands.Show.Show.LoadGeneratedCommands">
             <inheritdoc/>
         </member>
-        <member name="M:Exiled.Events.Commands.Show.ExecuteParent(System.ArraySegment{System.String},CommandSystem.ICommandSender,System.String@)">
+        <member name="M:Exiled.Events.Commands.Show.Show.ExecuteParent(System.ArraySegment{System.String},CommandSystem.ICommandSender,System.String@)">
             <inheritdoc/>
         </member>
         <member name="T:Exiled.Events.Config">
@@ -1629,6 +1629,39 @@
             Gets the player who interacted.
             </summary>
         </member>
+        <member name="T:Exiled.Events.EventArgs.Interacting2536EventArgs">
+            <summary>
+            Contains all information before a player interacts with a <see cref="T:SCP2536_Present"/>.
+            </summary>
+        </member>
+        <member name="M:Exiled.Events.EventArgs.Interacting2536EventArgs.#ctor(Exiled.API.Features.Player,SCP2536_Present,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Exiled.Events.EventArgs.Interacting2536EventArgs"/> class.
+            </summary>
+            <param name="player"><inheritdoc cref="P:Exiled.Events.EventArgs.Interacting2536EventArgs.Player"/></param>
+            <param name="present"><inheritdoc cref="P:Exiled.Events.EventArgs.Interacting2536EventArgs.Present"/></param>
+            <param name="isAllowed"><inheritdoc cref="P:Exiled.Events.EventArgs.Interacting2536EventArgs.IsAllowed"/></param>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Interacting2536EventArgs.Player">
+            <summary>
+            Gets the player who's interacting with the present.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Interacting2536EventArgs.Present">
+            <summary>
+            Gets the <see cref="T:SCP2536_Present"/> instance.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Interacting2536EventArgs.Scenario">
+            <summary>
+            Gets or sets the 2536 scenario (which determines the item outcome).
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Interacting2536EventArgs.IsAllowed">
+            <summary>
+            Gets or sets a value indicating whether or not the player can open the present.
+            </summary>
+        </member>
         <member name="T:Exiled.Events.EventArgs.InteractingDoorEventArgs">
             <summary>
             Contains all informations before a player interacts with a door.
@@ -2632,6 +2665,34 @@
             Gets or sets a value indicating whether or not the shot can hurt the target.
             </summary>
         </member>
+        <member name="T:Exiled.Events.EventArgs.Spawned2536EventArgs">
+            <summary>
+            Contains all informations after SCP-2536 spawns.
+            </summary>
+        </member>
+        <member name="M:Exiled.Events.EventArgs.Spawned2536EventArgs.#ctor(Exiled.API.Features.Player,SCP2536_Spawn_Location,System.Collections.Generic.List{SCP2536_Present})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Exiled.Events.EventArgs.Spawned2536EventArgs"/> class.
+            </summary>
+            <param name="player">The player who SCP-2536 spawned for.</param>
+            <param name="spawn">The selected <see cref="T:SCP2536_Spawn_Location"/>.</param>
+            <param name="presents">The list of <see cref="T:SCP2536_Present"/> instances.</param>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawned2536EventArgs.Player">
+            <summary>
+            Gets the targeted player.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawned2536EventArgs.Spawn">
+            <summary>
+            Gets the spawn position of SCP-2536.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawned2536EventArgs.Presents">
+            <summary>
+            Gets a List of <see cref="T:SCP2536_Present"/>.
+            </summary>
+        </member>
         <member name="T:Exiled.Events.EventArgs.SpawnedItemEventArgs">
             <summary>
             Contains all informations after the server spawns an item.
@@ -2646,6 +2707,34 @@
         <member name="P:Exiled.Events.EventArgs.SpawnedItemEventArgs.Pickup">
             <summary>
             Gets or sets the item pickup.
+            </summary>
+        </member>
+        <member name="T:Exiled.Events.EventArgs.Spawning2536EventArgs">
+            <summary>
+            Contains all informations before SCP-2536 spawns.
+            </summary>
+        </member>
+        <member name="M:Exiled.Events.EventArgs.Spawning2536EventArgs.#ctor(Exiled.API.Features.Player,SCP2536_Spawn_Location,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Exiled.Events.EventArgs.Spawning2536EventArgs"/> class.
+            </summary>
+            <param name="player">The player who SCP-2536 spawned for.</param>
+            <param name="spawn">The selected <see cref="T:SCP2536_Spawn_Location"/>.</param>
+            <param name="isAllowed">Indicates whether or not SCP-2536 can spawn.</param>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawning2536EventArgs.Player">
+            <summary>
+            Gets or sets the targeted player.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawning2536EventArgs.Spawn">
+            <summary>
+            Gets the spawn position of SCP-2536.
+            </summary>
+        </member>
+        <member name="P:Exiled.Events.EventArgs.Spawning2536EventArgs.IsAllowed">
+            <summary>
+            Gets or sets a value indicating whether or not SCP-2536 can spawn.
             </summary>
         </member>
         <member name="T:Exiled.Events.EventArgs.SpawningEventArgs">
@@ -3402,6 +3491,16 @@
             Invoked after an item is spawned.
             </summary>
         </member>
+        <member name="E:Exiled.Events.Handlers.Map.Spawning2536">
+            <summary>
+            Invoked before SCP-2536 spawns.
+            </summary>
+        </member>
+        <member name="E:Exiled.Events.Handlers.Map.Spawned2536">
+            <summary>
+            Invoked after SCP-2536 spawns.
+            </summary>
+        </member>
         <member name="M:Exiled.Events.Handlers.Map.OnPlacingDecal(Exiled.Events.EventArgs.PlacingDecalEventArgs)">
             <summary>
             Called before placing a decal.
@@ -3467,6 +3566,18 @@
             Called after an item is spawned.
             </summary>
             <param name="ev">The <see cref="T:Exiled.Events.EventArgs.SpawnedItemEventArgs"/> instance.</param>
+        </member>
+        <member name="M:Exiled.Events.Handlers.Map.OnSpawning2536(Exiled.Events.EventArgs.Spawning2536EventArgs)">
+            <summary>
+            Called before SCP-2536 spawns.
+            </summary>
+            <param name="ev">The <see cref="T:Exiled.Events.EventArgs.Spawning2536EventArgs"/> instance.</param>
+        </member>
+        <member name="M:Exiled.Events.Handlers.Map.OnSpawned2536(Exiled.Events.EventArgs.Spawned2536EventArgs)">
+            <summary>
+            Called after SCP-2536 spawns.
+            </summary>
+            <param name="ev">The <see cref="T:Exiled.Events.EventArgs.Spawned2536EventArgs"/> instance.</param>
         </member>
         <member name="T:Exiled.Events.Handlers.Player">
             <summary>
@@ -3581,6 +3692,11 @@
         <member name="E:Exiled.Events.Handlers.Player.PickingUpScp330">
             <summary>
             Invoked before a player interacts with SCP-330.
+            </summary>
+        </member>
+        <member name="E:Exiled.Events.Handlers.Player.Interacting2536">
+            <summary>
+            Invoked before a player interacts with a <see cref="T:SCP2536_Present"/>.
             </summary>
         </member>
         <member name="E:Exiled.Events.Handlers.Player.Handcuffing">
@@ -3859,6 +3975,12 @@
             Called before a player picks up an item.
             </summary>
             <param name="ev">The <see cref="T:Exiled.Events.EventArgs.PickingUpScp330EventArgs"/> instance.</param>
+        </member>
+        <member name="M:Exiled.Events.Handlers.Player.OnInteracting2536(Exiled.Events.EventArgs.Interacting2536EventArgs)">
+            <summary>
+            Called before a player interacts with a <see cref="T:SCP2536_Present"/>.
+            </summary>
+            <param name="ev">The <see cref="T:Exiled.Events.EventArgs.Interacting2536EventArgs"/> instance.</param>
         </member>
         <member name="M:Exiled.Events.Handlers.Player.OnHandcuffing(Exiled.Events.EventArgs.HandcuffingEventArgs)">
             <summary>
@@ -4585,6 +4707,12 @@
             Adds the <see cref="E:Exiled.Events.Handlers.Map.PlacingDecal"/> event.
             </summary>
         </member>
+        <member name="T:Exiled.Events.Patches.Events.Map.Spawning2536">
+            <summary>
+            Patches <see cref="M:SCP_2536_Controller.SelectAndSpawnTree"/>.
+            Adds the <see cref="E:Exiled.Events.Handlers.Map.Spawning2536"/> and <see cref="E:Exiled.Events.Handlers.Map.Spawned2536"/> events.
+            </summary>
+        </member>
         <member name="T:Exiled.Events.Patches.Events.Map.SpawningItem">
             <summary>
             Patches <see cref="M:RandomItemSpawner.SpawnerItemToSpawn.Spawn"/>.
@@ -4731,7 +4859,7 @@
         </member>
         <member name="T:Exiled.Events.Patches.Events.Player.Joined">
             <summary>
-            Patches <see cref="M:PlayerManager.AddPlayer(UnityEngine.GameObject)"/>.
+            Patches <see cref="M:ServerRoles.CallCmdServerSignatureComplete(System.String,System.String,System.String,System.Boolean)"/>.
             Adds the <see cref="E:Exiled.Events.Handlers.Player.Joined"/> event.
             </summary>
         </member>
@@ -4750,7 +4878,7 @@
         <member name="T:Exiled.Events.Patches.Events.Player.PickingUpItem">
             <summary>
             Patches <see cref="M:Searching.ItemSearchCompletor.Complete"/>.
-            Adds the <see cref="E:Exiled.Events.Handlers.Player.PickingUpItem"/> event.
+            Adds the <see cref="E:Exiled.Events.Handlers.Player.PickingUpItem"/> and <see cref="E:Exiled.Events.Handlers.Player.Interacting2536"/> events.
             </summary>
         </member>
         <member name="T:Exiled.Events.Patches.Events.Player.PreAuthenticating">

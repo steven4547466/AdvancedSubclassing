@@ -39,7 +39,7 @@ namespace Subclass.Patches
     //    }
     //}
 
-    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision))]
+    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision)), HarmonyPriority(Priority.First)]
     static class Scp096OnUpdatePatch
     {
         public static bool Prefix(PlayableScps.Scp096 __instance)
