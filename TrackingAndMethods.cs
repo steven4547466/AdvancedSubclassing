@@ -887,7 +887,6 @@ namespace Subclass
 
 		public static void CheckRoundEnd()
 		{
-			if (Round.IsLocked) return;
 			Log.Debug("Checking round end", Subclass.Instance.Config.Debug);
 			List<string> teamsAlive = GetTeamsAlive();
 
@@ -899,6 +898,53 @@ namespace Subclass
 			}
 
 			Log.Debug($"Number of unique teams alive: {uniqueTeamsAlive.Count}. Contains ALL? {uniqueTeamsAlive.Contains("ALL")}", Subclass.Instance.Config.Debug);
+			if (Round.IsLocked) goto swap_classes;
+
+			RoundSummary.SumInfo_ClassList classList = default;
+			foreach (GameObject player in PlayerManager.players)
+			{
+				if (!(player == null))
+				{
+					CharacterClassManager component = player.GetComponent<CharacterClassManager>();
+					if (component.Classes.CheckBounds(component.CurClass))
+					{
+						switch (component.Classes.SafeGet(component.CurClass).team)
+						{
+							case Team.SCP:
+								if (component.CurClass == RoleType.Scp0492)
+								{
+									classList.zombies++;
+								}
+								else
+								{
+									classList.scps_except_zombies++;
+								}
+								continue;
+							case Team.MTF:
+								classList.mtf_and_guards++;
+								continue;
+							case Team.CHI:
+								classList.chaos_insurgents++;
+								continue;
+							case Team.RSC:
+								classList.scientists++;
+								continue;
+							case Team.CDP:
+								classList.class_ds++;
+								continue;
+							default:
+								continue;
+						}
+					}
+				}
+			}
+
+			classList.warhead_kills = AlphaWarheadController.Host.detonated ? AlphaWarheadController.Host.warheadKills : -1;
+			classList.time = (int)Time.realtimeSinceStartup;
+
+			RoundSummary.LeadingTeam leadingTeam = RoundSummary.LeadingTeam.Draw;
+
+			RoundSummary.roundTime = classList.time - RoundSummary.singleton.classlistStart.time;
 
 			if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains("SCP"))
 			{
@@ -912,36 +958,59 @@ namespace Subclass
 			if (uniqueTeamsAlive.Count == 2 && uniqueTeamsAlive.Contains("ALL"))
 			{
 				string team = uniqueTeamsAlive.Find(t => t != "ALL");
-				foreach (var item in PlayersWithSubclasses)
+				switch (team)
 				{
-					PlayersThatJustGotAClass[item.Key] += 3;
-					if (team == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
-					else if (team == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
-					else item.Key.SetRole(RoleType.Scp0492, true);
+					case "MTF":
+						leadingTeam = RoundSummary.LeadingTeam.FacilityForces;
+						break;
+					case "CHI":
+						leadingTeam = RoundSummary.LeadingTeam.ChaosInsurgency;
+						break;
+					case "SCP":
+						leadingTeam = RoundSummary.LeadingTeam.Anomalies;
+						break;
 				}
+				RoundSummary.singleton._roundEnded = true;
+				RoundSummary.singleton.RpcShowRoundSummary(RoundSummary.singleton.classlistStart, classList, leadingTeam, RoundSummary.escaped_ds, RoundSummary.escaped_scientists, RoundSummary.kills_by_scp, Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000));
+				RoundSummary.singleton = null;
+				return;
 			}
 
 			if (uniqueTeamsAlive.Count == 1)
 			{
-				foreach (var item in PlayersWithSubclasses.Where(t => t.Value.EndsRoundWith != "RIP"))
+				if (PlayersWithSubclasses.Count > 0)
 				{
-					PlayersThatJustGotAClass[item.Key] += 3;
-					if (uniqueTeamsAlive[0] == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
-					else if (uniqueTeamsAlive[0] == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
-					else item.Key.SetRole(RoleType.Scp0492, true);
+					switch (PlayersWithSubclasses.First().Value.EndsRoundWith)
+					{
+						case "MTF":
+							leadingTeam = RoundSummary.LeadingTeam.FacilityForces;
+							break;
+						case "CHI":
+							leadingTeam = RoundSummary.LeadingTeam.ChaosInsurgency;
+							break;
+						case "SCP":
+							leadingTeam = RoundSummary.LeadingTeam.Anomalies;
+							break;
+					}
 				}
+				RoundSummary.singleton._roundEnded = true;
+				RoundSummary.singleton.RpcShowRoundSummary(RoundSummary.singleton.classlistStart, classList, leadingTeam, RoundSummary.escaped_ds, RoundSummary.escaped_scientists, RoundSummary.kills_by_scp, Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000));
+				RoundSummary.singleton = null;
+				return;
 			}
 
+			swap_classes:
 			if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != "RIP") > 0)
 			{
 				foreach (Player player in PlayersWithSubclasses.Keys)
 				{
-					if (PlayersWithSubclasses[player].EndsRoundWith != "RIP" &&
+					if ((PlayersWithSubclasses[player].BoolOptions.ContainsKey("ActAsSpy") && PlayersWithSubclasses[player].BoolOptions["ActAsSpy"]) && 
+						PlayersWithSubclasses[player].EndsRoundWith != "RIP" &&
 						PlayersWithSubclasses[player].EndsRoundWith != "ALL" &&
 						PlayersWithSubclasses[player].EndsRoundWith != player.Team.ToString() &&
 						teamsAlive.Count(e => e == PlayersWithSubclasses[player].EndsRoundWith) == 1)
 					{
-						PlayersThatJustGotAClass[player] += 3;
+						PlayersThatJustGotAClass[player] = Time.time + 3f;
 						if (PlayersWithSubclasses[player].EndsRoundWith == "MTF") player.SetRole(RoleType.NtfScientist, true);
 						else if (PlayersWithSubclasses[player].EndsRoundWith == "CHI") player.SetRole(RoleType.ChaosInsurgency, true);
 						else player.SetRole(RoleType.Scp0492, true);
