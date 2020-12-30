@@ -12,34 +12,34 @@ using UnityEngine;
 
 namespace Subclass.Effects
 {
-    public class HealAura : PlayerEffect
-    {
+	public class HealAura : PlayerEffect
+	{
 		Player player = null;
 
-        public float HealthPerTick = 5f;
+		public float HealthPerTick = 5f;
 		public float Radius = 4f;
 
 		public bool AffectSelf = true;
 		public bool AffectAllies = true;
 		public bool AffectEnemies = false;
 
-        public HealAura(ReferenceHub hub, float healthPerTick = 5f, float radius = 4f, bool affectSelf = true, bool affectAllies = true, bool affectEnemies = false, float tickRate = 5f)
-        {
+		public HealAura(ReferenceHub hub, float healthPerTick = 5f, float radius = 4f, bool affectSelf = true, bool affectAllies = true, bool affectEnemies = false, float tickRate = 5f)
+		{
 			player = Player.Get(hub);
 
 			Hub = hub;
-            TimeBetweenTicks = tickRate;
-            TimeLeft = tickRate;
+			TimeBetweenTicks = tickRate;
+			TimeLeft = tickRate;
 
 			HealthPerTick = healthPerTick;
 			Radius = radius;
 			AffectSelf = affectSelf;
 			AffectAllies = affectAllies;
 			AffectEnemies = affectEnemies;
-        }
+		}
 
-        public override void PublicUpdate()
-        {
+		public override void PublicUpdate()
+		{
 			if (!NetworkServer.active)
 			{
 				return;
@@ -52,7 +52,7 @@ namespace Subclass.Effects
 					TimeLeft += TimeBetweenTicks;
 					IEnumerable<Player> players = Physics.OverlapSphere(Hub.transform.position, Radius).Where(t => Player.Get(t.gameObject) != null).Select(t => Player.Get(t.gameObject)).Distinct();
 					foreach (Player p in players)
-                    {
+					{
 						if ((!AffectEnemies && p.Team != player.Team) || (p.Id != player.Id && !AffectAllies && p.Team == player.Team)) continue;
 						if (p.Id == player.Id && !AffectSelf) continue;
 						if (p.Health == p.MaxHealth) continue;
@@ -67,5 +67,5 @@ namespace Subclass.Effects
 				TimeLeft = TimeBetweenTicks;
 			}
 		}
-    }
+	}
 }

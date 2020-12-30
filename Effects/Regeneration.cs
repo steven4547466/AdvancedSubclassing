@@ -10,50 +10,50 @@ using UnityEngine;
 
 namespace Subclass.MonoBehaviours
 {
-    public class Regeneration : PlayerEffect
-    {
-        private Player player;
+	public class Regeneration : PlayerEffect
+	{
+		private Player player;
 
-        public float HealthPerTick = 2f;
-        public float ActiveAt = 0f;
+		public float HealthPerTick = 2f;
+		public float ActiveAt = 0f;
 
-        public Regeneration(ReferenceHub hub, float healthPerTick = 2f, float tickRate = 5f)
-        {
-            player = Player.Get(hub);
+		public Regeneration(ReferenceHub hub, float healthPerTick = 2f, float tickRate = 5f)
+		{
+			player = Player.Get(hub);
 
-            Hub = hub;
-            TimeBetweenTicks = tickRate;
-            TimeLeft = tickRate;
+			Hub = hub;
+			TimeBetweenTicks = tickRate;
+			TimeLeft = tickRate;
 
-            HealthPerTick = healthPerTick;
-        }
+			HealthPerTick = healthPerTick;
+		}
 
-        public override void PublicUpdate()
-        {
-            if (!Enabled || Time.time < ActiveAt)
-            {
-                TimeLeft = TimeBetweenTicks;
-                return;
-            }
+		public override void PublicUpdate()
+		{
+			if (!Enabled || Time.time < ActiveAt)
+			{
+				TimeLeft = TimeBetweenTicks;
+				return;
+			}
 
-            if (!NetworkServer.active)
-            {
-                return;
-            }
-            if (Enabled)
-            {
-                TimeLeft -= Time.deltaTime;
-                if (TimeLeft <= 0f)
-                {
-                    TimeLeft += TimeBetweenTicks;
-                    if (player.Health + HealthPerTick < player.MaxHealth) player.Health += HealthPerTick;
-                    else player.Health = player.MaxHealth;
-                }
-            }
-            else
-            {
-                TimeLeft = TimeBetweenTicks;
-            }
-        }
-    }
+			if (!NetworkServer.active)
+			{
+				return;
+			}
+			if (Enabled)
+			{
+				TimeLeft -= Time.deltaTime;
+				if (TimeLeft <= 0f)
+				{
+					TimeLeft += TimeBetweenTicks;
+					if (player.Health + HealthPerTick < player.MaxHealth) player.Health += HealthPerTick;
+					else player.Health = player.MaxHealth;
+				}
+			}
+			else
+			{
+				TimeLeft = TimeBetweenTicks;
+			}
+		}
+	}
 }

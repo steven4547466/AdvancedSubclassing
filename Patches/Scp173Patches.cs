@@ -13,9 +13,9 @@ namespace Subclass.Patches
 	// Still doesnt work
 	//[HarmonyPatch(typeof(Scp173PlayerScript), nameof(Scp173PlayerScript.LookFor173))]
 	//static class Scp173LookFor173Patch
- //   {
- //       public static bool Prefix(Scp173PlayerScript __instance, GameObject scp, bool angleCheck, ref bool __result)
- //       {
+	//   {
+	//       public static bool Prefix(Scp173PlayerScript __instance, GameObject scp, bool angleCheck, ref bool __result)
+	//       {
 	//		try
 	//		{
 	//			Player p = Player.Get(scp);
@@ -33,5 +33,5 @@ namespace Subclass.Patches
 	//			return true;
 	//		}
 	//	}
- //   }
+	//   }
 }

@@ -89,10 +89,10 @@ namespace Subclass
 				{
 					CheckNormalSubclass(player, escaped, is035, teamsAlive);
 				}
-				else if(Subclass.Instance.Config.AdditiveChance)
+				else if (Subclass.Instance.Config.AdditiveChance)
 				{
 					CheckOtherClass(player, escaped, is035, teamsAlive, true);
-				} 
+				}
 				else
 				{
 					CheckOtherClass(player, escaped, is035, teamsAlive, false);
@@ -100,13 +100,13 @@ namespace Subclass
 			}
 			else
 			{
-				Log.Debug($"No subclasses for {player.Role}", Subclass.Instance.Config.Debug);
+				Log.Debug($"No subclasses for {player.Role}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 			}
 		}
 
 		public static void CheckNormalSubclass(Player player, bool escaped, bool is035, List<string> teamsAlive)
 		{
-			Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug);
+			Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 			foreach (SubClass subClass in Subclass.Instance.Classes.Values.Where(e => e.BoolOptions["Enabled"] && e.AffectsRoles.Contains(player.Role) &&
 			(!e.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
 			(!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
@@ -117,11 +117,11 @@ namespace Subclass
 			EvaluateSpawnParameters(e)))
 			{
 				double rng = (rnd.NextDouble() * 100);
-				Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug);
+				Log.Debug($"Evaluating possible subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.FloatOptions["ChanceToGet"]} to get class", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 
 				if (DontGiveClasses.Contains(subClass))
 				{
-					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					continue;
 				}
 
@@ -130,13 +130,13 @@ namespace Subclass
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
 					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
-					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
 					break;
 				}
 				else
 				{
-					Log.Debug($"Player with name {player.Nickname} did not get subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"Player with name {player.Nickname} did not get subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 				}
 			}
 		}
@@ -144,7 +144,7 @@ namespace Subclass
 		public static void CheckOtherClass(Player player, bool escaped, bool is035, List<string> teamsAlive, bool additive)
 		{
 			double num = (rnd.NextDouble() * 100);
-			Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}. Additive chance. Number generated: {num}", Subclass.Instance.Config.Debug);
+			Log.Debug($"Evaluating possible subclasses for player with name {player.Nickname}. Additive/Weighted chance. Number generated: {num}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 
 			var source = (additive ? Subclass.Instance.ClassesAdditive : Subclass.Instance.ClassesWeighted);
 
@@ -159,18 +159,18 @@ namespace Subclass
 			(Team)Enum.Parse(typeof(Team), e.Key.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.Key.IntOptions["NumSpawnWavesToWait"])) &&
 			EvaluateSpawnParameters(e.Key)))
 			{
-				Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug);
+				Log.Debug($"Evaluating possible subclass {possibity.Key.Name} for player with name {player.Nickname}. Num ({num}) must be less than {possibity.Value} to obtain.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 				if (num < possibity.Value && (!possibity.Key.IntOptions.ContainsKey("MaxAlive") ||
 					PlayersWithSubclasses.Where(e => e.Value.Name == possibity.Key.Name).Count() < possibity.Key.IntOptions["MaxAlive"]) &&
 					(possibity.Key.EndsRoundWith == "RIP" || possibity.Key.EndsRoundWith == "ALL" || teamsAlive.Contains(possibity.Key.EndsRoundWith)))
 				{
-					Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"{player.Nickname} attempting to be given subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					AddClass(player, possibity.Key, is035, is035 || escaped, escaped);
 					break;
 				}
 				else
 				{
-					Log.Debug($"Player with name {player.Nickname} did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"Player with name {player.Nickname} did not get subclass {possibity.Key.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 				}
 			}
 		}
@@ -189,10 +189,10 @@ namespace Subclass
 				EvaluateSpawnParameters(e)))
 			{
 				double rng = (rnd.NextDouble() * 100);
-				Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.UserId]} to get class", Subclass.Instance.Config.Debug);
+				Log.Debug($"Evaluating possible unique subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {subClass.AffectsUsers[player.UserId]} to get class", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 				if (DontGiveClasses.Contains(subClass))
 				{
-					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					continue;
 				}
 
@@ -200,7 +200,7 @@ namespace Subclass
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
 					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
-					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
 					return true;
 				}
@@ -223,10 +223,10 @@ namespace Subclass
 			{
 				double rng = (rnd.NextDouble() * 100);
 				float needed = subClass.Permissions.First(p => player.CheckPermission("sc." + p.Key)).Value;
-				Log.Debug($"Evaluating possible permission subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {needed} to get class", Subclass.Instance.Config.Debug);
+				Log.Debug($"Evaluating possible permission subclass {subClass.Name} for player with name {player.Nickname}. Number generated: {rng}, must be less than {needed} to get class", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 				if (DontGiveClasses.Contains(subClass))
 				{
-					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug);
+					Log.Debug("Not giving subclass, MaxPerSpawnWave exceeded.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					continue;
 				}
 
@@ -234,7 +234,7 @@ namespace Subclass
 					PlayersWithSubclasses.Where(e => e.Value.Name == subClass.Name).Count() < subClass.IntOptions["MaxAlive"]) &&
 					(subClass.EndsRoundWith == "RIP" || subClass.EndsRoundWith == "ALL" || teamsAlive.Contains(subClass.EndsRoundWith)))
 				{
-					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+					Log.Debug($"{player.Nickname} attempting to be given subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					AddClass(player, subClass, is035, is035 || escaped, escaped);
 					return true;
 				}
@@ -287,7 +287,7 @@ namespace Subclass
 				if (SubClassesSpawned.ContainsKey(subClass)) SubClassesSpawned[subClass]++;
 				else SubClassesSpawned.Add(subClass, 1);
 			}
-			if(!disguised) PlayersWithSubclasses.Add(player, subClass);
+			if (!disguised) PlayersWithSubclasses.Add(player, subClass);
 			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 
@@ -327,13 +327,13 @@ namespace Subclass
 								if (item2.Key == "None") break;
 								if (Enum.TryParse(item2.Key, out ItemType theItem))
 								{
-										player.AddItem(theItem);
-								} 
+									player.AddItem(theItem);
+								}
 								else
 								{
 									Inventory.SyncItemInfo syncItem = new Inventory.SyncItemInfo { id = ItemType.None };
 									int counter = 0;
-									foreach(var methods in CustomWeaponGetters)
+									foreach (var methods in CustomWeaponGetters)
 									{
 										try
 										{
@@ -344,7 +344,7 @@ namespace Subclass
 												break;
 											}
 										}
-										catch(Exception e)
+										catch (Exception e)
 										{
 											Log.Error($"Error getting custom weapon: {e}");
 										}
@@ -505,10 +505,10 @@ namespace Subclass
 			{
 				Timing.CallDelayed(0.1f, () =>
 				{
-					Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug);
+					Log.Debug($"Subclass {subClass.Name} has on spawn effects", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 					foreach (string effect in subClass.OnSpawnEffects)
 					{
-						Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug);
+						Log.Debug($"Evaluating chance for on spawn {effect} for player {player.Nickname}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 						if (!subClass.FloatOptions.ContainsKey(("OnSpawn" + effect + "Chance")))
 						{
 							Log.Error($"ERROR! Spawn effect {effect} chance not found! Please make sure to add this to your float options");
@@ -521,18 +521,18 @@ namespace Subclass
 								subClass.FloatOptions[("OnSpawn" + effect + "Duration")] : -1, true);
 							player.ReferenceHub.playerEffectsController.ChangeByString(effect, subClass.IntOptions.ContainsKey(("OnSpawn" + effect + "Intensity")) ?
 							(byte)subClass.IntOptions[("OnSpawn" + effect + "Intensity")] : (byte)1);
-							Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+							Log.Debug($"Player {player.Nickname} has been given effect {effect} on spawn", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 						}
 						else
 						{
-							Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug);
+							Log.Debug($"Player {player.Nickname} has been not given effect {effect} on spawn", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 						}
 					}
 				});
 			}
 			else
 			{
-				Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug);
+				Log.Debug($"Subclass {subClass.Name} has no on spawn effects", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 			}
 
 			if (spawnIndex != -1 && (!lite || escaped) && subClass.SpawnLocations[spawnIndex] != "Unknown")
@@ -556,19 +556,19 @@ namespace Subclass
 				else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).Select(r => r.Transform.position).ToList();
 				if (spawnLocations.Count != 0)
 				{
-						Timing.CallDelayed(0.3f, () =>
-						{
-							Vector3 offset = new Vector3(0, 1f, 0);
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-							Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
-							player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
-						});
+					Timing.CallDelayed(0.3f, () =>
+					{
+						Vector3 offset = new Vector3(0, 1f, 0);
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
+						Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
+						player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
+					});
 				}
 			}
 			else if (spawnIndex == -1 && !lite)
-				Log.Debug($"Unable to set spawn for class {subClass.Name} for player {player.Nickname}. No rooms found on map.", Subclass.Instance.Config.Debug);
+				Log.Debug($"Unable to set spawn for class {subClass.Name} for player {player.Nickname}. No rooms found on map.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 
 			if (subClass.IntOptions.ContainsKey("MaxPerSpawnWave"))
 			{
@@ -599,7 +599,7 @@ namespace Subclass
 				eb.EscapesAsNotCuffed = subClass.EscapesAs[0];
 				eb.EscapesAsCuffed = subClass.EscapesAs[1];
 			}
-			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug);
+			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 		}
 
 		public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false, bool disguised = false)
@@ -1032,19 +1032,19 @@ namespace Subclass
 				{
 					if (args[2] == "RangeMax" || args[2] == "RangeMin")
 					{
-						if (!IsInRange(evaluated, args, subClass, seperator)) 
-						{ 
+						if (!IsInRange(evaluated, args, subClass, seperator))
+						{
 							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
-							return false; 
+							return false;
 						}
 						Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 					}
 					else if (args[2] == "Alive")
 					{
-						if (PlayersWithSubclasses.Count(t => t.Value.Name == args[1]) != param.Value) 
-						{ 
-							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-							return false; 
+						if (PlayersWithSubclasses.Count(t => t.Value.Name == args[1]) != param.Value)
+						{
+							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+							return false;
 						}
 						Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 					}
@@ -1085,19 +1085,19 @@ namespace Subclass
 					{
 						if (args.Length == 3)
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator)) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (!IsInRange(evaluated, args, subClass, seperator))
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else
 						{
-							if (Player.List.Count(p => p.IsAlive) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => p.IsAlive) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
@@ -1106,19 +1106,19 @@ namespace Subclass
 					{
 						if (args.Length == 3)
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator)) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (!IsInRange(evaluated, args, subClass, seperator))
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else
 						{
-							if (Player.List.Count(p => !p.IsAlive) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => !p.IsAlive) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
@@ -1131,19 +1131,19 @@ namespace Subclass
 						RoleType role = (RoleType)Enum.Parse(typeof(RoleType), args[1]);
 						if (args[2] == "RangeMax" || args[2] == "RangeMin")
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator, Team.RIP, role)) 
-							{ 
+							if (!IsInRange(evaluated, args, subClass, seperator, Team.RIP, role))
+							{
 								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
-								return false; 
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else if (args[2] == "Alive")
 						{
-							if (Player.List.Count(p => p.Role == role) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => p.Role == role) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
@@ -1211,7 +1211,7 @@ namespace Subclass
 			RoleType savedRole = player.Role;
 			Coroutines.Add(Timing.CallDelayed(subClass.AbilityCooldowns[AbilityType.Multiply], () =>
 			{
-				if (player.Role == RoleType.Spectator ||!PlayersWithSubclasses.ContainsKey(player) || PlayersWithSubclasses[player].Name != subClass.Name 
+				if (player.Role == RoleType.Spectator || !PlayersWithSubclasses.ContainsKey(player) || PlayersWithSubclasses[player].Name != subClass.Name
 					|| savedRole != player.Role)
 				{
 					Timing.KillCoroutines(Coroutines[coroutineIndex]);
