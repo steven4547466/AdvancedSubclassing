@@ -849,7 +849,7 @@ namespace Subclass
 				string team = uniqueTeamsAlive.Find(t => t != "ALL");
 				foreach (var item in PlayersWithSubclasses)
 				{
-					PlayersThatJustGotAClass[item.Key] += 3;
+					PlayersThatJustGotAClass[item.Key] = Time.time + 3;
 					if (team == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
 					else if (team == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
 					else item.Key.SetRole(RoleType.Scp0492, true);
@@ -860,7 +860,7 @@ namespace Subclass
 			{
 				foreach (var item in PlayersWithSubclasses.Where(t => t.Value.EndsRoundWith != "RIP"))
 				{
-					PlayersThatJustGotAClass[item.Key] += 3;
+					PlayersThatJustGotAClass[item.Key] = Time.time + 3;
 					if (uniqueTeamsAlive[0] == "MTF") item.Key.SetRole(RoleType.NtfScientist, true);
 					else if (uniqueTeamsAlive[0] == "CHI") item.Key.SetRole(RoleType.ChaosInsurgency, true);
 					else item.Key.SetRole(RoleType.Scp0492, true);
@@ -876,7 +876,7 @@ namespace Subclass
 						PlayersWithSubclasses[player].EndsRoundWith != player.Team.ToString() &&
 						teamsAlive.Count(e => e == PlayersWithSubclasses[player].EndsRoundWith) == 1)
 					{
-						PlayersThatJustGotAClass[player] += 3;
+						PlayersThatJustGotAClass[player] = Time.time + 3;
 						if (PlayersWithSubclasses[player].EndsRoundWith == "MTF") player.SetRole(RoleType.NtfScientist, true);
 						else if (PlayersWithSubclasses[player].EndsRoundWith == "CHI") player.SetRole(RoleType.ChaosInsurgency, true);
 						else player.SetRole(RoleType.Scp0492, true);
