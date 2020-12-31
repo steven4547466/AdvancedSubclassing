@@ -41,6 +41,7 @@ namespace Subclass.AbilityCommands
 
 			player.Stamina.RemainingStamina = Mathf.Clamp(
 				player.Stamina.RemainingStamina - (subClass.FloatOptions.ContainsKey("PunchStaminaUse") ? subClass.FloatOptions["PunchStaminaUse"] / 100 : .1f), 0, 1);
+			player.Stamina._regenerationTimer = 0;
 
 			if (Physics.Raycast(player.CameraTransform.position, player.CameraTransform.forward, out RaycastHit hit,
 				(subClass.FloatOptions.ContainsKey("PunchRange") ? subClass.FloatOptions["PunchRange"] : 1.3f)))
