@@ -313,13 +313,16 @@ namespace Subclass
 				if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
 				if ((!lite || escaped) && subClass.IntOptions["ArmorOnSpawn"] != -1) player.AdrenalineHealth = subClass.IntOptions["ArmorOnSpawn"];
 
-				Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
+				Timing.CallDelayed(0.3f, () =>
+				{
+					Vector3 scale = new Vector3(player.Scale.x, player.Scale.y, player.Scale.z);
 
-				if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
-				if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.y = subClass.FloatOptions["ScaleY"];
-				if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.z = subClass.FloatOptions["ScaleZ"];
+					if (subClass.FloatOptions.ContainsKey("ScaleX")) scale.x = subClass.FloatOptions["ScaleX"];
+					if (subClass.FloatOptions.ContainsKey("ScaleY")) scale.y = subClass.FloatOptions["ScaleY"];
+					if (subClass.FloatOptions.ContainsKey("ScaleZ")) scale.z = subClass.FloatOptions["ScaleZ"];
 
-				player.Scale = scale;
+					player.Scale = scale;
+				});
 
 				if (!subClass.BoolOptions["DisregardHasFF"])
 				{
