@@ -63,15 +63,13 @@ namespace Subclass.AbilityCommands
 				return true;
 			}
 
-			Utils.SpawnGrenade(ItemType.GrenadeFrag, player, subClass);
-			TrackingAndMethods.AddCooldown(player, AbilityType.Punch);
-			TrackingAndMethods.UseAbility(player, AbilityType.Punch, subClass);
-
 			if (Physics.Raycast(player.CameraTransform.position, player.CameraTransform.forward, out RaycastHit hit,
 				(subClass.FloatOptions.ContainsKey("PunchRange") ? subClass.FloatOptions["PunchRange"] : 1.3f)))
 			{
 				Player target = Player.Get(hit.collider.gameObject) ?? Player.Get(hit.collider.GetComponentInParent<ReferenceHub>());
 				if (target == null || target.Id == player.Id) return true;
+				TrackingAndMethods.AddCooldown(player, AbilityType.Punch);
+				TrackingAndMethods.UseAbility(player, AbilityType.Punch, subClass);
 				target.Hurt(subClass.FloatOptions["PunchDamage"], null, player.Nickname, player.Id);
 			}
 
