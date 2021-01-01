@@ -31,17 +31,41 @@ namespace Subclass.AbilityCommands
 				response = "";
 				return true;
 			}
+
 			SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[player];
-			if ((player.Stamina.RemainingStamina * 100) - (subClass.FloatOptions.ContainsKey("PunchStaminaUse") ? subClass.FloatOptions["PunchStaminaUse"] : 10) <= 0)
+
+			if (!subClass.Abilities.Contains(AbilityType.InfiniteSprint))
 			{
-				Log.Debug($"Player {player.Nickname} failed to use the punch command", Subclass.Instance.Config.Debug);
-				player.Broadcast(5, Subclass.Instance.Config.OutOfStaminaMessage);
+				if ((player.Stamina.RemainingStamina * 100) - (subClass.FloatOptions.ContainsKey("PunchStaminaUse") ? subClass.FloatOptions["PunchStaminaUse"] : 10) <= 0)
+				{
+					Log.Debug($"Player {player.Nickname} failed to use the punch command", Subclass.Instance.Config.Debug);
+					player.Broadcast(5, Subclass.Instance.Config.OutOfStaminaMessage);
+					return true;
+				}
+
+				player.Stamina.RemainingStamina = Mathf.Clamp(
+					player.Stamina.RemainingStamina - (subClass.FloatOptions.ContainsKey("PunchStaminaUse") ? subClass.FloatOptions["PunchStaminaUse"] / 100 : .1f), 0, 1);
+				player.Stamina._regenerationTimer = 0;
+			}
+
+			if (!TrackingAndMethods.CanUseAbility(player, AbilityType.Punch, subClass))
+			{
+				TrackingAndMethods.DisplayCantUseAbility(player, AbilityType.Punch, subClass, "punch");
+				response = "";
 				return true;
 			}
 
-			player.Stamina.RemainingStamina = Mathf.Clamp(
-				player.Stamina.RemainingStamina - (subClass.FloatOptions.ContainsKey("PunchStaminaUse") ? subClass.FloatOptions["PunchStaminaUse"] / 100 : .1f), 0, 1);
-			player.Stamina._regenerationTimer = 0;
+			if (TrackingAndMethods.OnCooldown(player, AbilityType.Punch, subClass))
+			{
+				Log.Debug($"Player {player.Nickname} failed to use punch", Subclass.Instance.Config.Debug);
+				TrackingAndMethods.DisplayCooldown(player, AbilityType.Punch, subClass, "punch", Time.time);
+				response = "";
+				return true;
+			}
+
+			Utils.SpawnGrenade(ItemType.GrenadeFrag, player, subClass);
+			TrackingAndMethods.AddCooldown(player, AbilityType.Punch);
+			TrackingAndMethods.UseAbility(player, AbilityType.Punch, subClass);
 
 			if (Physics.Raycast(player.CameraTransform.position, player.CameraTransform.forward, out RaycastHit hit,
 				(subClass.FloatOptions.ContainsKey("PunchRange") ? subClass.FloatOptions["PunchRange"] : 1.3f)))
