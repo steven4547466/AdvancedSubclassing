@@ -292,8 +292,30 @@ namespace Subclass
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 
 			int spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
+			List<Vector3> spawnLocations = new List<Vector3>();
+			if (subClass.SpawnLocations.Contains("Lcz173Armory"))
+			{
+				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
+				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
+			}
+
+			if (subClass.SpawnLocations.Contains("Lcz173"))
+			{
+				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
+				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
+			}
+
+			if (subClass.SpawnLocations.Contains("Lcz173Bottom"))
+			{
+				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
+				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
+			}
+
+			spawnLocations.AddRange(Map.Rooms.Where(r => subClass.SpawnLocations.Contains(r.Type.ToString())).Select(r => r.Transform.position));
+
 			int tries = 0;
-			while (!Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+			while (!(subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173"
+				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 				tries++;
@@ -540,23 +562,6 @@ namespace Subclass
 
 			if (spawnIndex != -1 && (!lite || escaped) && subClass.SpawnLocations[spawnIndex] != "Unknown")
 			{
-				List<Vector3> spawnLocations = new List<Vector3>();
-				if (subClass.SpawnLocations[spawnIndex] == "Lcz173Armory")
-				{
-					Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
-					spawnLocations.Add(door.transform.position + (Vector3.right * 2));
-				}
-				else if (subClass.SpawnLocations[spawnIndex] == "Lcz173")
-				{
-					Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
-					spawnLocations.Add(door.transform.position);
-				}
-				else if (subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom")
-				{
-					Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
-					spawnLocations.Add(door.transform.position);
-				}
-				else spawnLocations = Map.Rooms.Where(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]).Select(r => r.Transform.position).ToList();
 				if (spawnLocations.Count != 0)
 				{
 					Timing.CallDelayed(0.3f, () =>
@@ -566,12 +571,12 @@ namespace Subclass
 						if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
 						if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
 						Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
-						player.ReferenceHub.playerMovementSync.OverridePosition(pos, 0f);
+						player.Position = pos;
 					});
 				}
 			}
-			else if (spawnIndex == -1 && !lite)
-				Log.Debug($"Unable to set spawn for class {subClass.Name} for player {player.Nickname}. No rooms found on map.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
+			else if (spawnIndex == -1)
+				Log.Debug($"Unable to set spawn for class {subClass.Name} for player {player.Nickname}. No rooms found on map.", Subclass.Instance.Config.Debug);
 
 			if (subClass.IntOptions.ContainsKey("MaxPerSpawnWave"))
 			{
@@ -1014,12 +1019,12 @@ namespace Subclass
 			}
 
 
-			swap_classes:
+		swap_classes:
 			if (PlayersWithSubclasses != null && PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != "RIP") > 0)
 			{
 				foreach (Player player in PlayersWithSubclasses.Keys)
 				{
-					if ((PlayersWithSubclasses[player].BoolOptions.ContainsKey("ActAsSpy") && PlayersWithSubclasses[player].BoolOptions["ActAsSpy"]) && 
+					if ((PlayersWithSubclasses[player].BoolOptions.ContainsKey("ActAsSpy") && PlayersWithSubclasses[player].BoolOptions["ActAsSpy"]) &&
 						PlayersWithSubclasses[player].EndsRoundWith != "RIP" &&
 						PlayersWithSubclasses[player].EndsRoundWith != "ALL" &&
 						PlayersWithSubclasses[player].EndsRoundWith != player.Team.ToString() &&
