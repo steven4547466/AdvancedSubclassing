@@ -103,7 +103,7 @@ namespace Subclass.Handlers
 				return;
 			}
 
-			if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ((ev.Door.PermissionLevels != 0 || ev.Door.Networklocked) && !ev.Door.isOpen && ev.Player.CurrentItemIndex == -1))
+			if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ((ev.Door.PermissionLevels != 0 || ev.Door.Networklocked) && !ev.Door.NetworkisOpen && ev.Player.CurrentItemIndex == -1))
 			{
 				if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
 				{
