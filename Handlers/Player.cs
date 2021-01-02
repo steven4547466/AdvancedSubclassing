@@ -54,7 +54,7 @@ namespace Subclass.Handlers
                         Cassie.Message(message, true, false);
                         Log.Debug($"Sending message via cassie: {message}", Subclass.Instance.Config.Debug);
                     }
-                    TrackingAndMethods.CheckRoundEnd();
+                    Timing.RunCoroutine(TrackingAndMethods.CheckRoundEnd());
                 }
                 catch(Exception e)
                 {
@@ -259,7 +259,7 @@ namespace Subclass.Handlers
 
             Timing.CallDelayed(0.1f, () =>
             {
-                TrackingAndMethods.CheckRoundEnd();
+                Timing.RunCoroutine(TrackingAndMethods.CheckRoundEnd());
             });
         }
 
