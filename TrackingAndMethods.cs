@@ -888,8 +888,9 @@ namespace Subclass
 			return true;
 		}
 
-		public static void CheckRoundEnd()
+		public static IEnumerator<float> CheckRoundEnd()
 		{
+			if (!Round.IsStarted || RoundJustStarted() || (Player.List.Count() == 1 && !GameCore.ConfigFile.ServerConfig.GetBool("end_round_on_one_player"))) yield break;
 			Log.Debug("Checking round end", Subclass.Instance.Config.Debug);
 			List<string> teamsAlive = GetTeamsAlive();
 
@@ -906,10 +907,10 @@ namespace Subclass
 			RoundSummary.SumInfo_ClassList classList = default;
 			foreach (GameObject player in PlayerManager.players)
 			{
-				if (!(player == null))
+				if (player != null)
 				{
 					CharacterClassManager component = player.GetComponent<CharacterClassManager>();
-					if (component.Classes.CheckBounds(component.CurClass))
+					if (component != null && component.Classes.CheckBounds(component.CurClass))
 					{
 						switch (component.Classes.SafeGet(component.CurClass).team)
 						{
@@ -975,8 +976,13 @@ namespace Subclass
 				}
 				RoundSummary.singleton._roundEnded = true;
 				RoundSummary.singleton.RpcShowRoundSummary(RoundSummary.singleton.classlistStart, classList, leadingTeam, RoundSummary.escaped_ds, RoundSummary.escaped_scientists, RoundSummary.kills_by_scp, Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000));
-				RoundSummary.singleton = null;
-				return;
+				for (int i = 0; i < 50 * (Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000) - 1); i++)
+					yield return 0.0f;
+				RoundSummary.singleton.RpcDimScreen();
+				for (int i = 0; i < 50; i++)
+					yield return 0.0f;
+				PlayerManager.localPlayer.GetComponent<PlayerStats>().Roundrestart();
+				yield break;
 			}
 
 			if (uniqueTeamsAlive.Count == 1)
@@ -998,12 +1004,18 @@ namespace Subclass
 				}
 				RoundSummary.singleton._roundEnded = true;
 				RoundSummary.singleton.RpcShowRoundSummary(RoundSummary.singleton.classlistStart, classList, leadingTeam, RoundSummary.escaped_ds, RoundSummary.escaped_scientists, RoundSummary.kills_by_scp, Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000));
-				RoundSummary.singleton = null;
-				return;
+				for (int i = 0; i < 50 * (Mathf.Clamp(GameCore.ConfigFile.ServerConfig.GetInt("auto_round_restart_time", 10), 5, 1000) - 1); i++)
+					yield return 0.0f;
+				RoundSummary.singleton.RpcDimScreen();
+				for (int i = 0; i < 50; i++)
+					yield return 0.0f;
+				PlayerManager.localPlayer.GetComponent<PlayerStats>().Roundrestart();
+				yield break;
 			}
 
+
 			swap_classes:
-			if (PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != "RIP") > 0)
+			if (PlayersWithSubclasses != null && PlayersWithSubclasses.Count(s => s.Value.EndsRoundWith != "RIP") > 0)
 			{
 				foreach (Player player in PlayersWithSubclasses.Keys)
 				{
