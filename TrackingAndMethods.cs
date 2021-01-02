@@ -289,9 +289,9 @@ namespace Subclass
 			}
 
 			spawnLocations.AddRange(Map.Rooms.Where(r => subClass.SpawnLocations.Contains(r.Type.ToString())).Select(r => r.Transform.position));
-
+			
 			int tries = 0;
-			while (!(subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173" 
+			while (!(subClass.SpawnLocations[spawnIndex] == "Unknown" || subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173" 
 				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
