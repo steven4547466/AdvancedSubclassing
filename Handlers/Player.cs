@@ -215,7 +215,10 @@ namespace Subclass.Handlers
 				ev.IsAllowed = false;
 				return;
 			}
+		}
 
+		public void OnDied(DiedEventArgs ev)
+		{
 			if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) && TrackingAndMethods.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
 			{
 				GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
