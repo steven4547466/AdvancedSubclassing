@@ -4,6 +4,7 @@ using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Loader;
 using Exiled.Permissions.Extensions;
+using Interactables.Interobjects.DoorUtils;
 using MEC;
 using Mono.Unix.Native;
 using Subclass.Effects;
@@ -295,19 +296,19 @@ namespace Subclass
 			List<Vector3> spawnLocations = new List<Vector3>();
 			if (subClass.SpawnLocations.Contains("Lcz173Armory"))
 			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_ARMORY");
+				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
+			}
+
+			if (subClass.SpawnLocations.Contains("Lcz173Connector"))
+			{
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_CONNECTOR");
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 
 			if (subClass.SpawnLocations.Contains("Lcz173"))
 			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
-				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
-			}
-
-			if (subClass.SpawnLocations.Contains("Lcz173Bottom"))
-			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_GATE");
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 

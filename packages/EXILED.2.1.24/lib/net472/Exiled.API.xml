@@ -1330,7 +1330,7 @@
             Internal class <see cref="M:Exiled.API.Extensions.DoorTypeExtension.RegisterDoorTypesOnLevelLoad"/> to cache the <see cref="T:Exiled.API.Enums.DoorType"/> on level load.
             </summary>
         </member>
-        <member name="M:Exiled.API.Extensions.DoorTypeExtension.Type(Door)">
+        <member name="M:Exiled.API.Extensions.DoorTypeExtension.Type(Interactables.Interobjects.DoorUtils.DoorVariant)">
             <summary>
             Gets the <see cref="T:Exiled.API.Enums.DoorType"/>.
             </summary>
@@ -1891,6 +1891,16 @@
             Gets all <see cref="T:TeslaGate"/> objects.
             </summary>
         </member>
+        <member name="P:Exiled.API.Features.Map.DefaultRagdollOwner">
+            <summary>
+            Gets the Default <see cref="T:Ragdoll.Info"/>,
+            used in <see cref="M:Exiled.API.Features.Map.SpawnRagdoll(RoleType,System.String,PlayerStats.HitInfo,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean,System.Int32,System.String)"/>
+            and <see cref="M:Exiled.API.Features.Map.SpawnRagdoll(Role,Ragdoll.Info,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean)"/>.
+            </summary>
+            <remarks>
+            This value can be modified to change the default Ragdoll's info.
+            </remarks>
+        </member>
         <member name="P:Exiled.API.Features.Map.IntercomState">
             <summary>
             Gets the current state of the intercom.
@@ -1913,24 +1923,110 @@
             <param name="objectInRoom">The <see cref="T:UnityEngine.GameObject"/> inside the room.</param>
             <returns>The <see cref="T:Exiled.API.Features.Room"/> that the <see cref="T:UnityEngine.GameObject"/> is located inside.</returns>
         </member>
+        <member name="M:Exiled.API.Features.Map.SpawnRagdoll(Exiled.API.Features.Player,DamageTypes.DamageType,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean)">
+            <summary>
+            Spawns a ragdoll for a player on a certain position.
+            </summary>
+            <param name="victim">Victim, represented as a player.</param>
+            <param name="deathCause">The message to be displayed as his death.</param>
+            <param name="position">Where the ragdoll will be spawned.</param>
+            <param name="rotation">The rotation for the ragdoll.</param>
+            <param name="velocity">The initial velocity the ragdoll will have, as if it was exploded.</param>
+            <param name="allowRecall">Sets this ragdoll as respawnable by SCP-049.</param>
+            <returns>The Ragdoll component (requires Assembly-CSharp to be referenced).</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Map.SpawnRagdoll(RoleType,DamageTypes.DamageType,System.String,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean,System.Int32,System.String)">
+            <summary>
+            Spawns a ragdoll on the map based on the different arguments.
+            </summary>
+            <remarks>
+            Tip: You can do '<paramref name="allowRecall"/>: true, <paramref name="playerId"/>: MyPlayer.Id' to skip parameters.
+            </remarks>
+            <example>
+            <code>
+            // Code to spawn a fake ragdoll
+            if (ev.Player == MyPlugin.TheInmortalPlayer)
+            {
+                var fakeRagdoll = Map.SpawnRagdoll(RoleType.ClassD, DamageTypes.Fall, "The Falling Guy", new Vector3(1234f, -1f, 4321f));
+            }
+            </code>
+            </example>
+            <param name="roleType">The <see cref="T:RoleType"/> to use as ragdoll.</param>
+            <param name="deathCause">The death cause, expressed as a <see cref="T:DamageTypes.DamageType"/>.</param>
+            <param name="victimNick">The name from the victim, who the corpse belongs to.</param>
+            <param name="position">Where the ragdoll will be spawned.</param>
+            <param name="rotation">The rotation for the ragdoll.</param>
+            <param name="velocity">The initial velocity the ragdoll will have, as if it was exploded.</param>
+            <param name="allowRecall">Sets this ragdoll as respawnable by SCP-049. Must have a valid <paramref name="playerId"/>.</param>
+            <param name="playerId">Used for recall. The <see cref="P:Exiled.API.Features.Player.Id"/> to be recalled.</param>
+            <param name="mirrorOwnerId">Can be ignored. The <see cref="T:Dissonance.Integrations.MirrorIgnorance.MirrorIgnorancePlayer"/>'s PlayerId field.</param>
+            <returns>The Ragdoll component (requires Assembly-CSharp to be referenced).</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Map.SpawnRagdoll(RoleType,System.String,PlayerStats.HitInfo,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean,System.Int32,System.String)">
+            <summary>
+            Spawns a ragdoll on the map based on the different arguments.
+            </summary>
+            <remarks>
+            Tip: You can do, for example, '<paramref name="velocity"/>: "Vector3.up * 3"' to skip parameters.
+            </remarks>
+            <example>
+            <code>
+            // Code to spawn a fake ragdoll
+            if (ev.Player == MyPlugin.TheInmortalPlayer)
+            {
+                var fakeRagdoll = Map.SpawnRagdoll(ev.Player.Role, ev.Player.Position, victimNick: ev.Player.DisplayNickname, playerId: ev.Player.Id);
+            }
+            </code>
+            </example>
+            <param name="roleType">The <see cref="T:RoleType"/> to use as ragdoll.</param>
+            <param name="victimNick">The name from the victim, who the corpse belongs to.</param>
+            <param name="hitInfo">The <see cref="T:PlayerStats.HitInfo"/> that displays who killed this ragdoll, and using which tool.</param>
+            <param name="position">Where the ragdoll will be spawned.</param>
+            <param name="rotation">The rotation for the ragdoll.</param>
+            <param name="velocity">The initial velocity the ragdoll will have, as if it was exploded.</param>
+            <param name="allowRecall">Sets this ragdoll as respawnable by SCP-049.</param>
+            <param name="playerId">Used for recall. The <see cref="P:Exiled.API.Features.Player.Id"/> to be recalled.</param>
+            <param name="mirrorOwnerId">Can be ignored. The <see cref="T:Dissonance.Integrations.MirrorIgnorance.MirrorIgnorancePlayer"/>'s PlayerId field, likely used in the client.</param>
+            <returns>The Ragdoll component (requires Assembly-CSharp to be referenced).</returns>
+        </member>
+        <member name="M:Exiled.API.Features.Map.SpawnRagdoll(Role,Ragdoll.Info,UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Boolean)">
+            <summary>
+            Optimized method to Spawn a ragdoll on the map.
+            Will only allocate the newly created GameObject, requires extra work and pre-loaded base game roles.
+            </summary>
+            <remarks>
+            <list type="number">
+            <item>
+            <para>
+            EXILED already has an internal, default Ragdoll.Info: the use of this
+            method to try to optimize a plugin is absolutely optional.
+            </para>
+            We recommend using: Map.SpawnRagdoll(RoleType roleType, string victimNick, Vector3 position)
+            </item>
+            <item>
+            This method should only ever be used if you're dealing with massive
+            server-sided lag.
+            </item>
+            <item>
+            Ragdoll.Info's "ownerID" isn't the SteamID, but the
+            <see cref="T:Dissonance.Integrations.MirrorIgnorance.MirrorIgnorancePlayer"/>'s PlayerId field.
+            </item>
+            </list>
+            </remarks>
+            <param name="role">Main game's <see cref="T:Role"/> thad defines the role to spawn a ragdoll.</param>
+            <param name="ragdollInfo"><see cref="T:Ragdoll.Info"/> object containing the ragdoll's info.</param>
+            <param name="position">Where the ragdoll will be spawned.</param>
+            <param name="rotation">The rotation for the ragdoll.</param>
+            <param name="velocity">The initial velocity the ragdoll will have, as if it was exploded.</param>
+            <param name="allowRecall">Sets this ragdoll as respawnable by SCP-049.</param>
+            <returns>The <see cref="T:Ragdoll"/> component created.</returns>
+        </member>
         <member name="M:Exiled.API.Features.Map.SpawnHands(UnityEngine.Vector3,UnityEngine.Quaternion)">
             <summary>
             Spawns hands at the specified position with specified rotation.
             </summary>
             <param name="position">Hands position.</param>
             <param name="rotation">Hands rotation.</param>
-        </member>
-        <member name="M:Exiled.API.Features.Map.ForceSpawn2536">
-            <summary>
-            Force spawns SCP-2536 at a random player.
-            </summary>
-        </member>
-        <member name="M:Exiled.API.Features.Map.ForceSpawn2536(Exiled.API.Features.Player,System.Boolean)">
-            <summary>
-            Force spawns SCP-2536 at a specified player.
-            </summary>
-            <param name="player">The <see cref="T:Exiled.API.Features.Player"/> to spawn SCP-2536 at.</param>
-            <param name="addToChosenList">If set to true, the player will be added to the chosen list and cannot be automatically selected for the remainder of the round.</param>
         </member>
         <member name="M:Exiled.API.Features.Map.Broadcast(System.UInt16,System.String,Broadcast.BroadcastFlags)">
             <summary>
@@ -2603,6 +2699,12 @@
             <param name="newRole">The new <see cref="T:RoleType"/> to be set.</param>
             <param name="lite">Indicates whether it should preserve the position and inventory after changing the role or not.</param>
             <param name="isEscaped">Indicates whether the player is escaped or not.</param>
+        </member>
+        <member name="M:Exiled.API.Features.Player.Broadcast(Exiled.API.Features.Broadcast)">
+            <summary>
+            Broadcasts the given <see cref="T:Exiled.API.Features.Broadcast"/> to the player.
+            </summary>
+            <param name="broadcast">The <see cref="T:Exiled.API.Features.Broadcast"/> to be broadcasted.</param>
         </member>
         <member name="M:Exiled.API.Features.Player.DropItem(Inventory.SyncItemInfo)">
             <summary>
