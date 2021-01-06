@@ -16,6 +16,8 @@ using Exiled.Loader;
 using System.Reflection;
 using Subclass.Effects;
 using Subclass.MonoBehaviours;
+using Interactables.Interobjects.DoorUtils;
+using Interactables.Interobjects;
 
 namespace Subclass.Handlers
 {
@@ -101,7 +103,7 @@ namespace Subclass.Handlers
                 return;
 			}
 
-            if (ev.Door.doorType == Door.DoorTypes.HeavyGate && ((ev.Door.PermissionLevels != 0 || ev.Door.Networklocked) && !ev.Door.isOpen && ev.Player.CurrentItemIndex == -1)) {
+            if (ev.Door is PryableDoor pryableDoor && ((ev.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.None || ev.Door.ActiveLocks != 0) && !ev.Door.IsConsideredOpen() && ev.Player.CurrentItemIndex == -1)) {
                 if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
                 {
                     SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[ev.Player];
@@ -120,11 +122,11 @@ namespace Subclass.Handlers
                         {
                             TrackingAndMethods.AddCooldown(ev.Player, AbilityType.PryGates);
                             TrackingAndMethods.UseAbility(ev.Player, AbilityType.PryGates, subClass);
-                            ev.Door.PryGate();
+                            pryableDoor.TryPryGate();
                         }
                     }
                 }
-            }else if (!ev.IsAllowed && !ev.Door.Networkdestroyed && !ev.Door.Networklocked && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player) && 
+            }else if (!ev.IsAllowed && ev.Door is BreakableDoor breakableDoor && !breakableDoor.IsDestroyed && ev.Door.ActiveLocks != 0 && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player) && 
                       TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
             {
                 SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[ev.Player];
@@ -140,7 +142,7 @@ namespace Subclass.Handlers
                 }
                 else
                 {
-                    Log.Debug($"Player with subclass {subClass.Name} has been allowed to access door with permission level {ev.Door.PermissionLevels}", Subclass.Instance.Config.Debug);
+                    Log.Debug($"Player with subclass {subClass.Name} has been allowed to access door with permission level {ev.Door.RequiredPermissions}", Subclass.Instance.Config.Debug);
                     TrackingAndMethods.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
                     TrackingAndMethods.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
                     ev.IsAllowed = true;

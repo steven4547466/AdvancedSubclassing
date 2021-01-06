@@ -4,6 +4,7 @@ using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.Loader;
 using Exiled.Permissions.Extensions;
+using Interactables.Interobjects.DoorUtils;
 using MEC;
 using Mono.Unix.Native;
 using Subclass.Effects;
@@ -272,19 +273,19 @@ namespace Subclass
 			List<Vector3> spawnLocations = new List<Vector3>();
 			if (subClass.SpawnLocations.Contains("Lcz173Armory"))
 			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_ARMORY");
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_ARMORY");
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 			
-			if (subClass.SpawnLocations.Contains("Lcz173"))
+			if (subClass.SpawnLocations.Contains("Lcz173Connector"))
 			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173");
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_CONNECTOR");
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 			
-			if (subClass.SpawnLocations.Contains("Lcz173Bottom") )
+			if (subClass.SpawnLocations.Contains("Lcz173") )
 			{
-				Door door = GameObject.FindObjectsOfType<Door>().FirstOrDefault((Door dr) => dr.DoorName.ToUpper() == "173_BOTTOM");
+				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_GATE");
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 
@@ -292,7 +293,7 @@ namespace Subclass
 			
 			int tries = 0;
 			while (!(subClass.SpawnLocations[spawnIndex] == "Unknown" || subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173" 
-				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Connector") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 				tries++;

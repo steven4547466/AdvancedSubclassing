@@ -4,6 +4,8 @@ using Exiled.Events.EventArgs;
 using GameCore;
 using Grenades;
 using HarmonyLib;
+using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,13 +59,10 @@ namespace Subclass.Patches
 				}
 				else
 				{
-					Door componentInParent = collider.GetComponentInParent<Door>();
-					if (componentInParent != null)
+					DoorVariant componentInParent = collider.GetComponentInParent<DoorVariant>();
+					if (componentInParent != null && componentInParent is IDamageableDoor damageableDoor)
 					{
-						if ((!componentInParent.GrenadesResistant && (!componentInParent.commandlock && (!componentInParent.decontlock && !componentInParent.lockdown))) && ((componentInParent.transform.position - position).sqrMagnitude <= __instance.sqrChainTriggerRadius))
-						{
-							componentInParent.DestroyDoor(true);
-						}
+						damageableDoor.ServerDamage(__instance.damageOverDistance.Evaluate(Vector3.Distance(position, componentInParent.transform.position)), DoorDamageType.Grenade);
 					}
 					else if (((__instance.chainLengthLimit == -1) || (__instance.chainLengthLimit > ((EffectGrenade)__instance).currentChainLength)) && ((__instance.chainConcurrencyLimit == -1) || (__instance.chainConcurrencyLimit > num)))
 					{
