@@ -131,8 +131,8 @@ namespace Subclass.Handlers
 					}
 				}
 			}
-			else if (!ev.IsAllowed && ev.Door is BreakableDoor breakableDoor && !breakableDoor.IsDestroyed && ev.Door.ActiveLocks != 0 && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player) &&
-					 TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
+			else if (!ev.IsAllowed && !(ev.Door is BreakableDoor breakableDoor && breakableDoor.IsDestroyed) && ev.Door.ActiveLocks == 0 && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player) &&
+					  TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
 			{
 				SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[ev.Player];
 				if (!TrackingAndMethods.CanUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass))

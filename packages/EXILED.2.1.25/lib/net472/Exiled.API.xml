@@ -1324,6 +1324,18 @@
             Gets all the <see cref="T:Exiled.API.Enums.CameraType"/> and <see cref="M:Exiled.API.Extensions.CameraExtensions.Room(Camera079)"/> values for for the <see cref="T:Camera079"/> instances using <see cref="F:Camera079.cameraId"/> and <see cref="T:UnityEngine.GameObject"/> name.
             </summary>
         </member>
+        <member name="T:Exiled.API.Extensions.DoorExtensions">
+            <summary>
+            Contains extensions related to <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/>.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Extensions.DoorExtensions.BreakDoor(Interactables.Interobjects.DoorUtils.DoorVariant)">
+            <summary>
+            Breaks the specified door, if it is not already broken.
+            </summary>
+            <param name="door">The door to break.</param>
+            <returns>True if the door was broken, false if it was unable to be broken, or was already broken before.</returns>
+        </member>
         <member name="T:Exiled.API.Extensions.DoorTypeExtension">
             <summary>
             Contains an extension method to get <see cref="T:Exiled.API.Enums.DoorType"/> from <see cref="T:Door"/>.
