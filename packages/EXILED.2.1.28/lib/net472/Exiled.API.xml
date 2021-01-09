@@ -2093,6 +2093,13 @@
             <param name="cameraType">The <see cref="T:UnityEngine.CameraType"/> to search for.</param>
             <returns>The <see cref="T:Camera079"/> with the given camera type.</returns>
         </member>
+        <member name="M:Exiled.API.Features.Map.GetDoorByName(System.String)">
+            <summary>
+            Gets the door with the given door name.
+            </summary>
+            <param name="doorName">The door name.</param>
+            <returns>The <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/> or null if a door with this name doesn't exist.</returns>
+        </member>
         <member name="M:Exiled.API.Features.Map.ClearCache">
             <summary>
             Clears the lazy loading game object cache.
@@ -2270,10 +2277,21 @@
             Gets the player's nickname.
             </summary>
         </member>
+        <member name="P:Exiled.API.Features.Player.InfoArea">
+            <summary>
+            Gets or sets the player's player info area bitmask.
+            You can hide player info elements with this.
+            </summary>
+        </member>
         <member name="P:Exiled.API.Features.Player.PlayerInfoArea">
             <summary>
             Gets or sets the player's player info area bitmask.
             You can hide player info elements with this.
+            </summary>
+        </member>
+        <member name="P:Exiled.API.Features.Player.CustomInfo">
+            <summary>
+            Gets or sets the player's custom player info string.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Player.CustomPlayerInfo">

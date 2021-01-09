@@ -4519,6 +4519,25 @@
         <member name="M:Exiled.Events.InternalHandlers.Round.OnChangingRole(Exiled.Events.EventArgs.ChangingRoleEventArgs)">
             <inheritdoc cref="M:Exiled.Events.Handlers.Player.OnChangingRole(Exiled.Events.EventArgs.ChangingRoleEventArgs)"/>
         </member>
+        <member name="T:Exiled.Events.InternalHandlers.SceneUnloaded">
+            <summary>
+            Handles scene unload event.
+            </summary>
+        </member>
+        <member name="M:Exiled.Events.InternalHandlers.SceneUnloaded.OnSceneUnloaded(UnityEngine.SceneManagement.Scene)">
+            <summary>
+            Called once when the server changes the scene.
+            </summary>
+            <remarks>
+            This fixes the main issue with ghost mode,
+            when it spams with a NRE error.
+            Before that, we were clearing the cache
+            on WaitForPlayers event, but
+            sometimes (ordinally on silent rount restart)
+            the server accepts players' tokens before
+            WaitForPlayers event is called.
+            </remarks>
+        </member>
         <member name="T:Exiled.Events.Patches.Events.Item.ChangingAttachments">
             <summary>
             Patches <see cref="M:Inventory.SyncListItemInfo.ModifyAttachments(System.Int32,System.Int32,System.Int32,System.Int32)"/>.
