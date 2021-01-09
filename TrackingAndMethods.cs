@@ -316,7 +316,7 @@ namespace Subclass
 
 			int tries = 0;
 			while (!(subClass.SpawnLocations[spawnIndex] == "Unknown" || subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173"
-				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Connector") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 				tries++;
