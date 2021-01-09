@@ -105,7 +105,7 @@ namespace Subclass.Handlers
 				return;
 			}
 
-			if (ev.Door is PryableDoor pryableDoor && ((ev.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.None || ev.Door.ActiveLocks != 0) && !ev.Door.IsConsideredOpen() && ev.Player.CurrentItemIndex == -1))
+			if (ev.Door is PryableDoor pryableDoor && (ev.Door.RequiredPermissions.RequiredPermissions != KeycardPermissions.None || ev.Door.ActiveLocks != 0) && !ev.Door.IsConsideredOpen() && ev.Player.CurrentItemIndex == -1)
 			{
 				if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
 				{
@@ -147,7 +147,7 @@ namespace Subclass.Handlers
 				}
 				else
 				{
-					Log.Debug($"Player with subclass {subClass.Name} has been allowed to access door with permission level {ev.Door.RequiredPermissions}", Subclass.Instance.Config.Debug);
+					Log.Debug($"Player with subclass {subClass.Name} has been allowed to access door with permission level {ev.Door.RequiredPermissions.RequiredPermissions}", Subclass.Instance.Config.Debug);
 					TrackingAndMethods.AddCooldown(ev.Player, AbilityType.BypassKeycardReaders);
 					TrackingAndMethods.UseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass);
 					ev.IsAllowed = true;
