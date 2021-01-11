@@ -296,19 +296,26 @@ namespace Subclass
 			List<Vector3> spawnLocations = new List<Vector3>();
 			if (subClass.SpawnLocations.Contains("Lcz173Armory"))
 			{
-				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_ARMORY");
+				DoorVariant door = DoorNametagExtension.NamedDoors["173_ARMORY"].TargetDoor;
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 
 			if (subClass.SpawnLocations.Contains("Lcz173Connector"))
 			{
-				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_CONNECTOR");
+
+				DoorVariant door = DoorNametagExtension.NamedDoors["173_CONNECTOR"].TargetDoor;
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 
 			if (subClass.SpawnLocations.Contains("Lcz173"))
 			{
-				DoorVariant door = GameObject.FindObjectsOfType<DoorVariant>().FirstOrDefault(dr => dr.name.ToUpper() == "173_GATE");
+				DoorVariant door = DoorNametagExtension.NamedDoors["173_GATE"].TargetDoor;
+				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
+			}
+
+			if (subClass.SpawnLocations.Contains("Lcz173Bottom"))
+			{
+				DoorVariant door = DoorNametagExtension.NamedDoors["173_BOTTOM"].TargetDoor;
 				spawnLocations.Add(door.transform.position + new Vector3(1f, 0, 1f));
 			}
 
@@ -316,7 +323,8 @@ namespace Subclass
 
 			int tries = 0;
 			while (!(subClass.SpawnLocations[spawnIndex] == "Unknown" || subClass.SpawnLocations[spawnIndex] == "Lcz173Armory" || subClass.SpawnLocations[spawnIndex] == "Lcz173"
-				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Connector") && !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
+				|| subClass.SpawnLocations[spawnIndex] == "Lcz173Connector" || subClass.SpawnLocations[spawnIndex] == "Lcz173Bottom") 
+				&& !Map.Rooms.Any(r => r.Type.ToString() == subClass.SpawnLocations[spawnIndex]))
 			{
 				spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 				tries++;
