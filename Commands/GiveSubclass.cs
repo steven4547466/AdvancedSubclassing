@@ -56,6 +56,15 @@ namespace Subclass.Commands
 					}
 					else
 					{
+						if (Subclass.Instance.Classes.ContainsKey(string.Join(" ", arguments.Array.Segment(arguments.Offset))))
+						{
+							SubClass sc = Subclass.Instance.Classes[string.Join(" ", arguments.Array.Segment(arguments.Offset))];
+							if (!sc.AffectsRoles.Contains(p.Role)) p.SetRole(sc.AffectsRoles[rnd.Next(sc.AffectsRoles.Count)], true);
+							TrackingAndMethods.RemoveAndAddRoles(p, true);
+							TrackingAndMethods.AddClass(p, sc);
+							response = "Success.";
+							return true;
+						}
 						response = "Player not found.";
 						return false;
 					}
