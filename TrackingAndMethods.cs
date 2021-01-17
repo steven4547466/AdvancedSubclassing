@@ -512,15 +512,15 @@ namespace Subclass
 			{
 				if (spawnLocations.Count != 0)
 				{
-						Timing.CallDelayed(0.3f, () =>
-						{
-							Vector3 offset = new Vector3(0, 1f, 0);
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
-							if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
-							Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
-							player.Position = pos;
-						});
+					Timing.CallDelayed(0.3f, () =>
+					{
+						Vector3 offset = new Vector3(0, 1f, 0);
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetX")) offset.x = subClass.FloatOptions["SpawnOffsetX"];
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetY")) offset.y = subClass.FloatOptions["SpawnOffsetY"];
+						if (subClass.FloatOptions.ContainsKey("SpawnOffsetZ")) offset.z = subClass.FloatOptions["SpawnOffsetZ"];
+						Vector3 pos = spawnLocations[rnd.Next(spawnLocations.Count)] + offset;
+						player.Position = pos;
+					});
 				}
 			}
 			else if (spawnIndex == -1)
@@ -1065,19 +1065,19 @@ namespace Subclass
 				{
 					if (args[2] == "RangeMax" || args[2] == "RangeMin")
 					{
-						if (!IsInRange(evaluated, args, subClass, seperator)) 
-						{ 
+						if (!IsInRange(evaluated, args, subClass, seperator))
+						{
 							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
-							return false; 
+							return false;
 						}
 						Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 					}
 					else if (args[2] == "Alive")
 					{
-						if (PlayersWithSubclasses.Count(t => t.Value.Name == args[1]) != param.Value) 
-						{ 
-							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-							return false; 
+						if (PlayersWithSubclasses.Count(t => t.Value.Name == args[1]) != param.Value)
+						{
+							Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+							return false;
 						}
 						Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 					}
@@ -1118,19 +1118,19 @@ namespace Subclass
 					{
 						if (args.Length == 3)
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator)) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (!IsInRange(evaluated, args, subClass, seperator))
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else
 						{
-							if (Player.List.Count(p => p.IsAlive) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => p.IsAlive) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
@@ -1139,19 +1139,19 @@ namespace Subclass
 					{
 						if (args.Length == 3)
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator)) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (!IsInRange(evaluated, args, subClass, seperator))
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else
 						{
-							if (Player.List.Count(p => !p.IsAlive) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => !p.IsAlive) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
@@ -1164,19 +1164,19 @@ namespace Subclass
 						RoleType role = (RoleType)Enum.Parse(typeof(RoleType), args[1]);
 						if (args[2] == "RangeMax" || args[2] == "RangeMin")
 						{
-							if (!IsInRange(evaluated, args, subClass, seperator, Team.RIP, role)) 
-							{ 
+							if (!IsInRange(evaluated, args, subClass, seperator, Team.RIP, role))
+							{
 								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
-								return false; 
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
 						else if (args[2] == "Alive")
 						{
-							if (Player.List.Count(p => p.Role == role) != param.Value) 
-							{ 
-								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug); 
-								return false; 
+							if (Player.List.Count(p => p.Role == role) != param.Value)
+							{
+								Log.Debug($"Did not pass spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
+								return false;
 							}
 							Log.Debug($"Passed spawn parameter: {param.Key}", Subclass.Instance.Config.Debug);
 						}
