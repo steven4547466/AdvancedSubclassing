@@ -289,8 +289,6 @@ namespace Subclass
 				else SubClassesSpawned.Add(subClass, 1);
 			}
 			if (!disguised) PlayersWithSubclasses.Add(player, subClass);
-			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
-			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 
 			int spawnIndex = rnd.Next(subClass.SpawnLocations.Count);
 			List<Vector3> spawnLocations = new List<Vector3>();
@@ -395,6 +393,7 @@ namespace Subclass
 						}
 					}
 				}
+
 				if (subClass.IntOptions["MaxHealth"] != -1) player.MaxHealth = subClass.IntOptions["MaxHealth"];
 				if ((!lite || escaped) && subClass.IntOptions["HealthOnSpawn"] != -1) player.Health = subClass.IntOptions["HealthOnSpawn"];
 				if (subClass.IntOptions["MaxArmor"] != -1) player.MaxAdrenalineHealth = subClass.IntOptions["MaxArmor"];
@@ -616,6 +615,9 @@ namespace Subclass
 				eb.EscapesAsNotCuffed = subClass.EscapesAs[0];
 				eb.EscapesAsCuffed = subClass.EscapesAs[1];
 			}
+
+			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
+			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
 		}
 
@@ -802,7 +804,7 @@ namespace Subclass
 
 		public static bool RoundJustStarted()
 		{
-			return Time.time - RoundStartedAt < 5f;
+			return Time.time - RoundStartedAt < 10f;
 		}
 
 		public static void AddPreviousTeam(Player p)

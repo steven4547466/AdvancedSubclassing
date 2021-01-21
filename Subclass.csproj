@@ -141,6 +141,7 @@
     <Compile Include="MonoBehaviours\InfiniteSprint.cs" />
     <Compile Include="Effects\Regeneration.cs" />
     <Compile Include="Patches\Grenades.cs" />
+    <Compile Include="Patches\HealthFixes.cs" />
     <Compile Include="Patches\PlayerEffectPatches.cs" />
     <Compile Include="Patches\PlayerInteract.cs" />
     <Compile Include="Patches\Scp096Patches.cs" />

@@ -6,10 +6,12 @@ using PlayableScps.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Targeting;
 using UnityEngine;
+using static HarmonyLib.AccessTools;
 
 namespace Subclass.Patches
 {
@@ -40,42 +42,82 @@ namespace Subclass.Patches
 	//}
 
 	[HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision))]
-	static class Scp096OnUpdatePatch
+	static class Scp096UpdateVisionPatch
 	{
-		public static bool Prefix(PlayableScps.Scp096 __instance)
+		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
-			if (__instance._flash.Enabled)
+			var newInstructions = instructions.ToList();
+			var local = generator.DeclareLocal(typeof(Player));
+			var ldloc3Label = generator.DefineLabel();
+			var ldlocasLabel = generator.DefineLabel();
+
+			var offset = newInstructions.FindIndex(c => c.opcode == OpCodes.Stloc_3) + 1;
+			var ldlocasIndex = newInstructions.FindLastIndex(c => c.opcode == OpCodes.Ldnull) + 6;
+			newInstructions[offset].labels.Add(ldloc3Label);
+			newInstructions[ldlocasIndex].labels.Add(ldlocasLabel);
+
+			newInstructions.InsertRange(offset, new CodeInstruction[]
 			{
-				return false;
-			}
-			Vector3 vector = __instance.Hub.transform.TransformPoint(PlayableScps.Scp096._headOffset);
-			foreach (KeyValuePair<GameObject, ReferenceHub> keyValuePair in ReferenceHub.GetAllHubs())
-			{
-				ReferenceHub value = keyValuePair.Value;
-				Player p = Player.Get(value);
-				if (p != null && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p) &&
-					TrackingAndMethods.PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger))
-					continue;
-				CharacterClassManager characterClassManager = value.characterClassManager;
-				if (characterClassManager.CurClass != RoleType.Spectator && !(value == __instance.Hub) && !characterClassManager.IsAnyScp()
-					&& Vector3.Dot((value.PlayerCameraReference.position - vector).normalized, __instance.Hub.PlayerCameraReference.forward) >= 0.1f)
-				{
-					VisionInformation visionInformation = VisionInformation.GetVisionInformation(value, vector, -0.1f, 60f, true, true, __instance.Hub.localCurrentRoomEffects);
-					if (visionInformation.IsLooking)
-					{
-						float delay = visionInformation.LookingAmount / 0.25f * (visionInformation.Distance * 0.1f);
-						if (!__instance.Calming)
-						{
-							__instance.AddTarget(value.gameObject);
-						}
-						if (__instance.CanEnrage && value.gameObject != null)
-						{
-							__instance.PreWindup(delay);
-						}
-					}
-				}
-			}
-			return false;
+				new CodeInstruction(OpCodes.Ldloc_3),
+				new CodeInstruction(OpCodes.Call, Method(typeof(Player), nameof(Player.Get), new[] {typeof(ReferenceHub)})),
+				new CodeInstruction(OpCodes.Stloc_S, local.LocalIndex),
+				new CodeInstruction(OpCodes.Ldloc_S, local.LocalIndex),
+				new CodeInstruction(OpCodes.Brfalse_S, ldloc3Label),
+				new CodeInstruction(OpCodes.Ldsfld, Field(typeof(TrackingAndMethods), nameof(TrackingAndMethods.PlayersWithSubclasses))),
+				new CodeInstruction(OpCodes.Ldloc_S, local.LocalIndex),
+				new CodeInstruction(OpCodes.Callvirt, Method(typeof(Dictionary<Player, SubClass>), nameof(Dictionary<Player, SubClass>.ContainsKey), new[] {typeof(Player)})),
+				new CodeInstruction(OpCodes.Brfalse_S, ldloc3Label),
+				new CodeInstruction(OpCodes.Ldsfld, Field(typeof(TrackingAndMethods), nameof(TrackingAndMethods.PlayersWithSubclasses))),
+				new CodeInstruction(OpCodes.Ldloc_S, local.LocalIndex),
+				new CodeInstruction(OpCodes.Callvirt, PropertyGetter(typeof(Dictionary<Player, SubClass>), "Item")),
+				new CodeInstruction(OpCodes.Ldfld, Field(typeof(SubClass), nameof(SubClass.Abilities))),
+				new CodeInstruction(OpCodes.Ldc_I4_8),
+				new CodeInstruction(OpCodes.Callvirt, Method(typeof(List<AbilityType>), nameof(List<AbilityType>.Contains), new[] { typeof(AbilityType) })),
+				new CodeInstruction(OpCodes.Brtrue, ldlocasLabel)
+			});
+
+			foreach (var code in newInstructions)
+				yield return code;
 		}
 	}
+
+	//[HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision))]
+	//static class Scp096OnUpdatePatch
+	//{
+	//	public static bool Prefix(PlayableScps.Scp096 __instance)
+	//	{
+	//		if (__instance._flash.Enabled)
+	//		{
+	//			return false;
+	//		}
+	//		Vector3 vector = __instance.Hub.transform.TransformPoint(PlayableScps.Scp096._headOffset);
+	//		foreach (KeyValuePair<GameObject, ReferenceHub> keyValuePair in ReferenceHub.GetAllHubs())
+	//		{
+	//			ReferenceHub value = keyValuePair.Value;
+	//			Player p = Player.Get(value);
+	//			if (p != null && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p) &&
+	//				TrackingAndMethods.PlayersWithSubclasses[p].Abilities.Contains(AbilityType.Disable096Trigger))
+	//				continue;
+	//			CharacterClassManager characterClassManager = value.characterClassManager;
+	//			if (characterClassManager.CurClass != RoleType.Spectator && !(value == __instance.Hub) && !characterClassManager.IsAnyScp()
+	//				&& Vector3.Dot((value.PlayerCameraReference.position - vector).normalized, __instance.Hub.PlayerCameraReference.forward) >= 0.1f)
+	//			{
+	//				VisionInformation visionInformation = VisionInformation.GetVisionInformation(value, vector, -0.1f, 60f, true, true, __instance.Hub.localCurrentRoomEffects);
+	//				if (visionInformation.IsLooking)
+	//				{
+	//					float delay = visionInformation.LookingAmount / 0.25f * (visionInformation.Distance * 0.1f);
+	//					if (!__instance.Calming)
+	//					{
+	//						__instance.AddTarget(value.gameObject);
+	//					}
+	//					if (__instance.CanEnrage && value.gameObject != null)
+	//					{
+	//						__instance.PreWindup(delay);
+	//					}
+	//				}
+	//			}
+	//		}
+	//		return false;
+	//	}
+	//}
 }
