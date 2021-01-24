@@ -159,11 +159,12 @@ namespace Subclass
 				e.AffectsUsers.ContainsKey(player.UserId) &&
 				(!e.IntOptions.ContainsKey("MaxSpawnPerRound") || ClassesSpawned(e) < e.IntOptions["MaxSpawnPerRound"]) &&
 				(!e.BoolOptions.ContainsKey("OnlyAffectsSpawnWave") || !e.BoolOptions["OnlyAffectsSpawnWave"]) &&
-				(!e.BoolOptions.ContainsKey("OnlyGivenOnEscape") || (e.BoolOptions["OnlyGivenOnEscape"] && escaped)) &&
+				(!e.BoolOptions.ContainsKey("OnlyGivenOnEscape") || (!e.BoolOptions["OnlyGivenOnEscape"] || (e.BoolOptions["OnlyGivenOnEscape"] && escaped))) &&
 				(!e.BoolOptions.ContainsKey("GivenOnEscape") || ((!e.BoolOptions["GivenOnEscape"] && !escaped) || e.BoolOptions["GivenOnEscape"])) &&
 				(!e.BoolOptions.ContainsKey("WaitForSpawnWaves") || (e.BoolOptions["WaitForSpawnWaves"] &&
 				GetNumWavesSpawned(e.StringOptions.ContainsKey("WaitSpawnWaveTeam") ?
 				(Team)Enum.Parse(typeof(Team), e.StringOptions["WaitSpawnWaveTeam"]) : Team.RIP) < e.IntOptions["NumSpawnWavesToWait"])) &&
+				(!e.BoolOptions.ContainsKey("OnlyGivenOnRoundStart") || ((e.BoolOptions["OnlyGivenOnRoundStart"] && RoundJustStarted()) || (!e.BoolOptions["OnlyGivenOnRoundStart"]))) &&
 				EvaluateSpawnParameters(e)))
 			{
 				double rng = (rnd.NextDouble() * 100);
