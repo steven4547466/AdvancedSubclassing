@@ -527,12 +527,7 @@ namespace Subclass
 
 			if (!is035)
 			{
-				if (player.GlobalBadge?.Type == 0) // Comply with verified server rules.
-				{
-					AddPreviousBadge(player, true);
-					if (subClass.StringOptions.ContainsKey("Badge")) player.ReferenceHub.serverRoles.HiddenBadge = subClass.StringOptions["Badge"];
-				}
-				else
+				if (player.GlobalBadge == null || player.GlobalBadge.Value.Type != 0)
 				{
 					AddPreviousBadge(player);
 					if (subClass.StringOptions.ContainsKey("Badge")) player.RankName = subClass.StringOptions["Badge"];
