@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Subclass.Events;
 
 namespace Subclass
 {
@@ -252,6 +253,14 @@ namespace Subclass
 		public static void AddClass(Player player, SubClass subClass, bool is035 = false, bool lite = false, bool escaped = false, bool disguised = false)
 		{
 			if (player == null) return;
+			var ev = new Events.EventArgs.ReceivingSubclassEventArgs(player, subClass);
+			Events.Handlers.Player.OnReceivingSubclass(ev);
+			if (!ev.IsAllowed)
+			{
+				Log.Debug($"Player with name {player.Nickname} unable to get {subClass.Name}. 3rd party plugin cancelled event.", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
+				return;
+			}
+			subClass = ev.Subclass;
 			if (is035)
 			{
 				SubClass copy = new SubClass(subClass);
@@ -381,7 +390,7 @@ namespace Subclass
 										}
 										catch (Exception e)
 										{
-											Log.Error($"Error getting custom weapon: {e}");
+											Log.Error($"Error getting custom weapon: Begin stack trace:\n{e.StackTrace}");
 										}
 										counter++;
 									}
@@ -620,6 +629,7 @@ namespace Subclass
 			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
+			Events.Handlers.Player.OnReceivedSubclass(new Events.EventArgs.ReceivedSubclassEventArgs(player, subClass));
 		}
 
 		public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false, bool disguised = false)
@@ -751,7 +761,7 @@ namespace Subclass
 			}
 			catch (KeyNotFoundException e)
 			{
-				Log.Error($"You are missing an ability cooldown that MUST have a cooldown. Make sure to add {ability} to your ability cooldowns. {e}");
+				Log.Error($"You are missing an ability cooldown that MUST have a cooldown. Make sure to add {ability} to your ability cooldowns. Begin stack trace:\n{e.StackTrace}");
 			}
 		}
 
@@ -1176,7 +1186,7 @@ namespace Subclass
 					}
 					catch (ArgumentException e)
 					{
-						Log.Error($"Spawn parameters for class {subClass.Name} has an incorrect team name. Key: {param.Key}. {e}");
+						Log.Error($"Spawn parameters for class {subClass.Name} has an incorrect team name. Key: {param.Key}. Begin stack trace:\n{e.StackTrace}");
 						return false;
 					}
 				}
@@ -1251,7 +1261,7 @@ namespace Subclass
 					}
 					catch (ArgumentException e)
 					{
-						Log.Error($"Spawn parameters for class {subClass.Name} has an incorrect role name. Key: {param.Key}. {e}");
+						Log.Error($"Spawn parameters for class {subClass.Name} has an incorrect role name. Key: {param.Key}. Begin stack trace:\n{e.StackTrace}");
 						return false;
 					}
 				}

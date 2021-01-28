@@ -300,7 +300,7 @@ namespace Subclass.Managers
 			}
 			catch (Exception exception)
 			{
-				Log.Error($"An error has occurred while loading subclasses! {exception}");
+				Log.Error($"An error has occurred while loading subclasses! {exception} Begin stack trace:\n{e.StackTrace}");
 
 				return null;
 			}
