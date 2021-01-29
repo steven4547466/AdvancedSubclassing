@@ -629,7 +629,10 @@ namespace Subclass
 			if (!PlayersThatJustGotAClass.ContainsKey(player)) PlayersThatJustGotAClass.Add(player, Time.time + 3f);
 			else PlayersThatJustGotAClass[player] = Time.time + 3f;
 			Log.Debug($"Player with name {player.Nickname} got subclass {subClass.Name}", Subclass.Instance.Config.Debug || Subclass.Instance.Config.ClassDebug);
-			Events.Handlers.Player.OnReceivedSubclass(new Events.EventArgs.ReceivedSubclassEventArgs(player, subClass));
+			Timing.CallDelayed(1f, () =>
+			{
+				Events.Handlers.Player.OnReceivedSubclass(new Events.EventArgs.ReceivedSubclassEventArgs(player, subClass));
+			});
 		}
 
 		public static void RemoveAndAddRoles(Player p, bool dontAddRoles = false, bool is035 = false, bool escaped = false, bool disguised = false)
