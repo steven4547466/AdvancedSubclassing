@@ -16,8 +16,8 @@ using Exiled.Loader;
 using System.Reflection;
 using Subclass.Effects;
 using Subclass.MonoBehaviours;
-using Interactables.Interobjects.DoorUtils;
 using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 
 namespace Subclass.Handlers
 {
@@ -30,7 +30,7 @@ namespace Subclass.Handlers
 		{
 			Timing.CallDelayed(Subclass.Instance.CommonUtilsEnabled ? 2f : 0.1f, () =>
 			{
-				ev.Player.Scale = new Vector3(1, 1, 1);
+				if (!Subclass.Instance.RealisticSizesEnabled) ev.Player.Scale = new Vector3(1, 1, 1);
 				try
 				{
 					TrackingAndMethods.RemoveZombie(ev.Player);
@@ -99,7 +99,9 @@ namespace Subclass.Handlers
 			if (TrackingAndMethods.PlayersVenting.Contains(ev.Player))
 			{
 				ev.IsAllowed = false;
-				ev.Player.Position += (ev.Player.GameObject.transform.forward * 3.5f);
+				Vector3 newPos = ev.Player.Position + (ev.Player.GameObject.transform.forward * 3.5f);
+				newPos.y = ev.Player.Position.y;
+				ev.Player.Position = newPos;
 				return;
 			}
 
@@ -130,7 +132,7 @@ namespace Subclass.Handlers
 				}
 			}
 			else if (!ev.IsAllowed && !(ev.Door is BreakableDoor breakableDoor && breakableDoor.IsDestroyed) && ev.Door.ActiveLocks == 0 && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player) &&
-					 TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
+					  TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.BypassKeycardReaders))
 			{
 				SubClass subClass = TrackingAndMethods.PlayersWithSubclasses[ev.Player];
 				if (!TrackingAndMethods.CanUseAbility(ev.Player, AbilityType.BypassKeycardReaders, subClass))
@@ -215,7 +217,10 @@ namespace Subclass.Handlers
 				ev.IsAllowed = false;
 				return;
 			}
+		}
 
+		public void OnDied(DiedEventArgs ev)
+		{
 			if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) && TrackingAndMethods.PlayersWithSubclasses[ev.Target].Abilities.Contains(AbilityType.ExplodeOnDeath))
 			{
 				GrenadeManager grenadeManager = ev.Target.ReferenceHub.gameObject.GetComponent<GrenadeManager>();
@@ -228,12 +233,13 @@ namespace Subclass.Handlers
 				NetworkServer.Spawn(grenade.gameObject);
 			}
 
+			SubClass subClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) ? TrackingAndMethods.PlayersWithSubclasses[ev.Target] : null;
 			TrackingAndMethods.AddPreviousTeam(ev.Target);
 			TrackingAndMethods.RemoveZombie(ev.Target);
 			TrackingAndMethods.RemoveAndAddRoles(ev.Target, true);
 
-			if (ev.Killer != ev.Target && ev.Killer.Role == RoleType.Scp0492 && TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Killer)
-				&& TrackingAndMethods.PlayersWithSubclasses[ev.Killer].Abilities.Contains(AbilityType.Infect))
+			if (ev.Killer != ev.Target && ev.Killer.Role == RoleType.Scp0492 && (subClass == null || !subClass.Abilities.Contains(AbilityType.CantBeInfected)) &&
+				TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Killer) && TrackingAndMethods.PlayersWithSubclasses[ev.Killer].Abilities.Contains(AbilityType.Infect))
 			{
 				SubClass killerSubclass = TrackingAndMethods.PlayersWithSubclasses[ev.Killer];
 				if (TrackingAndMethods.OnCooldown(ev.Killer, AbilityType.Infect, killerSubclass))
@@ -293,7 +299,7 @@ namespace Subclass.Handlers
 
 		public void OnEscaping(EscapingEventArgs ev)
 		{
-			ev.Player.Scale = new Vector3(1, 1, 1);
+			if (!Subclass.Instance.RealisticSizesEnabled) ev.Player.Scale = new Vector3(1, 1, 1);
 			bool cuffed = ev.Player.IsCuffed;
 			if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
 			{
@@ -317,16 +323,32 @@ namespace Subclass.Handlers
 
 		public void OnHurting(HurtingEventArgs ev)
 		{
+			if (ev.DamageType == DamageTypes.Scp207 && TrackingAndMethods.PlayersBloodLusting.Contains(ev.Target))
+			{
+				ev.IsAllowed = false;
+				return;
+			}
+			SubClass attackerClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Attacker) ? TrackingAndMethods.PlayersWithSubclasses[ev.Attacker] : null;
+			SubClass targetClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) ? TrackingAndMethods.PlayersWithSubclasses[ev.Target] : null;
+			if (targetClass != null && targetClass.Abilities.Contains(AbilityType.CantBeInfected) && Subclass.Instance.Scp008XEnabled && ev.Attacker.Role == RoleType.Scp0492)
+			{
+				Timing.CallDelayed(0.1f, () =>
+				{
+					MethodBase method = Loader.Plugins.First(pl => pl.Name == "Scp008X")?.Assembly?.GetType("SCP008X.API.SCP008XAPI")?.GetMethod("Is008Infected", BindingFlags.Static | BindingFlags.Public);
+					if (method != null && (bool)method.Invoke(null, new[] { ev.Target }))
+					{
+						UnityEngine.Object.Destroy(ev.Target.ReferenceHub.GetComponent("SCP008X.Components.SCP008"));
+						ev.Target.ShowHint("", 0.1f);
+						Log.Debug("Prevented infection on " + ev.Target.Nickname, Subclass.Instance.Config.Debug);
+					}
+				});
+			}
 			if (!TrackingAndMethods.AllowedToDamage(ev.Target, ev.Attacker))
 			{
 				Log.Debug("Not allowed to damage", Subclass.Instance.Config.Debug);
 				ev.IsAllowed = false;
 				return;
 			}
-
-			// This optimization probably saves a lot of cpu time, I'll do similar things for the other methods later...
-			SubClass attackerClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Attacker) ? TrackingAndMethods.PlayersWithSubclasses[ev.Attacker] : null;
-			SubClass targetClass = TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Target) ? TrackingAndMethods.PlayersWithSubclasses[ev.Target] : null;
 
 			if (ev.Attacker.Id != ev.Target.Id) ev.Attacker.ReferenceHub.playerEffectsController.DisableEffect<Scp268>();
 
@@ -485,7 +507,13 @@ namespace Subclass.Handlers
 			if (EPlayer.List.Any(p => p.Role == RoleType.Scp106))
 			{
 				EPlayer scp106 = EPlayer.List.First(p => p.Role == RoleType.Scp106);
-				if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(scp106) && TrackingAndMethods.PlayersWithSubclasses[scp106].Abilities.Contains(AbilityType.Zombie106))
+				if (!TrackingAndMethods.Zombie106Kills.ContainsKey(scp106))
+					TrackingAndMethods.Zombie106Kills.Add(scp106, 0);
+				if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(scp106)
+					&& TrackingAndMethods.PlayersWithSubclasses[scp106].Abilities.Contains(AbilityType.Zombie106)
+					&& (!TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions.ContainsKey("Zombie106NeededKills")
+					|| TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions["Zombie106NeededKills"] <= 0
+					|| (TrackingAndMethods.Zombie106Kills[scp106] % TrackingAndMethods.PlayersWithSubclasses[scp106].IntOptions["Zombie106NeededKills"]) == 0))
 				{
 					ev.IsAllowed = false;
 					ev.Player.SetRole(RoleType.Scp0492, true);
@@ -497,6 +525,7 @@ namespace Subclass.Handlers
 					List<Room> rooms = EMap.Rooms.Where(r => r.Zone == Exiled.API.Enums.ZoneType.HeavyContainment).ToList();
 					ev.Player.Position = rooms[rnd.Next(rooms.Count)].Position + new Vector3(0, 1, 0);
 				}
+				TrackingAndMethods.Zombie106Kills[scp106]++;
 			}
 		}
 

@@ -53,7 +53,7 @@ namespace Subclass.Commands
 							response = "Success.";
 							return true;
 						}
-					} 
+					}
 					else
 					{
 						if (Subclass.Instance.Classes.ContainsKey(string.Join(" ", arguments.Array.Segment(arguments.Offset))))

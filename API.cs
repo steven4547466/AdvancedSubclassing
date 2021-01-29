@@ -160,5 +160,10 @@ namespace Subclass
 			if (!PlayerHasSubclass(p)) return 0;
 			return TrackingAndMethods.TimeLeftOnCooldown(p, ability, TrackingAndMethods.PlayersWithSubclasses[p], Time.time);
 		}
+
+		public static void RegisterCustomWeaponGetter(MethodInfo findWeapon, MethodInfo weaponObtained)
+		{
+			TrackingAndMethods.CustomWeaponGetters.Add(new Tuple<MethodInfo, MethodInfo>(findWeapon, weaponObtained));
+		}
 	}
 }

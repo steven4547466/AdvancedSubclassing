@@ -12,9 +12,9 @@ using Exiled.API.Features;
 namespace Subclass.Patches
 {
     static class Util
-    {
+	{
         public static List<CodeInstruction> AddInstructions(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
-        {
+		{
             var newInstructions = instructions.ToList();
             var local = generator.DeclareLocal(typeof(Player));
             var label = generator.DefineLabel();
@@ -43,7 +43,7 @@ namespace Subclass.Patches
 
             return newInstructions;
         }
-    }
+	}
 
     [HarmonyPatch(typeof(PlayerStats), nameof(PlayerStats.Health), MethodType.Setter)]
     static class PlayerStatsHealthSetterPatch

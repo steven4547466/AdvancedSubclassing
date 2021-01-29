@@ -15,17 +15,19 @@ namespace Subclass.MonoBehaviours
 		public RoleType EscapesAsCuffed = RoleType.None;
 		public RoleType EscapesAsNotCuffed = RoleType.None;
 		public bool Enabled = true;
+		private Vector3 EscapePosition;
 
 		private void Awake()
 		{
 			player = Player.Get(gameObject);
+			EscapePosition = GetComponent<Escape>().worldPosition;
 		}
 
 		private void Update()
 		{
 			if (Enabled)
 			{
-				if (Vector3.Distance(base.transform.position, base.GetComponent<Escape>().worldPosition) < (Escape.radius))
+				if (Vector3.Distance(transform.position, EscapePosition) < (Escape.radius))
 				{
 					if (!player.IsCuffed && EscapesAsNotCuffed != RoleType.None) player.SetRole(EscapesAsNotCuffed, false, true);
 					else if (player.IsCuffed && EscapesAsCuffed != RoleType.None) player.SetRole(EscapesAsCuffed, false, true);

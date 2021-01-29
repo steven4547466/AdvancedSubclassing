@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Subclass</RootNamespace>
-    <AssemblyName>Subclass-1.2.16</AssemblyName>
+    <AssemblyName>Subclass-1.3.0-pre001</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -106,7 +106,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbilityCommands\Backup.cs" />
+    <Compile Include="AbilityCommands\Bloodlust.cs" />
+    <Compile Include="AbilityCommands\Corrupt.cs" />
+    <Compile Include="AbilityCommands\Disarm.cs" />
     <Compile Include="AbilityCommands\Disguise.cs" />
+    <Compile Include="AbilityCommands\Fake.cs" />
     <Compile Include="AbilityCommands\Flash.cs" />
     <Compile Include="AbilityCommands\Grenade.cs" />
     <Compile Include="AbilityCommands\Help.cs" />
@@ -114,7 +118,9 @@
     <Compile Include="AbilityCommands\Locate.cs" />
     <Compile Include="AbilityCommands\Necro.cs" />
     <Compile Include="AbilityCommands\Noclip.cs" />
+    <Compile Include="AbilityCommands\Punch.cs" />
     <Compile Include="AbilityCommands\Revive.cs" />
+    <Compile Include="AbilityCommands\Stun.cs" />
     <Compile Include="AbilityCommands\Summon.cs" />
     <Compile Include="AbilityCommands\Surge.cs" />
     <Compile Include="AbilityCommands\Utils.cs" />
@@ -127,6 +133,9 @@
     <Compile Include="Config.cs" />
     <Compile Include="Effects\DamageAura.cs" />
     <Compile Include="Effects\HealAura.cs" />
+    <Compile Include="Events\EventArgs\ReceivedSubclassEventArgs.cs" />
+    <Compile Include="Events\EventArgs\ReceivingSubclassEventArgs.cs" />
+    <Compile Include="Events\Handlers\Player.cs" />
     <Compile Include="Handlers\Map.cs" />
     <Compile Include="Handlers\Player.cs" />
     <Compile Include="Handlers\Server.cs" />
@@ -147,5 +156,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

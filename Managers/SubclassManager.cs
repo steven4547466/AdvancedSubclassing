@@ -18,18 +18,8 @@ using YamlDotNet.Serialization.TypeInspectors;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization.ObjectGraphVisitors;
 using Exiled.API.Enums;
-using Microsoft.SqlServer.Server;
 
-
-// -----------------------------------------------------------------------
-// <copyright file="ConfigManager.cs" company="Exiled Team">
-// Copyright (c) Exiled Team. All rights reserved.
-// Licensed under the CC BY-SA 3.0 license.
-// </copyright>
-// -----------------------------------------------------------------------
-
-
-// I took this from Exiled because I need the same thing, but I needed to change some things.
+// I took this from Exiled because I need the same thing...
 // Well... I basically changed everything but the serializer and deserializer stuff.
 
 namespace Subclass.Managers
@@ -214,12 +204,12 @@ namespace Subclass.Managers
 
 						Log.Debug($"Attempting to load spawn items for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
 						Dictionary<object, object> spawnItemsTemp = (Dictionary<object, object>)obj["spawn_items"];
-						Dictionary<int, Dictionary<ItemType, float>> spawnItems = new Dictionary<int, Dictionary<ItemType, float>>();
+						Dictionary<int, Dictionary<string, float>> spawnItems = new Dictionary<int, Dictionary<string, float>>();
 						foreach (var item in spawnItemsTemp)
 						{
-							spawnItems.Add(int.Parse((string)item.Key), new Dictionary<ItemType, float>());
+							spawnItems.Add(int.Parse((string)item.Key), new Dictionary<string, float>());
 							foreach (var item2 in (Dictionary<object, object>)spawnItemsTemp[item.Key])
-								spawnItems[int.Parse((string)item.Key)].Add((ItemType)Enum.Parse(typeof(ItemType), (string)item2.Key), float.Parse((string)item2.Value));
+								spawnItems[int.Parse((string)item.Key)].Add((string)item2.Key, float.Parse((string)item2.Value));
 						}
 
 						Log.Debug($"Attempting to load spawn ammo for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
@@ -296,11 +286,11 @@ namespace Subclass.Managers
 					}
 					catch (FormatException e)
 					{
-						Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}");
+						Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}\nBegin stack trace:\n{e.StackTrace}");
 					}
 					catch (Exception e)
 					{
-						Log.Error($"Class with path: {path} could not be loaded. {e}");
+						Log.Error($"Class with path: {path} could not be loaded. {e}\nBegin stack trace:\n{e.StackTrace}");
 					}
 				}
 
@@ -310,7 +300,7 @@ namespace Subclass.Managers
 			}
 			catch (Exception exception)
 			{
-				Log.Error($"An error has occurred while loading subclasses! {exception}");
+				Log.Error($"An error has occurred while loading subclasses! {exception}\nBegin stack trace:\n{exception.StackTrace}");
 
 				return null;
 			}
@@ -325,7 +315,7 @@ namespace Subclass.Managers
 			}
 			catch (Exception exception)
 			{
-				Log.Error($"An error has occurred while reading class from {Paths.Configs} path: {exception}");
+				Log.Error($"An error has occurred while reading class from {Paths.Configs} path: {exception}\nBegin stack trace:\n{exception.StackTrace}");
 			}
 
 			return string.Empty;
