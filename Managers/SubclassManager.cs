@@ -286,11 +286,11 @@ namespace Subclass.Managers
 					}
 					catch (FormatException e)
 					{
-						Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}");
+						Log.Error($"Class with path: {path} could not be loaded due to a format exception. {e}\nBegin stack trace:\n{e.StackTrace}");
 					}
 					catch (Exception e)
 					{
-						Log.Error($"Class with path: {path} could not be loaded. {e}");
+						Log.Error($"Class with path: {path} could not be loaded. {e}\nBegin stack trace:\n{e.StackTrace}");
 					}
 				}
 
@@ -300,7 +300,7 @@ namespace Subclass.Managers
 			}
 			catch (Exception exception)
 			{
-				Log.Error($"An error has occurred while loading subclasses! {exception} Begin stack trace:\n{e.StackTrace}");
+				Log.Error($"An error has occurred while loading subclasses! {exception}\nBegin stack trace:\n{exception.StackTrace}");
 
 				return null;
 			}
@@ -315,7 +315,7 @@ namespace Subclass.Managers
 			}
 			catch (Exception exception)
 			{
-				Log.Error($"An error has occurred while reading class from {Paths.Configs} path: {exception}");
+				Log.Error($"An error has occurred while reading class from {Paths.Configs} path: {exception}\nBegin stack trace:\n{exception.StackTrace}");
 			}
 
 			return string.Empty;

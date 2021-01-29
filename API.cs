@@ -161,9 +161,9 @@ namespace Subclass
 			return TrackingAndMethods.TimeLeftOnCooldown(p, ability, TrackingAndMethods.PlayersWithSubclasses[p], Time.time);
 		}
 
-		public static void RegisterCustomWeaponGetter(Tuple<MethodInfo, MethodInfo> methods)
+		public static void RegisterCustomWeaponGetter(MethodInfo findWeapon, MethodInfo weaponObtained)
 		{
-			TrackingAndMethods.CustomWeaponGetters.Add(methods);
+			TrackingAndMethods.CustomWeaponGetters.Add(new Tuple<MethodInfo, MethodInfo>(findWeapon, weaponObtained));
 		}
 	}
 }

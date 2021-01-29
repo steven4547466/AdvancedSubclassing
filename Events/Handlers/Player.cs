@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Exiled.Events.Events;
+using Subclass.Events.EventArgs;
+using Exiled.Events.Extensions;
 
 namespace Subclass.Events.Handlers
 {

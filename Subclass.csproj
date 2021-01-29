@@ -133,6 +133,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="Effects\DamageAura.cs" />
     <Compile Include="Effects\HealAura.cs" />
+    <Compile Include="Events\EventArgs\ReceivedSubclassEventArgs.cs" />
+    <Compile Include="Events\EventArgs\ReceivingSubclassEventArgs.cs" />
     <Compile Include="Events\Handlers\Player.cs" />
     <Compile Include="Handlers\Map.cs" />
     <Compile Include="Handlers\Player.cs" />
@@ -154,8 +156,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Events\EventArgs\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
