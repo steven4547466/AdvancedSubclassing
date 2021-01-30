@@ -120,6 +120,12 @@ namespace Subclass
 			return TrackingAndMethods.PlayersWithSubclasses.ContainsKey(p);
 		}
 
+		public static void PreventPlayerFromGettingClass(Player p, float duration)
+		{
+			if (!TrackingAndMethods.PlayersThatJustGotAClass.ContainsKey(p)) TrackingAndMethods.PlayersThatJustGotAClass.Add(p, Time.time + duration);
+			else TrackingAndMethods.PlayersThatJustGotAClass[p] = Time.time + duration;
+		}
+
 		public static bool PlayerHasZombies(Player p)
 		{
 			return TrackingAndMethods.PlayersWithZombies.ContainsKey(p);
