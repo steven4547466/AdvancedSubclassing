@@ -382,7 +382,7 @@ namespace Subclass
 										try
 										{
 											Inventory.SyncItemInfo gotItem = (Inventory.SyncItemInfo)(methods.Item1.Invoke(null, new[] { item2.Key }));
-											if (gotItem == null || gotItem.id != ItemType.None)
+											if (gotItem != null && gotItem.id != ItemType.None)
 											{
 												syncItem = gotItem;
 												break;
