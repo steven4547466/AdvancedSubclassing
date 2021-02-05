@@ -20,7 +20,7 @@ using Subclass.Events;
 
 namespace Subclass
 {
-	public class TrackingAndMethods
+	public static class TrackingAndMethods
 	{
 		public static List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
 
@@ -913,8 +913,8 @@ namespace Subclass
 		{
 			Log.Debug($"Checking allowed damage rules for Attacker: {a.Nickname} to target role: {t.Role}", Subclass.Instance.Config.Debug);
 			if (a.Id == t.Id) return true;
-			if (PlayersWithSubclasses.ContainsKey(a)) return !PlayersWithSubclasses[a].CantDamageRoles.Contains(t.Role);
-			if (PlayersWithSubclasses.ContainsKey(t)) return !PlayersWithSubclasses[t].RolesThatCantDamage.Contains(a.Role);
+			if (PlayersWithSubclasses.ContainsKey(a) && PlayersWithSubclasses[a].CantDamageRoles.Contains(t.Role)) return false;
+			if (PlayersWithSubclasses.ContainsKey(t) && PlayersWithSubclasses[t].RolesThatCantDamage.Contains(a.Role)) return false;
 			return true;
 		}
 
@@ -1323,10 +1323,12 @@ namespace Subclass
 		{
 			int coroutineIndex = Coroutines.Count;
 			RoleType savedRole = player.Role;
+			if (savedRole == RoleType.Scp0492 || savedRole == RoleType.Spectator) return;
 			Coroutines.Add(Timing.CallDelayed(subClass.AbilityCooldowns[AbilityType.Multiply], () =>
 			{
 				if (player.Role == RoleType.Spectator || !PlayersWithSubclasses.ContainsKey(player) || PlayersWithSubclasses[player].Name != subClass.Name
-					|| savedRole != player.Role)
+					|| savedRole != player.Role || (Map.IsLCZDecontaminated && savedRole.GetSpawnZone() == ZoneType.LightContainment) 
+					|| (Warhead.IsDetonated && savedRole.GetSpawnZone() != ZoneType.Surface) || savedRole.GetSpawnZone() == ZoneType.Unspecified)
 				{
 					Timing.KillCoroutines(Coroutines[coroutineIndex]);
 					Coroutines.RemoveAt(coroutineIndex);
@@ -1362,6 +1364,40 @@ namespace Subclass
 					TheyMultiply(player, subClass);
 				});
 			}));
+		}
+
+		// I know I can do this just from vector 3's, but meh
+		public static ZoneType GetSpawnZone(this RoleType role)
+		{
+			switch(role)
+			{
+				case RoleType.ClassD:
+				case RoleType.Scp173:
+				case RoleType.Scientist:
+					return ZoneType.LightContainment;
+
+				case RoleType.Scp049:
+				case RoleType.Scp079: // Count it as HCZ
+				case RoleType.Scp096:
+				case RoleType.Scp106:
+				case RoleType.Scp93953:
+				case RoleType.Scp93989:
+					return ZoneType.HeavyContainment;
+
+				case RoleType.ChaosInsurgency:
+				case RoleType.NtfCadet:
+				case RoleType.NtfCommander:
+				case RoleType.NtfLieutenant:
+				case RoleType.NtfScientist:
+				case RoleType.Tutorial:
+					return ZoneType.Surface;
+
+				case RoleType.FacilityGuard:
+					return ZoneType.Entrance;
+
+				default:
+					return ZoneType.Unspecified;
+			}
 		}
 
 		public static void KillAllCoroutines()
