@@ -83,8 +83,17 @@ namespace Subclass.AbilityCommands
 					Timing.CallDelayed(0.2f, () =>
 					{
 						owner.ReferenceHub.playerMovementSync.OverridePosition(player.Position + new Vector3(0.3f, 1f, 0), 0, true);
+						if (subClass.FloatOptions.ContainsKey("PercentHealthOnRevive") && !necro)
+						{
+							owner.Health *= (subClass.FloatOptions["PercentHealthOnRevive"] / 100f);
+						} 
+						else if (subClass.FloatOptions.ContainsKey("PercentHealthOnNecro") && necro)
+						{
+							owner.Health *= (subClass.FloatOptions["PercentHealthOnNecro"] / 100f);
+						}
 					});
-					UnityEngine.Object.DestroyImmediate(doll.gameObject, true);
+					
+					NetworkServer.Destroy(doll.gameObject);
 					TrackingAndMethods.AddCooldown(player, ability);
 					TrackingAndMethods.UseAbility(player, ability, subClass);
 					Log.Debug($"Player {player.Nickname} {(necro ? "necromancy" : "revive")} succeeded", Subclass.Instance.Config.Debug);

@@ -26,7 +26,7 @@ namespace Subclass
 		public override PluginPriority Priority { get; } = PluginPriority.Last;
 		public override string Name { get; } = "Subclass";
 		public override string Author { get; } = "Steven4547466";
-		public override Version Version { get; } = new Version(1, 3, 3);
+		public override Version Version { get; } = new Version(1, 4, 0);
 		public override Version RequiredExiledVersion { get; } = new Version(2, 1, 28);
 		public override string Prefix { get; } = "Subclass";
 
@@ -288,8 +288,13 @@ namespace Subclass
 		public Dictionary<string, List<string>> OnDamagedEffects = new Dictionary<string, List<string>>();
 
 		public List<RoleType> RolesThatCantDamage = new List<RoleType>();
-
 		public List<RoleType> CantDamageRoles = new List<RoleType>();
+
+		public List<Team> CantDamageTeams = new List<Team>();
+		public List<Team> TeamsThatCantDamage = new List<Team>();
+
+		public List<string> CantDamageSubclasses = new List<string>();
+		public List<string> SubclassesThatCantDamage = new List<string>();
 
 		public string EndsRoundWith = "RIP";
 
@@ -301,7 +306,9 @@ namespace Subclass
 			Dictionary<string, int> ints, Dictionary<string, float> floats, List<string> spawns, Dictionary<int, Dictionary<string, float>> items,
 			Dictionary<AmmoType, int> ammo, List<AbilityType> abilities, Dictionary<AbilityType, float> cooldowns,
 			List<string> ffRules = null, List<string> onHitEffects = null, List<string> spawnEffects = null, List<RoleType> cantDamage = null,
-			string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, List<RoleType> cantDamageRoles = null,
+			string endsRoundWith = "RIP", RoleType spawnsAs = RoleType.None, RoleType[] escapesAs = null, Dictionary<string, List<string>> onTakeDamage = null, 
+			List<RoleType> cantDamageRoles = null, List<Team> cantDamageTeams = null, List<Team> teamsThatCantDamage = null, List<string> cantDamageSubclasses = null,
+			List<string> subclassesThatCantDamage = null,
 			Dictionary<string, float> affectsUsers = null, Dictionary<string, float> permissions = null, Dictionary<AbilityType, float> initialAbilityCooldowns = null,
 			Dictionary<string, int> spawnParameters = null)
 		{
@@ -320,6 +327,10 @@ namespace Subclass
 			if (onHitEffects != null) OnHitEffects = onHitEffects;
 			if (spawnEffects != null) OnSpawnEffects = spawnEffects;
 			if (cantDamage != null) RolesThatCantDamage = cantDamage;
+			if (cantDamageTeams != null) CantDamageTeams = cantDamageTeams;
+			if (teamsThatCantDamage != null) TeamsThatCantDamage = teamsThatCantDamage;
+			if (cantDamageSubclasses != null) CantDamageSubclasses = cantDamageSubclasses;
+			if (subclassesThatCantDamage != null) SubclassesThatCantDamage = subclassesThatCantDamage;
 			if (endsRoundWith != "RIP") EndsRoundWith = endsRoundWith;
 			if (spawnsAs != RoleType.None) SpawnsAs = spawnsAs;
 			if (escapesAs != null) EscapesAs = escapesAs;
@@ -409,6 +420,7 @@ namespace Subclass
 		Disarm,
 		Fake,
 		Corrupt,
-		Multiply
+		Multiply,
+		CantEscape
 	}
 }

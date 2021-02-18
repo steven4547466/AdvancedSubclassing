@@ -218,6 +218,11 @@
             Gets the plugins list.
             </summary>
         </member>
+        <member name="P:Exiled.Loader.Loader.Locations">
+            <summary>
+            Gets a dictionary containing the file paths of assemblies.
+            </summary>
+        </member>
         <member name="P:Exiled.Loader.Loader.Random">
             <summary>
             Gets the initialized global random class.
@@ -287,6 +292,27 @@
             <summary>
             Loads all dependencies.
             </summary>
+        </member>
+        <member name="T:Exiled.Loader.PathExtensions">
+            <summary>
+            Contains the extensions to get a path.
+            </summary>
+        </member>
+        <member name="M:Exiled.Loader.PathExtensions.GetPath(System.Reflection.Assembly)">
+            <summary>
+            Gets a path of an assembly.
+            </summary>
+            <param name="assembly">The <see cref="T:System.Reflection.Assembly"/>.</param>
+            <exception cref="T:System.ArgumentNullException">The provided assembly is null.</exception>
+            <returns>The path of the assembly or null.</returns>
+        </member>
+        <member name="M:Exiled.Loader.PathExtensions.GetPath(Exiled.API.Interfaces.IPlugin{Exiled.API.Interfaces.IConfig})">
+            <summary>
+            Gets a path of a plugin.
+            </summary>
+            <param name="plugin">The <see cref="T:Exiled.API.Interfaces.IPlugin`1"/>.</param>
+            <exception cref="T:System.ArgumentNullException">The provided plugin is null.</exception>
+            <returns>The path of the plugin or null.</returns>
         </member>
     </members>
 </doc>

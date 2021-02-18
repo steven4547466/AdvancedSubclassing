@@ -4,17 +4,17 @@
         <name>Exiled.Bootstrap</name>
     </assembly>
     <members>
-        <member name="T:Exiled.Boostrap.Bootstrap">
+        <member name="T:Exiled.Bootstrap.Bootstrap">
             <summary>
             The assembly loader class for Exiled.
             </summary>
         </member>
-        <member name="P:Exiled.Boostrap.Bootstrap.IsLoaded">
+        <member name="P:Exiled.Bootstrap.Bootstrap.IsLoaded">
             <summary>
             Gets a value indicating whether exiled has already been loaded or not.
             </summary>
         </member>
-        <member name="M:Exiled.Boostrap.Bootstrap.Load">
+        <member name="M:Exiled.Bootstrap.Bootstrap.Load">
             <summary>
             Internally called loading method.
             </summary>

@@ -299,12 +299,12 @@ namespace Subclass.Handlers
 
 		public void OnEscaping(EscapingEventArgs ev)
 		{
-			if (!Subclass.Instance.RealisticSizesEnabled) ev.Player.Scale = new Vector3(1, 1, 1);
 			bool cuffed = ev.Player.IsCuffed;
 			if (TrackingAndMethods.PlayersWithSubclasses.ContainsKey(ev.Player))
 			{
-				if (!cuffed && TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[0] == ev.Player.Role
-					|| TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[1] == ev.Player.Role)
+				if (TrackingAndMethods.PlayersWithSubclasses[ev.Player].Abilities.Contains(AbilityType.CantEscape) 
+					|| (!cuffed && TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[0] == ev.Player.Role
+					|| TrackingAndMethods.PlayersWithSubclasses[ev.Player].EscapesAs[1] == ev.Player.Role))
 				{
 					ev.IsAllowed = false;
 					return;
@@ -319,6 +319,8 @@ namespace Subclass.Handlers
 				}
 				TrackingAndMethods.RemoveAndAddRoles(ev.Player, false, false, true);
 			});
+
+			if (ev.IsAllowed && !Subclass.Instance.RealisticSizesEnabled) ev.Player.Scale = new Vector3(1, 1, 1);
 		}
 
 		public void OnHurting(HurtingEventArgs ev)

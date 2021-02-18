@@ -417,6 +417,11 @@
             Unique identifier for the different types of doors.
             </summary>
         </member>
+        <member name="F:Exiled.API.Enums.DoorType.UnknownDoor">
+            <summary>
+            Represents an unknown door.
+            </summary>
+        </member>
         <member name="F:Exiled.API.Enums.DoorType.Scp012">
             <summary>
             Represents the 012 door.
@@ -467,9 +472,14 @@
             Represents the 106_SECONDARY door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.Scp173">
+        <member name="F:Exiled.API.Enums.DoorType.Scp173Gate">
             <summary>
-            Represents the 173 door.
+            Represents the 173 gate.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.Scp173Connector">
+            <summary>
+            Represents the door between the 173 gate and the 173 armory.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.Scp173Armory">
@@ -482,19 +492,14 @@
             Represents the 173_BOTTOM door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.Scp372">
+        <member name="F:Exiled.API.Enums.DoorType.GR18">
             <summary>
-            Represents the 372 door.
+            Represents the GR18 door.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.Scp914">
             <summary>
             Represents the 914 door.
-            </summary>
-        </member>
-        <member name="F:Exiled.API.Enums.DoorType.Airlocks">
-            <summary>
-            Represents the Airlocks door.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.CheckpointEntrance">
@@ -512,24 +517,24 @@
             Represents the CHECKPOINT_LCZ_B door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.ContDoor">
-            <summary>
-            Represents the ContDoor door.
-            </summary>
-        </member>
         <member name="F:Exiled.API.Enums.DoorType.EntranceDoor">
             <summary>
-            Represents the EntrDoor door.
+            RRepresents any entrance zone styled door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.Escape">
+        <member name="F:Exiled.API.Enums.DoorType.EscapePrimary">
             <summary>
-            Represents the ESCAPE door.
+            Represents the ESCAPE_PRIMARY door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.EscapeInner">
+        <member name="F:Exiled.API.Enums.DoorType.EscapeSecondary">
             <summary>
-            Represents the ESCAPE_INNER door.
+            Represents the ESCAPE_SECONDARY door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.ServersBottom">
+            <summary>
+            Represents the SERVERS_BOTTOM door.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.GateA">
@@ -549,7 +554,7 @@
         </member>
         <member name="F:Exiled.API.Enums.DoorType.HeavyContainmentDoor">
             <summary>
-            Represents the HeavyContainmentDoor door.
+            Represents any heavy containment styled door.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.HID">
@@ -589,7 +594,7 @@
         </member>
         <member name="F:Exiled.API.Enums.DoorType.LightContainmentDoor">
             <summary>
-            Represents the LightContainmentDoor door.
+            Represents any light containment styled door.
             </summary>
         </member>
         <member name="F:Exiled.API.Enums.DoorType.NukeArmory">
@@ -612,9 +617,34 @@
             Represents the SURFACE_GATE door.
             </summary>
         </member>
-        <member name="F:Exiled.API.Enums.DoorType.UnknownDoor">
+        <member name="F:Exiled.API.Enums.DoorType.Scp372">
             <summary>
-            Represents an unknown door.
+            Represents the 372 door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.Airlocks">
+            <summary>
+            Represents the Airlocks door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.ContDoor">
+            <summary>
+            Represents the ContDoor door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.Escape">
+            <summary>
+            Represents the ESCAPE door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.EscapeInner">
+            <summary>
+            Represents the ESCAPE_INNER door.
+            </summary>
+        </member>
+        <member name="F:Exiled.API.Enums.DoorType.Scp173">
+            <summary>
+            Represents the 173 door.
             </summary>
         </member>
         <member name="T:Exiled.API.Enums.EffectType">
@@ -1329,29 +1359,37 @@
             Contains extensions related to <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/>.
             </summary>
         </member>
-        <member name="M:Exiled.API.Extensions.DoorExtensions.BreakDoor(Interactables.Interobjects.DoorUtils.DoorVariant)">
-            <summary>
-            Breaks the specified door, if it is not already broken.
-            </summary>
-            <param name="door">The door to break.</param>
-            <returns>True if the door was broken, false if it was unable to be broken, or was already broken before.</returns>
-        </member>
-        <member name="T:Exiled.API.Extensions.DoorTypeExtension">
-            <summary>
-            Contains an extension method to get <see cref="T:Exiled.API.Enums.DoorType"/> from <see cref="T:Door"/>.
-            Internal class <see cref="M:Exiled.API.Extensions.DoorTypeExtension.RegisterDoorTypesOnLevelLoad"/> to cache the <see cref="T:Exiled.API.Enums.DoorType"/> on level load.
-            </summary>
-        </member>
-        <member name="M:Exiled.API.Extensions.DoorTypeExtension.Type(Interactables.Interobjects.DoorUtils.DoorVariant)">
+        <member name="M:Exiled.API.Extensions.DoorExtensions.Type(Interactables.Interobjects.DoorUtils.DoorVariant)">
             <summary>
             Gets the <see cref="T:Exiled.API.Enums.DoorType"/>.
             </summary>
             <param name="door">The Door to check.</param>
             <returns>The <see cref="T:Exiled.API.Enums.DoorType"/>.</returns>
         </member>
-        <member name="M:Exiled.API.Extensions.DoorTypeExtension.RegisterDoorTypesOnLevelLoad">
+        <member name="M:Exiled.API.Extensions.DoorExtensions.BreakDoor(Interactables.Interobjects.DoorUtils.DoorVariant)">
             <summary>
-            Gets all the <see cref="T:Exiled.API.Enums.DoorType"/> values for for the <see cref="T:Door"/> instances using <see cref="F:Door.DoorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
+            Breaks the specified door, if it is not already broken.
+            </summary>
+            <param name="door">The <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/> to break.</param>
+            <returns>True if the door was broken, false if it was unable to be broken, or was already broken before.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.DoorExtensions.IsBreakable(Interactables.Interobjects.DoorUtils.DoorVariant)">
+            <summary>
+            Indicates when the door can be broken.
+            </summary>
+            <param name="door">The <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/>.</param>
+            <returns>true if the door can be broken; otherwise, false.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.DoorExtensions.GetNametag(Interactables.Interobjects.DoorUtils.DoorVariant)">
+            <summary>
+            Gets a nametag of a door.
+            </summary>
+            <param name="door">The <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/>.</param>
+            <returns>A nametag of the door or null.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.DoorExtensions.RegisterDoorTypesOnLevelLoad">
+            <summary>
+            Gets all the <see cref="T:Exiled.API.Enums.DoorType"/> values for the <see cref="T:Door"/> instances using <see cref="F:Door.DoorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
             </summary>
         </member>
         <member name="T:Exiled.API.Extensions.EffectTypeExtension">
@@ -1543,7 +1581,7 @@
         </member>
         <member name="M:Exiled.API.Extensions.LiftTypeExtension.RegisterElevatorTypesOnLevelLoad">
             <summary>
-            Gets all the <see cref="T:Exiled.API.Enums.ElevatorType"/> values for for the <see cref="T:Lift"/> instances using <see cref="F:Lift.elevatorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
+            Gets all the <see cref="T:Exiled.API.Enums.ElevatorType"/> values for the <see cref="T:Lift"/> instances using <see cref="F:Lift.elevatorName"/> and <see cref="T:UnityEngine.GameObject"/> name.
             </summary>
         </member>
         <member name="T:Exiled.API.Extensions.RagdollExtensions">
@@ -1675,6 +1713,14 @@
             </summary>
             <param name="name">Name of the <see cref="T:UnityEngine.GameObject"/>.</param>
             <returns>Name without brackets.</returns>
+        </member>
+        <member name="M:Exiled.API.Extensions.String.GetBefore(System.String,System.Char)">
+            <summary>
+            Retrieves a string before a symbol from an input.
+            </summary>
+            <param name="input">The input.</param>
+            <param name="symbol">The symbol.</param>
+            <returns>Substring before the symbol.</returns>
         </member>
         <member name="M:Exiled.API.Extensions.String.SplitCamelCase(System.String)">
             <summary>
@@ -1885,7 +1931,7 @@
         </member>
         <member name="P:Exiled.API.Features.Map.Doors">
             <summary>
-            Gets all <see cref="T:Door"/> objects.
+            Gets all <see cref="T:Interactables.Interobjects.DoorUtils.DoorVariant"/> objects.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Map.Cameras">
@@ -2266,6 +2312,14 @@
         <member name="P:Exiled.API.Features.Player.AuthenticationType">
             <inheritdoc cref="T:Exiled.API.Enums.AuthenticationType"/>
         </member>
+        <member name="P:Exiled.API.Features.Player.IsVerified">
+            <summary>
+            Gets a value indicating whether or not the player is verified.
+            </summary>
+            <remarks>
+            This is always false if online_mode is set to false.
+            </remarks>
+        </member>
         <member name="P:Exiled.API.Features.Player.DisplayNickname">
             <summary>
             Gets or sets the player's display nickname.
@@ -2403,7 +2457,7 @@
         </member>
         <member name="P:Exiled.API.Features.Player.IPAddress">
             <summary>
-            Gets or sets the player's IP address.
+            Gets the player's IP address.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Player.NoClipEnabled">
@@ -2741,6 +2795,13 @@
             Drops an item from the player's inventory.
             </summary>
             <param name="item">The item to be dropped.</param>
+        </member>
+        <member name="M:Exiled.API.Features.Player.HasItem(ItemType)">
+            <summary>
+            Indicates whether or not the player has an item.
+            </summary>
+            <param name="targetItem">The item to search for.</param>
+            <returns>true, if the player has it; otherwise, false.</returns>
         </member>
         <member name="M:Exiled.API.Features.Player.RemoveItem(Inventory.SyncItemInfo)">
             <summary>
@@ -3231,6 +3292,33 @@
             Restarts the round.
             </summary>
         </member>
+        <member name="M:Exiled.API.Features.Round.Restart(System.Boolean,System.Boolean,ServerStatic.NextRoundAction)">
+            <summary>
+            Restarts the round with custom settings.
+            </summary>
+            <param name="fastRestart">
+            Indicates whether or not it'll be a fast restart.
+            If it's a fast restart, then players won't be reconnected from
+            the server; otherwise, they will.
+            </param>
+            <param name="overrideRestartAction">
+            Overrides a value of <see cref="T:ServerStatic.NextRoundAction"/>.
+            Makes sense if someone used a command to set another action.
+            </param>
+            <param name="restartAction">
+            The <see cref="T:ServerStatic.NextRoundAction"/>.
+            <para>
+            <see cref="F:ServerStatic.NextRoundAction.DoNothing"/> - does nothing, just restarts the round silently.
+            <see cref="F:ServerStatic.NextRoundAction.Restart"/> - restarts the server, reconnects all players.
+            <see cref="F:ServerStatic.NextRoundAction.Shutdown"/> - shutdowns the server, also disconnects all players.
+            </para>
+            </param>
+        </member>
+        <member name="M:Exiled.API.Features.Round.RestartSilently">
+            <summary>
+            Restarts the round silently.
+            </summary>
+        </member>
         <member name="M:Exiled.API.Features.Round.ForceEnd">
             <summary>
             Forces the round to end, regardless of which factions are alive.
@@ -3315,6 +3403,7 @@
         <member name="P:Exiled.API.Features.Server.Host">
             <summary>
             Gets the player's host of the server.
+            Might be null when called when the server isn't loaded.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Server.Broadcast">
@@ -3344,13 +3433,39 @@
         </member>
         <member name="P:Exiled.API.Features.Server.Port">
             <summary>
-            Gets or sets the port of the server.
+            Gets the port of the server.
             </summary>
         </member>
         <member name="P:Exiled.API.Features.Server.FriendlyFire">
             <summary>
             Gets or sets a value indicating whether friendly fire is enabled or not.
             </summary>
+        </member>
+        <member name="M:Exiled.API.Features.Server.Restart">
+            <summary>
+            Restarts the server, reconnects all players.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Features.Server.Shutdown">
+            <summary>
+            Shutdowns the server, disconnects all players.
+            </summary>
+        </member>
+        <member name="M:Exiled.API.Features.Server.RestartRedirect(System.UInt16)">
+            <summary>
+            Redirects players to a server on another port, restarts the current server.
+            </summary>
+            <param name="redirectPort">The port to redirect players to.</param>
+            <returns>true, if redirection was successful; otherwise, false.</returns>
+            <remarks>If the returned value is false, the server won't restart.</remarks>
+        </member>
+        <member name="M:Exiled.API.Features.Server.ShutdownRedirect(System.UInt16)">
+            <summary>
+            Redirects players to a server on another port, shutdowns the current server.
+            </summary>
+            <param name="redirectPort">The port to redirect players to.</param>
+            <returns>true, if redirection was successful; otherwise, false.</returns>
+            <remarks>If the returned value is false, the server won't shutdown.</remarks>
         </member>
         <member name="T:Exiled.API.Features.Warhead">
             <summary>

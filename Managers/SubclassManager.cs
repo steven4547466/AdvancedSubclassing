@@ -148,6 +148,40 @@ namespace Subclass.Managers
 							foreach (string role in cantDamageRolesTemp) cantDamageRoles.Add((RoleType)Enum.Parse(typeof(RoleType), role));
 						}
 
+						List<Team> cantDamageTeams = new List<Team>();
+
+						if (obj.ContainsKey("cant_damage_teams"))
+						{
+							Log.Debug($"Attempting to load cant damage teams for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+							List<string> cantDamageTeamsTemp = ((IEnumerable<object>)obj["cant_damage_teams"]).Cast<string>().ToList();
+							foreach (string team in cantDamageTeamsTemp) cantDamageTeams.Add((Team)Enum.Parse(typeof(Team), team));
+						}
+
+						List<Team> teamsThatCantDamge = new List<Team>();
+
+						if (obj.ContainsKey("teams_that_cant_damage"))
+						{
+							Log.Debug($"Attempting to load teams that cant damage for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+							List<string> teamsThatCantDamgeTemp = ((IEnumerable<object>)obj["teams_that_cant_damage"]).Cast<string>().ToList();
+							foreach (string team in teamsThatCantDamgeTemp) teamsThatCantDamge.Add((Team)Enum.Parse(typeof(Team), team));
+						}
+
+						List<string> cantDamageSubclasses = new List<string>();
+
+						if (obj.ContainsKey("cant_damage_subclasses"))
+						{
+							Log.Debug($"Attempting to load cant damage subclasses for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+							cantDamageSubclasses = ((IEnumerable<object>)obj["cant_damage_subclasses"]).Cast<string>().ToList();
+						}
+
+						List<string> subclassesThatCantDamage = new List<string>();
+
+						if (obj.ContainsKey("subclasses_that_cant_damage"))
+						{
+							Log.Debug($"Attempting to load subclasses that cant damage for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
+							subclassesThatCantDamage = ((IEnumerable<object>)obj["subclasses_that_cant_damage"]).Cast<string>().ToList();
+						}
+
 						Log.Debug($"Attempting to load affects roles for class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
 						List<string> affectsRolesTemp = ((IEnumerable<object>)obj["affects_roles"]).Cast<string>().ToList();
 						List<RoleType> affectsRoles = new List<RoleType>();
@@ -277,7 +311,7 @@ namespace Subclass.Managers
 
 						subClasses.Add((string)obj["name"], new SubClass((string)obj["name"], affectsRoles, stringOptions, boolOptions, intOptions, floatOptions,
 							spawns, spawnItems, ammo, abilities, abilityCooldowns, ffRules, onHitEffects, onSpawnEffects, cantDamage, endsRoundWith, spawnsAs, escapesAs, onTakeDamage,
-							cantDamageRoles, affectsUsers, permissions, initialAbilityCooldowns, spawnParameters));
+							cantDamageRoles, cantDamageTeams, teamsThatCantDamge, cantDamageSubclasses, subclassesThatCantDamage, affectsUsers, permissions, initialAbilityCooldowns, spawnParameters));
 						Log.Debug($"Successfully loaded class: {(string)obj["name"]}", Subclass.Instance.Config.Debug);
 					}
 					catch (YamlException yamlException)

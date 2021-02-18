@@ -430,10 +430,9 @@ namespace Subclass
 					player.IsFriendlyFireEnabled = subClass.BoolOptions["HasFriendlyFire"];
 				}
 			}
-			catch (KeyNotFoundException e)
+			catch (KeyNotFoundException)
 			{
 				Log.Error($"A required option was not provided. Class: {subClass.Name}");
-				throw new Exception($"A required option was not provided. Class: {subClass.Name}");
 			}
 
 			if (subClass.StringOptions.ContainsKey("Nickname")) player.DisplayNickname = subClass.StringOptions["Nickname"].Replace("{name}", player.Nickname);
@@ -617,7 +616,8 @@ namespace Subclass
 				}
 			}
 
-			if (player.Role != RoleType.ClassD && player.Role != RoleType.Scientist && (subClass.EscapesAs[0] != RoleType.None || subClass.EscapesAs[1] != RoleType.None))
+			if (!subClass.Abilities.Contains(AbilityType.CantEscape) 
+				&& player.Role != RoleType.ClassD && player.Role != RoleType.Scientist && (subClass.EscapesAs[0] != RoleType.None || subClass.EscapesAs[1] != RoleType.None))
 			{
 				player.GameObject.AddComponent<EscapeBehaviour>();
 
@@ -913,8 +913,15 @@ namespace Subclass
 		{
 			Log.Debug($"Checking allowed damage rules for Attacker: {a.Nickname} to target role: {t.Role}", Subclass.Instance.Config.Debug);
 			if (a.Id == t.Id) return true;
-			if (PlayersWithSubclasses.ContainsKey(a) && PlayersWithSubclasses[a].CantDamageRoles.Contains(t.Role)) return false;
-			if (PlayersWithSubclasses.ContainsKey(t) && PlayersWithSubclasses[t].RolesThatCantDamage.Contains(a.Role)) return false;
+			SubClass attackerClass = PlayersWithSubclasses[a];
+			SubClass targetClass = PlayersWithSubclasses[t];
+			if (attackerClass != null && (attackerClass.CantDamageRoles.Contains(t.Role) || attackerClass.CantDamageTeams.Contains(t.Team == Team.TUT ? Team.SCP : t.Team))) return false;
+			if (targetClass != null && (targetClass.RolesThatCantDamage.Contains(a.Role) || targetClass.TeamsThatCantDamage.Contains(a.Team == Team.TUT ? Team.SCP : a.Team))) return false;
+
+			if (attackerClass != null && targetClass != null
+				&& (attackerClass.CantDamageSubclasses.Contains(targetClass.Name) || targetClass.SubclassesThatCantDamage.Contains(attackerClass.Name)))
+				return false;
+
 			return true;
 		}
 
