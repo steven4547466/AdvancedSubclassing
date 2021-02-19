@@ -913,8 +913,8 @@ namespace Subclass
 		{
 			Log.Debug($"Checking allowed damage rules for Attacker: {a.Nickname} to target role: {t.Role}", Subclass.Instance.Config.Debug);
 			if (a.Id == t.Id) return true;
-			SubClass attackerClass = PlayersWithSubclasses[a];
-			SubClass targetClass = PlayersWithSubclasses[t];
+			SubClass attackerClass = PlayersWithSubclasses.ContainsKey(a) ? PlayersWithSubclasses[a] : null;
+			SubClass targetClass = PlayersWithSubclasses.ContainsKey(t) ? PlayersWithSubclasses[t] : null;
 			if (attackerClass != null && (attackerClass.CantDamageRoles.Contains(t.Role) || attackerClass.CantDamageTeams.Contains(t.Team == Team.TUT ? Team.SCP : t.Team))) return false;
 			if (targetClass != null && (targetClass.RolesThatCantDamage.Contains(a.Role) || targetClass.TeamsThatCantDamage.Contains(a.Team == Team.TUT ? Team.SCP : a.Team))) return false;
 
