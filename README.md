@@ -1,3 +1,5 @@
+# THIS PROJECT HAS BEEN ARCHIVED
+
 AdvancedSubclassing is a subclass manager for SCP: SL. It allows you to make and manage subclasses with no coding knowledge.
 
 I am always looking for ability suggestions, message me on discord, or make a new [issue](https://github.com/steven4547466/AdvancedSubclassing/issues/new)!
